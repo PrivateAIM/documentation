@@ -1,15 +1,15 @@
 import { defineConfig } from 'vitepress';
 
 export default defineConfig({
-    title: 'PersonalHealthTrain',
+    title: 'PrivateAim',
     base: '/',
     themeConfig: {
         socialLinks: [
-            { icon: 'github', link: 'https://github.com/PHT-Medic/documentation' },
-            { icon: 'discord', link: 'https://discord.gg/vEsUaEFBVE' },
+            { icon: 'github', link: 'https://github.com/PrivateAim' },
+            { icon: 'discord', link: 'https://discord.gg/yCTX7ePnhb' },
         ],
         editLink: {
-            pattern: 'https://github.com/PHT-Medic/documentation/edit/master/src/:path',
+            pattern: 'https://github.com/PrivateAim/documentation/edit/master/src/:path',
             text: 'Edit this page on GitHub'
         },
         logo: {
@@ -85,7 +85,7 @@ export default defineConfig({
                     ]
                 },
                 {
-                    text: 'Central',
+                    text: 'Hub',
                     items: [
                         {text: 'Realms', link: '/guide/admin/realms'},
                         {text: 'Identity Providers', link: '/guide/admin/identity-providers'},

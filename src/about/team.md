@@ -12,7 +12,7 @@ const members = [
   {
     avatar: 'https://www.github.com/tada5hi.png',
     name: 'Peter Placzek',
-    title: 'Central Lead',
+    title: 'Hub Lead',
     links: [
       { icon: 'github', link: 'https://github.com/tada5hi' },
       { icon: 'twitter', link: 'https://twitter.com/tada5hi' },
@@ -21,17 +21,16 @@ const members = [
   },
   {
     avatar: 'https://www.github.com/migraf.png',
-    name: 'Michael Graf',
-    title: 'Station Lead',
+    name: 'Maximilian Jugl',
+    title: 'Node Lead',
     links: [
-      { icon: 'github', link: 'https://github.com/migraf' },
-      { icon: 'linkedin', link: 'https://www.linkedin.com/in/michael-m-graf/' },
+      { icon: 'github', link: 'https://github.com/mjugl' },
     ]
   },
   {
     avatar: 'https://www.github.com/SirHerr.png',
     name: 'Marius de Arruda Botelho Herr',
-    title: 'Project Lead',
+    title: 'Coordinator',
     links: [
       { icon: 'github', link: 'https://github.com/SirHerr' },
       { icon: 'linkedin', link: 'https://de.linkedin.com/in/marius-de-arruda-botelho-herr-60b89b18b' },
@@ -42,13 +41,6 @@ const members = [
     name: 'David Hieber',
     links: [
       { icon: 'github', link: 'https://github.com/antidodo' }
-    ]
-  },
-  { 
-    avatar: 'https://www.github.com/Felix6464.png',
-    name: 'Felix Bötte',
-    links: [
-      { icon: 'github', link: 'https://github.com/Felix6464' }
     ]
   },
   { 

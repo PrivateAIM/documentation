@@ -22,9 +22,7 @@
     },
     "ignorePatterns": [
         "**/dist/*",
-        "**/*.d.ts",
-        "**/writable/**",
-        "**/packages/frontend/ui/components/svg/**"
+        "**/*.d.ts"
     ],
     "globals": {
         "NodeJS": true

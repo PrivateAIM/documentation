@@ -1,20 +1,16 @@
 # Documentation 📖
 
-[![Deploy](https://github.com/PHT-Medic/documentation/actions/workflows/main.yml/badge.svg)](https://github.com/PHT-Medic/documentation/actions/workflows/main.yml)
+[![Deploy](https://github.com/PrivateAim/documentation/actions/workflows/main.yml/badge.svg)](https://github.com/PrivateAim/documentation/actions/workflows/main.yml)
 
-This repository contains:
-- markdown files 
-- images 
-
-to be compiled into the PHT Documentation and User guide hosted
-on [GitHub Pages](https://pht-medic.github.io/documentation/)
+This repository contains the PrivateAIm Documentation, hosted
+on [GitHub Pages](https://docs.privateaim.net)
 
 ## Contributing
 
 1. Clone Repository
 
 ```shell
-git clone https://github.com/PHT-Medic/documentation
+git clone https://github.com/PrivateAim/documentation
 ```
 
 2. Install dependencies
