@@ -1,15 +1,14 @@
-import { SearchPlugin } from "vitepress-plugin-search";
-import { defineConfig } from "vite";
+import { SearchPlugin } from 'vitepress-plugin-search';
+import { defineConfig } from 'vite';
 
-//default options
+// default options
 const options = {
     previewLength: 64,
-    buttonLabel: "Search",
-    placeholder: "Search docs",
-
+    buttonLabel: 'Search',
+    placeholder: 'Search docs',
 
 };
 
 export default defineConfig({
-  plugins: [SearchPlugin(options)],
+    plugins: [SearchPlugin(options)],
 });
