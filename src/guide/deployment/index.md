@@ -1,22 +1,21 @@
 # Deployment guide
 
 ## Introduction
-The deployment guide is intended for people, who want to deploy parts of the PHT infrastructure.
-To be more specific, we will explain how to set up a local station, and how to set up a central
-App and API.
+The deployment guide is intended for people, who want to deploy parts of the PrivateAim infrastructure.
+To be more specific, we will explain how to set up a local node, and how to set up a hub instance.
 
-**Note:** The setup for the local station is necessary for the administrator role (see [here](/guide/deployment/station-registration)).
+**Note:** The setup for the local node is necessary for the administrator role (see [here](./station-registration)).
 
 ## Overview
-For setting up either a local station or the central App/API the following instructions are prepared:
+For setting up either a local node or the hub instance the following instructions are prepared:
 
 **``Station``**
-- [registration](/guide/deployment/station-registration)
-- [installation](/guide/deployment/station-installation)
-- optional [troubleshooting](/guide/deployment/station-troubleshooting)
+- [registration](./station-registration)
+- [installation](./station-installation)
+- optional [troubleshooting](./station-troubleshooting)
 
 **`Central`**
-- [introduction](/guide/deployment/central-introduction)
-- [Nginx](/guide/deployment/central-nginx)
-- [Harbor](/guide/deployment/central-harbor)
-- [App](/guide/deployment/central-app)
+- [introduction](./central-introduction)
+- [Nginx](./central-nginx)
+- [Harbor](./central-harbor)
+- [App](./central-app)
