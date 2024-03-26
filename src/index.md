@@ -1,9 +1,9 @@
 ---
 layout: home
 hero:
-  name: PHT-meDIC
-  text: PersonalHealthTrain
-  tagline: The production-ready DIFUTURE implementation of the Personal Health Train (PHT-meDIC) from Tübingen University as part of the PHT GO:FAIR implementation network
+  name: FLAME
+  text: Federated Learning and Analysis in Medicine
+  tagline: At PrivateAIM, our FLAME platform seamlessly integrates proven technologies to revolutionize medical data analysis, ensuring robustness, security, and compliance while driving progress in healthcare research and data privacy.
   actions:
     - theme: brand
       text: Getting Started
