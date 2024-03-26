@@ -10,5 +10,5 @@ hero:
       link: /getting-started/index
     - theme: alt
       text: View on GitHub
-      link: https://github.com/PHT-Medic
+      link: https://github.com/PrivateAim
 ---
