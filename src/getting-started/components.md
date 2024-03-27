@@ -9,8 +9,7 @@ These components can be roughly separated into the following categories:
 All **public** repositories can be found on [GitHub](https://github.com/PrivateAim).
 
 ## Hub
-Central components/services are individual packages within one monorepo. They include the implementation of the Central 
-UI, Analysis Managing, Result Extraction, API, etc., which supply the core functions of the FLAME hub.
+Hub components/services are individual packages/services within one monorepo.
 
 | Service             |                     Repository                      | Programing Language | Lead                                  |
 |:--------------------|:---------------------------------------------------:|:-------------------:|:--------------------------------------|
@@ -36,7 +35,7 @@ UI, Analysis Managing, Result Extraction, API, etc., which supply the core funct
 | **Vault**           | [hashicorp/vault](https://github.com/hashicorp/vault)                   |    Go/JavaScript    |
 
 * `Authup` - Identity and Access Management (IAM) to manage users, roles, robots, permissions, ...
-* `Harbor` - Harbor is a docker registry to distribute images. In the context of the PHT it is used for train distribution across multiple locations.
+* `Harbor` - Harbor is a docker registry to distribute images. In the context of the PrivateAim it is used for train distribution across multiple locations.
 * `RabbitMQ` - RabbitMQ is a message broker. It is used for the communication between microservices.
 * `Vault` - Vault is a secret storage service for managing and storing sensitive information.
 
