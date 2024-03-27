@@ -1,7 +1,7 @@
 # Train Review
-As a station administrator, you have a crucial role in trains: If your station was part of an approved proposal, the
-analyst who set it up can create trains with your station. Before a valid train is built, it requires approval.
-Here, you may review the analysis code and see whether your provided station data will be used according to the study
+As a node administrator, you have a crucial role in trains: If your node was part of an approved proposal, the
+analyst who set it up can create trains with your node. Before a valid train is built, it requires approval.
+Here, you may review the analysis code and see whether your provided node data will be used according to the study
 protocol. If it is, approve the train. If it is not, you may reject the train, effectively blocking its execution on
 your site. If you do so, we encourage you to inform the data analyst of the reason so they can revise it. After approval
 or rejection of each site, the train is built.

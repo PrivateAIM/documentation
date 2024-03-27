@@ -19,7 +19,7 @@ The train library requires the following minimal specifications:
 }
 ```
 
-This minimal query will load **all CORD demo data** from each station.
+This minimal query will load **all CORD demo data** from each node.
 
 ## FHIR queries with conditions
 

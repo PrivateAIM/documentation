@@ -1,31 +1,28 @@
 # Components
-Several Git repositories contain the components of the PHT. 
+Several Git repositories contain the components of the FLAME. 
 Third party components can be found on the respective manufacturer's site.
 These components can be roughly separated into the following categories:
 
-* central
-* local
+* hub
+* node
 
-All **public** repositories can be found on [GitHub](https://github.com/PHT-Medic).
+All **public** repositories can be found on [GitHub](https://github.com/PrivateAim).
 
-## Central
+## Hub
 Central components/services are individual packages within one monorepo. They include the implementation of the Central 
-UI, Train Building, Train Routing, Result Extraction, API, etc., which supply the core functions of the PHT.
+UI, Analysis Managing, Result Extraction, API, etc., which supply the core functions of the FLAME hub.
 
-| Service                  |                        Repository                         | Programing Language | Lead                                  |
-|:-------------------------|:---------------------------------------------------------:|:-------------------:|:--------------------------------------|
-| **User Interface**       | [PHT-Medic/central](https://github.com/PHT-Medic/central) |     TypeScript      | [tada5hi](https://github.com/tada5hi) |
-| **API**                  | [PHT-Medic/central](https://github.com/PHT-Medic/central) |     TypeScript      | [tada5hi](https://github.com/tada5hi) |
-| **Realtime**             | [PHT-Medic/central](https://github.com/PHT-Medic/central) |     TypeScript      | [tada5hi](https://github.com/tada5hi) |
-| **Train-Manager**        | [PHT-Medic/central](https://github.com/PHT-Medic/central) |     TypeScript      | [tada5hi](https://github.com/tada5hi) |
+| Service            |                     Repository                      | Programing Language | Lead                                  |
+|:-------------------|:---------------------------------------------------:|:-------------------:|:--------------------------------------|
+| **General** | [PrivateAim/hub](https://github.com/PrivateAim/hub) |     TypeScript      | [tada5hi](https://github.com/tada5hi) |
+| **Client**            | [PrivateAim/hub](https://github.com/PrivateAim/hub) |     TypeScript      | [tada5hi](https://github.com/tada5hi) |
+| **Server**       | [PrivateAim/hub](https://github.com/PrivateAim/hub) |     TypeScript      | [tada5hi](https://github.com/tada5hi) |
+
 
 * `User Interface` - Frontend application for proposal and train management, downloading of results and much more
 * `API` - Backend application to manage resources and trigger commands & events through the message broker
 * `Realtime` - Distribute resource events to authorized clients
-* `Train Manager` - Microservice serving different components:
-    * `Train Building` - Build and distribute train images to a registry
-    * `Train Routing` - Move trains between projects & registries accordingly to the route of the train
-    * `Result Extracting` - Download, extract & serve encrypted results from the registry
+* `Train Manager` - Microservice serving different aspects of analysis execution.
 
 
 | Third-Party Service | Repository                                                              | Programing Language |
@@ -38,27 +35,24 @@ UI, Train Building, Train Routing, Result Extraction, API, etc., which supply th
 * `RabbitMQ` - RabbitMQ is a message broker. It is used for the communication between microservices.
 * `Vault` - Vault is a secret storage service for managing and storing sensitive information.
 
-### Local
-Local/Station components/services are packages utilized in local setups by analysts and administrators. The Station 
-repository is used to set up local stations by administrators. The Desktop App implements a released version of
-the local PHT tool, necessary for the encryption of stations and signing/decryption of trains.
+### Node
+Local components/services are packages utilized in local setups by analysts and administrators. The node-deployment 
+repository is used to set up local nodes by administrators.
 
-| Service                     |                                          Repository                                           | Programing Language | Lead                                  |
-|:----------------------------|:---------------------------------------------------------------------------------------------:|:-------------------:|:--------------------------------------|
-| **Station**                 |                   [PHT-Medic/station](https://github.com/PHT-Medic/station)                   |       Python        | [migraf](https://github.com/migraf)   |
-| **Desktop App**             |              [PHT-Medic/desktop-app](https://github.com/PHT-Medic/desktop-app)                |     TypeScript      | [tada5hi](https://github.com/tada5hi) |
-| **Train Container Library** | [PHT-Medic/train-container-library](https://github.com/PHT-Medic/train-container-library.git) |       Python        | [migraf](https://github.com/migraf)   |
+| Service                     |                                 Repository                                  | Programing Language | Lead                                  |
+|:----------------------------|:---------------------------------------------------------------------------:|:-------------------:|:--------------------------------------|
+| **node**                 | [PrivateAim/node-deployment](https://github.com/PrivateAIM/node-deployment) |       Python        | [mjugl](https://github.com/mjugl)   |
 
-* `Station` - Local airflow instance for processing train images
-* `Desktop App` - GUI to manage key pairs and decrypt results locally
-* `Train Container Library` - Python library for validating and interacting with pht-train images/containers
+* `node` - Local airflow instance for processing analysis images
 
 | Third-Party Service | Repository                                          | Programing Language |
 |:--------------------|:----------------------------------------------------|:-------------------:|
 | **Airflow**         | [apache/airflow](https://github.com/apache/airflow) |  Python/TypeScript  |
 | **Authup**          | [tada5hi/authup](https://github.com/tada5hi/authup) |     TypeScript      |
+| **Vault**           | [hashicorp/vault](https://github.com/hashicorp/vault)                   |    Go/JavaScript    |
 
 * `Airflow` - An open source, community developed platform to programmatically author,
-  schedule and monitor workflows and the primary component of the station.
+  schedule and monitor workflows and the primary component of the node.
 * `Authup` - Identity and Access Management (IAM) to manage users and roles.
+* * `Vault` - Vault is a secret storage service for managing and storing sensitive information.
 

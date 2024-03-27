@@ -1,8 +1,8 @@
 # Homomorphic Encryption
 
 You can use homomorphic encryption if your analysis requires data to be visible only in a globally aggregated state and
-hide individual sites contribution to results. In a regular train, the stations can access and see the intermediate
-results from previous stations running the analysis.
+hide individual sites contribution to results. In a regular train, the nodes can access and see the intermediate
+results from previous nodes running the analysis.
 
 [//]: # (## Homomorphic Decryption)
 

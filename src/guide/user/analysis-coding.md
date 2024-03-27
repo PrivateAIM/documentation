@@ -6,8 +6,8 @@ This example can be used as `entrypoint.py`, which is namely reference in this d
 
 #### Calculate average age based on a fhir query
 The query to be used in this train is the JSON version of the minimal example found in the next section.
-What this train will do ist calculate the average age of patients matching the query across multiple stations.  
-The stations will pass the query results to the train as volumes and also set the environment variable `TRAIN_DATA_PATH`
+What this train will do ist calculate the average age of patients matching the query across multiple nodes.  
+The nodes will pass the query results to the train as volumes and also set the environment variable `TRAIN_DATA_PATH`
 inside the train container, which is used by the train to load the passed json file.
 
 ```python

@@ -1,5 +1,5 @@
 # Proposal
-A Proposal is an organizational unit in the context of the PHT, which represents the collaboration between different participants in 
+A Proposal is an organizational unit in the context of the FLAME platform, which represents the collaboration between different participants in 
 regard to a specific research or analysis project. It contains an initial risk assessment as well as a high level 
 description of the requested data.
 
@@ -24,21 +24,21 @@ train. You can define ...
 - ... the Image such as *base* (for cord | leuko-expert | python), *ml* (for python | r) and
 *conda* , *pytorch* , *tensorflow* (for python).
 - ... the risk level and specifies it by context in the risk comment: *Low* | *Mid* | *High*.
-- ... to which of the known stations you want to send this proposal (You can choose multiple stations by clicking on the
+- ... to which of the known nodes you want to send this proposal (You can choose multiple nodes by clicking on the
 green **+**-icon.).
 - ... some Data/Parameters information, which will be necessary for the training algorithm in the **Data/Parameter**- 
 text block.
 
-After clicking on the Create-button the proposal will be sent to all the selected stations, so each side can either 
+After clicking on the Create-button the proposal will be sent to all the selected nodes, so each side can either 
 approve or reject the analysis. How the approval process works from the perspective of a realm admin, see the 
 [admin guide](../admin/identity-providers.md).
 
 [![Proposal create](/images/ui_images/proposal_create.png)](/images/ui_images/proposal_create.png)
 
 
-A train is targeted at specific data from different stations. But data can be quite different depending on 
+A train is targeted at specific data from different nodes. But data can be quite different depending on 
 combinations of all data. Private medical data in general contains really sensitive information and needs to be handled
-accordingly. For this, you give a risk estimation, so that each station has an idea about the level of data sensitivity 
+accordingly. For this, you give a risk estimation, so that each node has an idea about the level of data sensitivity 
 accessed by the train. This estimation is categorized into three stages:
 
 - Low risk (*green*): The train won't use any personal related data, such as calculation about all Loinc-Codes of 
@@ -52,5 +52,5 @@ when the FHIR-Servers provide enough privacy-preserving measurements such as pse
 
 ##  Approval 
 
-Before an analysis can be performed based on your submitted proposal, it must be approved by the stations you selected. 
+Before an analysis can be performed based on your submitted proposal, it must be approved by the nodes you selected. 
 See the [Admin Guide](../admin/proposal-review.md) for details on how this process will be handled by the admin.

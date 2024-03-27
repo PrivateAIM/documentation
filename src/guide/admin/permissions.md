@@ -1,7 +1,7 @@
 # Permissions
 
 Permissions are pre-implemented actions which describe UI functions that the specified role may
-use, such as adding or editing proposals, stations, trains, etc.
+use, such as adding or editing proposals, nodes, trains, etc.
 
 1. Within the admin area (top left), you need to select **Permissions** within the left navigation.
    [![image](/images/ui_images/permissions.png)](/images/ui_images/permissions.png)

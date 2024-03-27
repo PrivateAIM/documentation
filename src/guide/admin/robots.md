@@ -1,7 +1,7 @@
 # Robots
 ::: info Notice
-In order to manage your identity-providers, stations, ... you need to get an organization. Please contact us,
-such we can provide you a realm in which you can manage all your stations, users and identity providers.
+In order to manage your identity-providers, nodes, ... you need to get an organization. Please contact us,
+such we can provide you a realm in which you can manage all your nodes, users and identity providers.
 For more details on realms click [here](/guide/admin/realms).
 :::
 Robots may be freely created and edited by the admin. They are pseudo-users, which are handled directly 

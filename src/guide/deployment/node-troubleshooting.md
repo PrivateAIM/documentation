@@ -1,6 +1,6 @@
 # Troubleshooting
 
-## Station Setup on windows
+## node Setup on windows
 
 If you are on a Windows Computer you need to change the line seperator to the **Unix/macOS**-style for the airflow
 directory. In Pycharm you can follow these steps:
@@ -12,7 +12,7 @@ directory. In Pycharm you can follow these steps:
 ### Custom dags
 
 If you want to use custom dags in airflow, you will have to change the  docker-compose.yml; instated of pulling the latest pre-build airflow image; you have to build airflow locally. 
-This is done by commenting out the  "build: './airflow' "  line and uncommenting the "  image: ghcr.io/pht-medic/station-airflow:latest"  line
+This is done by commenting out the  "build: './airflow' "  line and uncommenting the "  image: ghcr.io/pht-medic/node-airflow:latest"  line
 
 ```yaml
 # ------------- ommitted ------------

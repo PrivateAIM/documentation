@@ -1,12 +1,12 @@
-import { defineConfig } from 'vitepress';
+import {defineConfig} from 'vitepress';
 
 export default defineConfig({
     title: 'PrivateAim',
     base: '/',
     themeConfig: {
         socialLinks: [
-            { icon: 'github', link: 'https://github.com/PrivateAim' },
-            { icon: 'discord', link: 'https://discord.gg/yCTX7ePnhb' },
+            {icon: 'github', link: 'https://github.com/PrivateAim'},
+            {icon: 'discord', link: 'https://discord.gg/yCTX7ePnhb'},
         ],
         editLink: {
             pattern: 'https://github.com/PrivateAim/documentation/edit/master/src/:path',
@@ -27,16 +27,16 @@ export default defineConfig({
                 text: 'Guide',
                 activeMatch: '/guide/',
                 items: [
-                    { text: 'User', link: '/guide/user/'},
-                    { text: 'Admin', link: '/guide/admin/'},
-                    { text: 'Deployment', link: '/guide/deployment/'},
+                    {text: 'User', link: '/guide/user/'},
+                    {text: 'Admin', link: '/guide/admin/'},
+                    {text: 'Deployment', link: '/guide/deployment/'},
                 ]
             },
             {
                 text: 'About',
                 activeMatch: '/about/',
                 items: [
-                    { text: 'Team', link: '/about/team' },
+                    {text: 'Team', link: '/about/team'},
                 ]
             }
         ],
@@ -45,10 +45,10 @@ export default defineConfig({
                 {
                     text: 'Overview',
                     items: [
-                        { text: 'Introduction', link: '/getting-started/' },
-                        { text: 'Architecture', link: '/getting-started/architecture' },
-                        { text: 'Components', link: '/getting-started/components' },
-                        { text: 'Guides', link: '/getting-started/guides' },
+                        {text: 'Introduction', link: '/getting-started/'},
+                        {text: 'Architecture', link: '/getting-started/architecture'},
+                        {text: 'Components', link: '/getting-started/components'},
+                        {text: 'Guides', link: '/getting-started/guides'},
                     ]
                 }
             ],
@@ -56,7 +56,7 @@ export default defineConfig({
                 {
                     text: 'Getting Started',
                     items: [
-                        { text: 'Introduction', link: '/guide/user/'},
+                        {text: 'Introduction', link: '/guide/user/'},
                     ]
                 },
                 {
@@ -64,19 +64,19 @@ export default defineConfig({
                     items: [
                         {text: 'Key Management', link: '/guide/user/key-management'},
                         {text: 'Proposal', link: '/guide/user/proposal'},
-                        {text: 'Train', link: '/guide/user/train'},
+                        {text: 'Analysis', link: '/guide/user/analysis'},
                     ]
                 },
                 {
                     text: 'Concepts/Tutorials',
                     items: [
-                        { text: 'Train Coding', link: '/guide/user/train-coding'},
-                        { text: 'FHIR Query', link: '/guide/user/fhir-query' },
-                        { text: 'Homomorphic Encryption', link: '/guide/user/homomorphic-encryption' },
+                        {text: 'Analysis Coding', link: '/guide/user/analysis-coding'},
+                        {text: 'FHIR Query', link: '/guide/user/fhir-query'},
+                        {text: 'Homomorphic Encryption', link: '/guide/user/homomorphic-encryption'},
                     ]
                 }
             ],
-            '/guide/admin' : [
+            '/guide/admin': [
                 {
                     text: 'Getting Started',
                     items: [
@@ -93,19 +93,19 @@ export default defineConfig({
                         {text: 'Users', link: '/guide/admin/users'},
                         {text: 'Roles', link: '/guide/admin/roles'},
                         {text: 'Permissions', link: '/guide/admin/permissions'},
-                        {text: 'Stations', link: '/guide/admin/station-management'},
+                        {text: 'Nodes', link: '/guide/admin/node-management'},
                         {text: 'Proposal Review', link: '/guide/admin/proposal-review'},
-                        {text: 'Train Review', link: '/guide/admin/train-review'},
+                        {text: 'Analysis Review', link: '/guide/admin/analysis-review'},
                     ]
                 },
                 {
-                    text: 'Station',
+                    text: 'Node',
                     items: [
-                        {text: 'Train Execution', link: '/guide/admin/train-execution'}
+                        {text: 'Analysis Execution', link: '/guide/admin/analysis-execution'}
                     ]
                 },
             ],
-            '/guide/deployment' : [
+            '/guide/deployment': [
                 {
                     text: 'Getting Started',
                     items: [
@@ -113,15 +113,15 @@ export default defineConfig({
                     ]
                 },
                 {
-                    text: 'Station',
+                    text: 'Node',
                     items: [
-                        {text: 'Registration', link: '/guide/deployment/station-registration'},
-                        {text: 'Installation', link: '/guide/deployment/station-installation'},
-                        {text: 'Troubleshooting', link: '/guide/deployment/station-troubleshooting'},
+                        {text: 'Registration', link: '/guide/deployment/node-registration'},
+                        {text: 'Installation', link: '/guide/deployment/node-installation'},
+                        {text: 'Troubleshooting', link: '/guide/deployment/node-troubleshooting'},
                     ]
                 },
                 {
-                    text: 'Central',
+                    text: 'Hub',
                     items: [
                         {text: 'Introduction', link: '/guide/deployment/central-introduction'},
                         {text: 'Nginx', link: '/guide/deployment/central-nginx'},
@@ -131,5 +131,9 @@ export default defineConfig({
                 }
             ],
         }
+        // },
+        // footer: {
+        //     copyright: 'Copyright © 2023-present PrivateAim Consortia'
+        // }
     }
 });

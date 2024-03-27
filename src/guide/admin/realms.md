@@ -1,7 +1,7 @@
 # Realms
 Normal administrators can create realms freely after being assigned an initial realm. The developers of the PHT central
 interface provide these. Please contact us, such we can provide you with a realm in which you can manage all your
-identity providers, robots, users, roles, and stations.\
+identity providers, robots, users, roles, and nodes.\
 Realms are areas where those things are registered for one organization. You can access, view and manage all registered
 items by activating a realm.\
 Usually, you should only have access to the initial realm assigned to you and all other realms you created afterward.

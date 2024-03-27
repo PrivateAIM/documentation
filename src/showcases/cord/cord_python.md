@@ -2,7 +2,7 @@
 This code can be downloaded from this [repository](https://github.com/PHT-Medic/cord-pht-demo/tree/master/Python).
 
 ## Demo Train 1
-The following query filters at each station for female patients born in a year greater than 1960.
+The following query filters at each node for female patients born in a year greater than 1960.
 ```` json
 {
   "query": {
@@ -24,7 +24,7 @@ The following query filters at each station for female patients born in a year g
   }
 }
 ````
-The by the station loaded and provided `query_results.json` file will be processed and counts the occurrences of values.
+The by the node loaded and provided `query_results.json` file will be processed and counts the occurrences of values.
 
 ```` python
 import os

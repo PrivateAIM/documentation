@@ -10,10 +10,10 @@ the code still needs to be examined to prevent any undesirable behavior.
 ## Proposals
 Proposals are the top level organizational unit of the PHT system and reflect a study or project.
 Proposals describe the goal of an analysis, the requested data and an estimation of the potential risk of participation.
-When the description of the proposal meets the local requirements of your station, a user with the role of
-**Station Authority** can accept the proposal, otherwise the proposal is rejected (optionally with comments for improvement).
+When the description of the proposal meets the local requirements of your node, a user with the role of
+**node Authority** can accept the proposal, otherwise the proposal is rejected (optionally with comments for improvement).
 
-Joining a proposal means that users of other stations also joined the proposal can select your station as a
+Joining a proposal means that users of other nodes also joined the proposal can select your node as a
 participant in the trains they create for this proposal.
 
 ## Trains

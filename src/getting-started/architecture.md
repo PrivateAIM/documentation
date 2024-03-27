@@ -8,6 +8,7 @@ const image = {
 
 # Architecture
 
-This graphic is intended to provide an overview of the PHT architecture. On the next page more detailed information about the individual services is given.
+This graphic is intended to provide an overview of the FLAME architecture.
+On the next page more detailed information about the individual services is given.
 
 <VPImage :image="image"></VPImage>

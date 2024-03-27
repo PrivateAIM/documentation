@@ -13,12 +13,12 @@ significant advancements in medical research and ultimately improve patient care
 
 [//]: # (analysis of medical data, enhancing their FAIRness. Rather than transferring data to a central analysis site, the)
 
-[//]: # (analysis algorithm &#40;wrapped in a ‘train’&#41;, travels between multiple sites &#40;e.g., hospitals – so-called ‘train stations’&#41;)
+[//]: # (analysis algorithm &#40;wrapped in a ‘train’&#41;, travels between multiple sites &#40;e.g., hospitals – so-called ‘train nodes’&#41;)
 
 [//]: # (securely hosting the data.)
 
 [//]: # ()
-[//]: # (The following overview shows all interactions between service components to execute a train iteratively over three stations)
+[//]: # (The following overview shows all interactions between service components to execute a train iteratively over three nodes)
 
 [//]: # (with our PHT-TBI architecture.)
 
@@ -40,7 +40,7 @@ We provide users with an intuitive experience while driving progress in medical 
 
 ### Security Protocol
 
-[//]: # (The following flow chart depicts the security protocol used for protecting participating stations against malicious code,)
+[//]: # (The following flow chart depicts the security protocol used for protecting participating nodes against malicious code,)
 
 [//]: # (as well as encrypting any stored results using envelope encryption.   )
 

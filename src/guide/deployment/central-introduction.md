@@ -1,6 +1,6 @@
 # Introduction 
 ::: warning Info
-This section is only required if you want to use the PHT-meDIC software completely independently of the PHT infrastructure provided by  https://app.personalhealthtrain.de/
+This section is only required if you want to use the FLAME software completely independently of the PrivateAim infrastructure provided by  https://privateaim.net
 :::
 ## Requirements
 The following guide is based on some shared assumptions:

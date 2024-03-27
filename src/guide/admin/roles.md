@@ -1,7 +1,7 @@
 # Roles
 ::: info Notice
-In order to manage your identity-providers, stations, ... you need to get an organization. Please contact us,
-such we can provide you a realm in which you can manage all your stations, users and identity providers.
+In order to manage your identity-providers, nodes, ... you need to get an organization. Please contact us,
+such we can provide you a realm in which you can manage all your nodes, users and identity providers.
 For more details on realms click [here](/guide/admin/realms).
 :::
 Roles may be freely created and edited by the admin. By allocating permissions to those new roles, the
