@@ -54,5 +54,5 @@ repository is used to set up local nodes by administrators.
 * `Airflow` - An open source, community developed platform to programmatically author,
   schedule and monitor workflows and the primary component of the node.
 * `Authup` - Identity and Access Management (IAM) to manage users and roles.
-* * `Vault` - Vault is a secret storage service for managing and storing sensitive information.
+* `Vault` - Vault is a secret storage service for managing and storing sensitive information.
 

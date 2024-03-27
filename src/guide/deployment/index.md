@@ -8,14 +8,13 @@ To be more specific, we will explain how to set up a local node, and how to set 
 
 ## Overview
 For setting up either a local node or the hub instance the following instructions are prepared:
-
-**``node``**
-- [registration](./node-registration)
-- [installation](./node-installation)
-- optional [troubleshooting](./node-troubleshooting)
+**``Node``**
+- [Registration](./node-registration)
+- [Installation](./node-installation)
+- Optional [troubleshooting](./node-troubleshooting)
 
 **`Central`**
-- [introduction](./central-introduction)
+- [Introduction](./central-introduction)
 - [Nginx](./central-nginx)
 - [Harbor](./central-harbor)
 - [App](./central-app)
