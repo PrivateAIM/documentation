@@ -40,7 +40,7 @@ UI, Analysis Managing, Result Extraction, API, etc., which supply the core funct
 * `RabbitMQ` - RabbitMQ is a message broker. It is used for the communication between microservices.
 * `Vault` - Vault is a secret storage service for managing and storing sensitive information.
 
-### Node
+## Node
 Local components/services are packages utilized in local setups by analysts and administrators. The node-deployment 
 repository is used to set up local nodes by administrators.
 
