@@ -49,6 +49,7 @@ export default defineConfig({
                         {text: 'Architecture', link: '/getting-started/architecture'},
                         {text: 'Components', link: '/getting-started/components'},
                         {text: 'Guides', link: '/getting-started/guides'},
+                        {text: 'Glossar', link: '/getting-started/glossar'},
                     ]
                 }
             ],
