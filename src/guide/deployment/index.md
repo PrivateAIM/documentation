@@ -8,6 +8,7 @@ To be more specific, we will explain how to set up a local node, and how to set 
 
 ## Overview
 For setting up either a local node or the hub instance the following instructions are prepared:
+
 **``Node``**
 - [Registration](./node-registration)
 - [Installation](./node-installation)

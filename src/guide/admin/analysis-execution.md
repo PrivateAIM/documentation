@@ -1,6 +1,6 @@
-# Train Execution
+# Analysis Execution
 
-Trains and other node tasks are executed via airflow DAGs. The DAGs can be triggered via the airflow web interface,
+Analysis and other node tasks are executed via airflow DAGs. The DAGs can be triggered via the airflow web interface,
 which is available under port ```:8080``` on the node machine. The execution of the DAGs can also be monitored in the
 webinterface.
 
@@ -45,9 +45,9 @@ If there are any errors stacktraces can be found in these logs, as well as any o
 stderr)
 
 
-## Run Train
+## Run Analysis
 
-To execute a train that is available for your node, trigger the `run_train` DAG, with configuration options
+To execute an analysis that is available for your node, trigger the `run_node` DAG, with configuration options
 specifying the train image to be pulled from harbor and executed as well as additional environment variables or volumes.
 A template train configuration is displayed below.
 
@@ -76,11 +76,11 @@ The path to which the volume must be mounted is specified in the train.
 
 ```json
 {
-  "repository": "<HARBOR-REGISTRY>/<node_NAMESPACE>/<TRAIN-ID>",
+  "repository": "<HARBOR-REGISTRY>/<NODE_NAMESPACE>/<ANALYSIS-ID>",
   "tag": "latest",
   "volumes": {
     "<Absolute path on node vm>": {
-      "bind": "<Mount target in train container>",
+      "bind": "<Mount target in analysis container>",
       "mode": "ro"
     }
   }
