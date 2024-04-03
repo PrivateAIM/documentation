@@ -8,7 +8,7 @@ When changing the settings of your node in the central UI you need to restart yo
 
 ## Hub
 Click on Admin(1) -> General(2) -> nodes(3) -> +Add(4) to create a new node.
-[![image](/images/ui_images/add_station_central.png)](/images/ui_images/add_station_central.png)
+[![image](/images/ui_images/add_node_hub.png)](/images/ui_images/add_node_hub.png)
 
 ## Key pair generation
 

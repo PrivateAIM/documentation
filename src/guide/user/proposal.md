@@ -12,7 +12,7 @@ created that proposal.
 Moreover, you have the option to switch to the **incoming** section or to create a new proposal on the left side between
 the menu and the overview-list.
 
-[![image](/images/ui_images/proposal.png)](/images/ui_images/proposal.png)
+[![image](/images/ui_images/hub_proposal.png)](/images/ui_images/proposal.png)
 
 ## Creation
 
@@ -20,20 +20,19 @@ After pressing the **Create**-button, it will take us to a new form. Here you ca
 train. You can define ...
 
 - ... a title of the proposal.
-- ... the master image group where you can choose from cord, python, leuko-expert and R.
-- ... the Image such as *base* (for cord | leuko-expert | python), *ml* (for python | r) and
-*conda* , *pytorch* , *tensorflow* (for python).
-- ... the risk level and specifies it by context in the risk comment: *Low* | *Mid* | *High*.
+- ... the master image group where you can choose from python.
+- ... the Image such as *base* (for python), *ml* (for python) and
+*conda* , *pytorch* , *tensorflow* (for python). igh*.
 - ... to which of the known nodes you want to send this proposal (You can choose multiple nodes by clicking on the
 green **+**-icon.).
-- ... some Data/Parameters information, which will be necessary for the training algorithm in the **Data/Parameter**- 
+- ... some Data/Parameters information, which will be necessary for the training algorithm in the **Data/Parameter** - 
 text block.
 
 After clicking on the Create-button the proposal will be sent to all the selected nodes, so each side can either 
 approve or reject the analysis. How the approval process works from the perspective of a realm admin, see the 
 [admin guide](../admin/identity-providers.md).
 
-[![Proposal create](/images/ui_images/proposal_create.png)](/images/ui_images/proposal_create.png)
+[![Proposal create](/images/ui_images/hub_proposal_create.png)](/images/ui_images/hub_proposal_create.png)
 
 
 A train is targeted at specific data from different nodes. But data can be quite different depending on 

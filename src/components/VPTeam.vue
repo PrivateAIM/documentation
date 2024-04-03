@@ -37,7 +37,7 @@ const members = [
         avatar: 'https://www.github.com/DiCanio.png',
         name: 'Alexander Twrdik',
         title: 'Developer',
-        links: [
+        links: [c
             { icon: 'github', link: 'https://github.com/DiCanio' },
         ],
     },

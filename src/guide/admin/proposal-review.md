@@ -8,10 +8,10 @@ You have the option to adjust the already existing proposals via the **List**-ic
 
 Moreover, you have the option to switch to the **incoming** section or to create a new proposal on the left side between the menu and the overview-list.
 
-[![image](/images/ui_images/proposal.png)](/images/ui_images/proposal.png)
+[![image](/images/ui_images/hub_proposal.png)](/images/ui_images/hub_proposal.png)
 
 ## Accepting/Rejecting
 Within the incoming section of each node, a node authority can independently decide to comment, approve or reject
 a study proposal for analysis. In order to do such, click on the **list**-icon on the right side of the corresponding proposal and select the preferred action.
 
-[![Proposal Creation](/images/ui_images/proposal_approve.png)](/images/ui_images/proposal_approve.png)
+[![Proposal Creation](/images/ui_images/hub_proposal_approve.png)](/images/ui_images/hub_proposal_approve.png)

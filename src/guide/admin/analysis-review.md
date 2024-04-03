@@ -11,7 +11,7 @@ To review analysis, follow these steps:
    **Incoming** to its right.
 2. Here, you can view all approved, rejected, as well as analyses awaiting either (Optional: Use the search bar at the
    top).
-   [![image](/images/ui_images/train_incoming.png)](/images/ui_images/train_incoming.png)
+   [![image](/images/ui_images/hub_analysis_review.png)](/images/ui_images/hub_analysis_review.png)
 3. **Review** incoming train analysis scripts by clicking the black download button on the right of the request.
 4. **Approve** incoming trains by clicking the gray triple-bar button on the right of the anlaysis and then clicking the
    green approve button in the small popup.

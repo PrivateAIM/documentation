@@ -14,7 +14,7 @@ For setting up either a local node or the hub instance the following instruction
 - [Installation](./node-installation)
 - Optional [troubleshooting](./node-troubleshooting)
 
-**`Central`**
+**`Hub`**
 - [Introduction](./central-introduction)
 - [Nginx](./central-nginx)
 - [Harbor](./central-harbor)
