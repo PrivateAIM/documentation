@@ -19,7 +19,7 @@ This allows for slightly faster automatized pipeline executions for the PHT's fu
    top under its name to ensure it does not have any authorities beyond the ones necessary for its 
    functionalities. For this, roles describe a rough outline specifically targeted at the admin's
    own realm.\
-   [![image](/images/ui_images/hub_robots_details_roles.png)](/images/ui_images/hub_robots_details_roles.png)\
+   [![image](/images/ui_images/hub_robots_roles.png)](/images/ui_images/hub_robots_roles.png)\
    If the robot is shared though, it is useful to declare the underlying permissions in 
    order to ensure it is working in other realms as well (as the permissions of their roles may vary).\
    [![image](/images/ui_images/hub_robots_permissions.png)](/images/ui_images/hub_robots_permissions.png)\
