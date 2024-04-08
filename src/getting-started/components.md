@@ -43,14 +43,13 @@ Hub components/services are individual packages/services within one monorepo.
 Local components/services are packages utilized in local node setups by analysts and administrators. The node-deployment
 repository is used to set up local nodes by administrators.
 
-| Service               |                                                 Repository                                                  | Programing Language | Lead                                    |
-|:----------------------|:-----------------------------------------------------------------------------------------------------------:|:-------------------:|:----------------------------------------|
-| **UI**                |                         [PrivateAim/node-ui](https://github.com/PrivateAIM/node-ui)                         |        React        | [brucetony](https://github.com/brucetony)       |
-| **Hub API Adapter**   |            [PrivateAim/node-hub-api-adapter](https://github.com/PrivateAIM/node-hub-api-adapter)            |       Python        | [mjugl](https://github.com/mjugl)       |
-| **Message Broker**    |             [PrivateAim/node-message-broker](https://github.com/PrivateAIM/node-message-broker)             |       Python        | [dicanio](https://github.com/DiCanio)     |
-| **Data Service**      |               [PrivateAim/node-data-service](https://github.com/PrivateAIM/node-data-service)               |       Python        | [mjugl](https://github.com/mjugl)       |
-| **Result Service**    |             [PrivateAim/node-result-service](https://github.com/PrivateAIM/node-result-service)             |       Python        | [mjugl](https://github.com/mjugl)       |
-| **Pod Orchestration** |       [PrivateAim/node-node-pod-orchestration](https://github.com/PrivateAIM/node-pod-orchestration)        |       Python        | [antidodo](https://github.com/antidodo) |
+| Service               |                                                 Repository                                                  | Programing Language | Lead                                      |
+|:----------------------|:-----------------------------------------------------------------------------------------------------------:|:-------------------:|:------------------------------------------|
+| **UI**                |                         [PrivateAim/node-ui](https://github.com/PrivateAIM/node-ui)                         |        React        | [brucetony](https://github.com/brucetony) |
+| **Hub API Adapter**   |            [PrivateAim/node-hub-api-adapter](https://github.com/PrivateAIM/node-hub-api-adapter)            |       Python        | [mjugl](https://github.com/mjugl)         |
+| **Message Broker**    |             [PrivateAim/node-message-broker](https://github.com/PrivateAIM/node-message-broker)             |     TypeScript      | [dicanio](https://github.com/DiCanio)     |
+| **Result**            |             [PrivateAim/node-result-service](https://github.com/PrivateAIM/node-result-service)             |       Python        | [mjugl](https://github.com/mjugl)         |
+| **Pod Orchestration** |       [PrivateAim/node-node-pod-orchestration](https://github.com/PrivateAIM/node-pod-orchestration)        |       Python        | [antidodo](https://github.com/antidodo)   |
 
 * `UI` - User interface for sites data source management, analysis execution and monitoring
 * `Hub API Adapter` - Bundles all endpoints required for the Node UI
