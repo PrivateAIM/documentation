@@ -27,7 +27,7 @@
         "eslint": "^8.57.0",
         "flexsearch": "^0.7.43",
         "rimraf": "^5.0.5",
-        "typescript": "^5.4.3"
+        "typescript": "^5.4.4"
     },
     "dependencies": {
         "vite": "^5.2.6",
