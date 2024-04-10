@@ -31,7 +31,7 @@
     },
     "dependencies": {
         "vite": "^5.2.6",
-        "vitepress": "^1.0.2",
+        "vitepress": "^1.1.0",
         "vitepress-plugin-search": "^1.0.4-alpha.22"
     }
 }
