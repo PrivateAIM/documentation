@@ -8,7 +8,7 @@ const image = {
 
 # Architecture
 
-This graphic is intended to provide an overview of the FLAME architecture.
+This graphic is intended to provide a rough overview of the FLAME execution flow.
 On the next page more detailed information about the individual services is given.
 
 <VPImage :image="image"></VPImage>
