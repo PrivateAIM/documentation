@@ -52,4 +52,4 @@ when the FHIR-Servers provide enough privacy-preserving measurements such as pse
 ##  Approval 
 
 Before an analysis can be performed based on your submitted project, it must be approved by the nodes you selected. 
-See the [Admin Guide](../admin/proposal-review.md) for details on how this process will be handled by the admin.
+See the [Admin Guide](../admin/project-review) for details on how this process will be handled by the admin.

@@ -96,7 +96,7 @@ export default defineConfig({
                         {text: 'Roles', link: '/guide/admin/roles'},
                         {text: 'Permissions', link: '/guide/admin/permissions'},
                         {text: 'Nodes', link: '/guide/admin/node-management'},
-                        {text: 'Proposal Review', link: '/guide/admin/proposal-review'},
+                        {text: 'Project Review', link: '/guide/admin/project-review'},
                         {text: 'Analysis Review', link: '/guide/admin/analysis-review'},
                     ]
                 },
