@@ -16,7 +16,7 @@ Users can use the following resources and documentation of the FLAME.
 Additionally, we prepared concepts and tutorials involved in those tasks:
 
 **`Quickstart`**
-- [Project](/guide/user/proposal)
+- [Project](/guide/user/project)
 - [Analysis](/guide/user/analysis)
 
 **`Concepts/Tutorials`**

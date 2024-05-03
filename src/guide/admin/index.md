@@ -17,7 +17,7 @@ local node setup:
 - [Realm-](/guide/admin/realms), [identity provider-](/guide/admin/identity-providers), [robot-](/guide/admin/robots), [user-](/guide/admin/users) & [role-management](/guide/admin/roles)
 - [Viewing and assigning permissions](/guide/admin/permissions)
 - [Registering and managing the local node](/guide/admin/node-management)
-- [Reviewing proposals](/guide/admin/proposal-review)
+- [Reviewing proposals](/guide/admin/project-review)
 - [Reviewing analysis](/guide/admin/analysis-review)
 
 **`Node`**
