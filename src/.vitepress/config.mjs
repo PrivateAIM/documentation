@@ -58,13 +58,14 @@ export default defineConfig({
                     text: 'Getting Started',
                     items: [
                         {text: 'Introduction', link: '/guide/user/'},
+                        // Quickstart
                     ]
                 },
                 {
-                    text: 'Quickstart',
+                    text: 'Hub',
                     items: [
-                        {text: 'Key Management', link: '/guide/user/key-management'},
-                        {text: 'Proposal', link: '/guide/user/proposal'},
+                        // {text: 'Key Management', link: '/guide/user/key-management'},
+                        {text: 'Project', link: '/guide/user/project'},
                         {text: 'Analysis', link: '/guide/user/analysis'},
                     ]
                 },
@@ -72,8 +73,8 @@ export default defineConfig({
                     text: 'Concepts/Tutorials',
                     items: [
                         {text: 'Analysis Coding', link: '/guide/user/analysis-coding'},
-                        {text: 'FHIR Query', link: '/guide/user/fhir-query'},
-                        {text: 'Homomorphic Encryption', link: '/guide/user/homomorphic-encryption'},
+                        // {text: 'FHIR Query', link: '/guide/user/fhir-query'},
+                        // {text: 'Homomorphic Encryption', link: '/guide/user/homomorphic-encryption'},
                     ]
                 }
             ],

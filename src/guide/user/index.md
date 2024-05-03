@@ -15,10 +15,9 @@ to the analyst without nodes requiring to transfer input data outside their orga
 Users can use the following resources and documentation of the FLAME.
 Additionally, we prepared concepts and tutorials involved in those tasks:
 
-**``Quickstart``**
-- [Key management](/guide/user/key-management)
-- [Creating proposals](/guide/user/proposal)
-- [Creating Analysis](/guide/user/analysis)
+**`Quickstart`**
+- [Project](/guide/user/proposal)
+- [Analysis](/guide/user/analysis)
 
 **`Concepts/Tutorials`**
 - [Analysis coding](/guide/user/analysis-coding)

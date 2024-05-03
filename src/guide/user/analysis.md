@@ -1,7 +1,7 @@
 # Analysis
 ::: warning Important
 Before you can create a new analysis, at least one proposal must already exist created by you or someone
-else in your organization. Otherwise, one must be created first [here](./proposal).
+else in your organization. Otherwise, one must be created first [here](./project).
 :::
 
 [//]: # (A Train is an analytical unit that will be run on target data requested in a proposal. It is submitted by a)
