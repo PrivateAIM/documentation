@@ -119,23 +119,19 @@ export default defineConfig({
                     items: [
                         {text: 'Registration', link: '/guide/deployment/node-registration'},
                         {text: 'Installation', link: '/guide/deployment/node-installation'},
-                        {text: 'Troubleshooting', link: '/guide/deployment/node-troubleshooting'},
+                        // {text: 'Troubleshooting', link: '/guide/deployment/node-troubleshooting'},
                     ]
                 },
                 {
                     text: 'Hub',
                     items: [
-                        {text: 'Introduction', link: '/guide/deployment/central-introduction'},
-                        {text: 'Nginx', link: '/guide/deployment/central-nginx'},
-                        {text: 'Harbor', link: '/guide/deployment/central-harbor'},
-                        {text: 'App', link: '/guide/deployment/central-app'},
+                        {text: 'Introduction', link: '/guide/deployment/hub-introduction'}
                     ]
                 }
             ],
+        },
+        footer: {
+             copyright: 'Copyright © 2023-present PrivateAim Consortia'
         }
-        // },
-        // footer: {
-        //     copyright: 'Copyright © 2023-present PrivateAim Consortia'
-        // }
     }
 });
