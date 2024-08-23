@@ -13,10 +13,11 @@ the credentials obtained from your node administrator.
 To execute an analysis available on your node:
 
 
-	1.	Connect the Data Source: Go to “Data Stores” -> “Manage Links” -> “Link an Analysis to a Project,” and select the project and previously created data sources.
-	2.	Navigate to Analysis: Find the analysis you want to run.
-	3.	Run the Analysis: Click the green “Run” button to start the analysis on the signed-in node.
+1. Connect the Data Source: Go to “Data Stores” -> “Manage Links” -> “Link an Analysis to a Project,” and select the project and previously created data sources.
+2. Navigate to Analysis: Find the analysis you want to run.
+3. Run the Analysis: Click the green “Run” button to start the analysis on the signed-in node.
 
-[![Analysis data linking](/images/ui_images/node_data_linking.png](/images/ui_images/node_data_linking.png)
 
-[![Analysis analysis](/images/ui_images/node_analysis.png](/images/ui_images/node_analysis.png)
+[![Analysis data linking](/images/ui_images/node_data_linking.png)](/images/ui_images/node_data_linking.png)
+
+[![Node analysis](/images/ui_images/node_analysis.png)](/images/ui_images/node_analysis.png)
