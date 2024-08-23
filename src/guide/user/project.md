@@ -9,14 +9,14 @@ In the future, this entire section will be replaced by the FDPG+ API integration
 In the Home section, click on “Projects” in the left menu. You’ll see the outgoing proposals, where you can filter, edit, or delete projects.
 You can also switch to incoming proposals or create a new one.
 
-[![image](/images/ui_images/proposals.png)](/images/ui_images/prospng)
+[![image](/images/ui_images/hub_proposal.png)](/images/ui_images/hub_proposal)
 
 ## Creating a Project
 Click “**Create**” to define key aspects of the analysis, including the project title, master image group, image selection,
 targeted nodes, and necessary data parameters. After submission, selected nodes can approve or reject the analysis.
 
 
-[![Proposal create](/images/ui_images/proposal_create.png)](/images/ui_images/proposal_create.png)
+[![Proposal create](/images/ui_images/hub_proposal_create.png)](/images/ui_images/hub_proposal_create.png)
 
 ##  Approval
 Before analysis begins, selected nodes must approve the project. Our development infrastructure automatically approves requests.
