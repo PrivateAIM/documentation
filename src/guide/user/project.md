@@ -9,7 +9,7 @@ In the future, this entire section will be replaced by the FDPG+ API integration
 In the Home section, click on “Projects” in the left menu. You’ll see the outgoing proposals, where you can filter, edit, or delete projects.
 You can also switch to incoming proposals or create a new one.
 
-[![image](/images/ui_images/proposal.png)](/images/ui_images/proposal.png)
+[![image](/images/ui_images/proposals.png)](/images/ui_images/prospng)
 
 ## Creating a Project
 Click “**Create**” to define key aspects of the analysis, including the project title, master image group, image selection,
