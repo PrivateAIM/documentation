@@ -20,5 +20,5 @@ targeted nodes, and necessary data parameters. After submission, selected nodes 
 
 ##  Approval
 Before analysis begins, selected nodes must approve the project. Our development infrastructure automatically approves requests.
-Refer to the [Admin Guide](../admin/proposal-review.md) for more on the approval process.
+Refer to the [Admin Guide](../admin/reviewing.md) for more on the approval process.
 
