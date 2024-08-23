@@ -3,6 +3,7 @@ import { defineConfig } from 'vitepress';
 export default defineConfig({
     title: 'PrivateAim',
     base: '/',
+    head: [['link', { rel: 'icon', href: '/images/icon/favicon.ico' }]],
     themeConfig: {
         socialLinks: [
             {icon: 'github', link: 'https://github.com/PrivateAim'},

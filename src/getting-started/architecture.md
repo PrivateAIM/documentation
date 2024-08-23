@@ -1,8 +1,8 @@
 <script setup>
 import VPImage from '../components/VPImage.vue';
 const image = {
-    light: '/images/components/FLAME_bright_mode.png',
-    dark: '/images/components/FLAME_dark_mode.png'
+    light: '/images/components/FLAME_analysis_bright.png',
+    dark: '/images/components/FLAME_analysis_dark.png'
 }
 </script>
 
