@@ -2,12 +2,11 @@
 
 ## Introduction
 This guide is designed for analysts and users seeking to leverage FLAME for secure medical data analysis.
-To begin, contact us for access to the FLAME hub testing interface (TODO GitHub).
+To begin, contact us for access to the FLAME hub testing interface via Discord.
 
 FLAME enables users to safely access and analyze medical data without transferring sensitive information outside their organization.
 Analysts can create a “Proposal” within our MVP to request access to a testing dataset.
-Upon approval, analysis scripts are executed on local nodes (TODO Link to guide). Results are returned to the analyst,
-maintaining the integrity of the original data.
+Upon approval, analysis scripts are executed on local nodes. Results are returned to the analyst, maintaining the integrity of the original data.
 
 ## Overview
 This guide covers essential resources, including:
