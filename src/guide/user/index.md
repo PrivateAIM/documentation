@@ -1,19 +1,16 @@
 # User guide
 
 ## Introduction
-We address this guide to analysts and other users. By contacting the administrator of your realm or organization,
-you will receive access to the FLAME hub interface.
+This guide is designed for analysts and users seeking to leverage FLAME for secure medical data analysis.
+To begin, contact us for access to the FLAME hub testing interface (TODO GitHub).
 
-Users utilize the FLAME as a means to safely access medical data. Suppose they intend to analyze using a specific dataset
-or study offered in the FLAME hub. In that case, they may first create a so-called Proposal in which they announce their interest to
-the administrator(s) responsible for the data. Each side will review this ``Proposal``, and if approved, it can be used,
-among others, to configure a federated analysis. The nodes, which is how the local setups reading the data are updating results using APIs.
-Upon arriving at a node, the administrator may review the analysis script contained in the code and then execute it on their data. The models or results of the analysis will be returned
-to the analyst without nodes requiring to transfer input data outside their organization.
+FLAME enables users to safely access and analyze medical data without transferring sensitive information outside their organization.
+Analysts can create a “Proposal” within our MVP to request access to a testing dataset.
+Upon approval, analysis scripts are executed on local nodes (TODO Link to guide). Results are returned to the analyst,
+maintaining the integrity of the original data.
 
 ## Overview
-Users can use the following resources and documentation of the FLAME.
-Additionally, we prepared concepts and tutorials involved in those tasks:
+This guide covers essential resources, including:
 
 **`Quickstart`**
 - [Project](/guide/user/project)
@@ -22,4 +19,3 @@ Additionally, we prepared concepts and tutorials involved in those tasks:
 **`Concepts/Tutorials`**
 - [Analysis coding](/guide/user/analysis-coding)
 - [FHIR queries](/guide/user/fhir-query)
-- [Homomorphic encryption](/guide/user/homomorphic-encryption)
