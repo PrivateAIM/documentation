@@ -80,11 +80,11 @@ if __name__ == "__main__":
 ```
 
 ### Explanation
-	•	MyAnalyzer: Processes data from the nodes, counting the relevant patient records.
-	•	MyAggregator: Combines results from all nodes and sums the patient counts.
-	•	Main Function: Determines whether the script runs as an analyzer or aggregator and executes accordingly.
+- MyAnalyzer: Processes data from the nodes, counting the relevant patient records.
+- MyAggregator: Combines results from all nodes and sums the patient counts.
+- Main Function: Determines whether the script runs as an analyzer or aggregator and executes accordingly.
 
-This script serves as a basic template for performing federated analysis using FHIR data.
+This script serves as a basic "Hello World" example for performing federated analysis using FHIR data.
 
 
 

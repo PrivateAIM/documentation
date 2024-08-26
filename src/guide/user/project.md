@@ -1,9 +1,9 @@
 # Project
 A project on the FLAME platform serves as a collaborative unit for specific research or analysis tasks.
 It includes an initial risk assessment and a high-level description of the requested data and nodes.
-
-[!NOTE] 
+::: warning Important
 In the future, this entire section will be replaced by the FDPG+ API integration during the platform’s transition to productive usage.
+:::
 
 ## Navigating Projects
 In the Home section, click on “Projects” in the left menu. You’ll see the outgoing proposals, where you can filter, edit, or delete projects.

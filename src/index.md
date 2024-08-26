@@ -17,6 +17,6 @@ hero:
   --vp-home-hero-name-color: #ea5930;
   --vp-c-brand-1: #ea5930;
   --vp-c-brand-3: #ea5930;
-  --vp-c-brand-2: #f49619;;
+  --vp-c-brand-2: #f49619;
 }
 </style>

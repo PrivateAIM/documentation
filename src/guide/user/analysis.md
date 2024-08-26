@@ -3,6 +3,10 @@
 Prerequisites
 Before creating a new analysis, ensure that at least one proposal has been created within your organization.
 If not, create a proposal first [here](./project).
+
+This guide serves as an MVP (Minimum Viable Product) and “Hello World” example for developers testing the FLAME platform.
+It is intended for basic functionality testing and initial exploration. A more comprehensive and detailed guide will be
+available soon, covering all aspects of the platform in depth.
 :::
 
 ## Creating an Analysis
@@ -10,13 +14,13 @@ If not, create a proposal first [here](./project).
 2. **Initiate Creation**: Click the **Create** button to access the Analysis Wizard for defining all aspects of your analysis.
 3. **Submit analysis**: Analysis Wizard
 ### Key Steps:
-	•	Name: Optionally provide a title for your analysis.
-	•	Description: Optionally provide a description of for your analysis.
-	•	Projects: Select the proposal that the analysis is linked to (only one can be chosen).
-	•	Image Selection: Define the master image group and select the appropriate image (e.g., Python base, ML, etc.).
-	•	Node Selection: Choose the nodes where the analysis will be executed.
-	•	Upload: Upload the analysis code files. You can upload a single file or an entire directory.
-	•	Files: Ensure you select the appropriate entry point file.
+- Name: Optionally provide a title for your analysis.
+- Description: Optionally provide a description of for your analysis.
+- Projects: Select the proposal that the analysis is linked to (only one can be chosen).
+- Image Selection: Define the master image group and select the appropriate image (e.g., Python base, ML, etc.).
+- Node Selection: Choose the nodes where the analysis will be executed.
+- Upload: Upload the analysis code files. You can upload a single file or an entire directory.
+- Files: Ensure you select the appropriate entry point file.
 
 3. **Lock Analysis**: Lock the analysis pipeline to proceed to the next step.
 4. **Build Analysis**: The analysis pipeline is then built and distributed across the selected nodes.
