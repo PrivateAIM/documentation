@@ -1,5 +1,9 @@
 # User guide
-
+::: warning Important
+This guide serves as an MVP (Minimum Viable Product) and “Hello World” example for developers testing the FLAME platform.
+It is intended for basic functionality testing and initial exploration. A more comprehensive and detailed guide will be
+available soon, covering all aspects of the platform in depth.
+:::
 ## Introduction
 This guide is designed for analysts and users seeking to leverage FLAME for secure medical data analysis.
 To begin, contact us for access to the FLAME hub testing interface via Discord.

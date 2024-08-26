@@ -3,10 +3,6 @@
 Prerequisites
 Before creating a new analysis, ensure that at least one proposal has been created within your organization.
 If not, create a proposal first [here](./project).
-
-This guide serves as an MVP (Minimum Viable Product) and “Hello World” example for developers testing the FLAME platform.
-It is intended for basic functionality testing and initial exploration. A more comprehensive and detailed guide will be
-available soon, covering all aspects of the platform in depth.
 :::
 
 ## Creating an Analysis
