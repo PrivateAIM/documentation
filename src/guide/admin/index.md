@@ -21,5 +21,5 @@ local node setup:
 - [Reviewing analysis](/guide/admin/analysis-review)
 
 **`Node`**
+- [Managing Data Stores](/guide/admin/data-store-management)
 - [Executing analysis](/guide/admin/analysis-execution)
-- management of node data
