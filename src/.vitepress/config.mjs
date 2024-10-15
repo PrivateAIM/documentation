@@ -105,7 +105,8 @@ export default defineConfig({
                     text: 'Node',
                     items: [
                         {text: 'Data Store Management', link: '/guide/admin/data-store-management'},
-                        {text: 'Analysis Execution', link: '/guide/admin/analysis-execution'}
+                        {text: 'Analysis Execution', link: '/guide/admin/analysis-execution'},
+                        {text: 'Keycloak & Access Control', link: '/guide/admin/keycloak-access-control'}
                     ]
                 },
             ],
