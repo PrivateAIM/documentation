@@ -2,8 +2,8 @@
 
 ::: info
 This section will provide installation instructions for installing a node.<br><br>**These instructions assume that the
-[node has been registered in the UI](./node-registration) and that you have
-[created a robot](../admin/robots.md) for your realm.**
+[node has been registered in the UI](./node-registration#creating-a-node-in-the-hub) and that you have obtained the 
+[credentials for your node's robot](./node-registration#credentials-for-deployment).**
 :::
 
 ## Requirements
@@ -33,11 +33,10 @@ multi-service software and we highly recommend using this tool for installing th
 
 ## Preparation
 
-In order to deploy a node, you will need the following 3 pieces of information from the HUB:
+In order to deploy a node, you will need the following pieces of information for your node's robot from the Hub:
 
-1. A robot user name [(see Robots)](../admin/robots.md)
-2. The secret for the robot user [(see Robots)](../admin/robots.md)
-3. A UUID for your registered node [(see Node Registration)](../deployment/node-registration)
+1. Name **or** ID
+2. Secret (not hashed!)
 
 With this information, you can either edit the `values.yaml` file included with the FLAME Node helm chart or create
 you own values template file to be applied to the installation and upgrades of the node such that it looks like this:
@@ -45,10 +44,11 @@ you own values template file to be applied to the installation and upgrades of t
 ```yaml
 global:
   hub:
+    endpoints:
+      ...
     auth:
-      robotUser: <Robot User>
+      robotUser: <Robot Name or ID>
       robotSecret: <Robot Secret>
-      nodeId: <Registered Node UUID>
 ```
 
 ### Keycloak
@@ -75,9 +75,8 @@ Be sure any domain names you set for these applications are configured in your D
 global:
   hub:
     auth:
-      robotUser: <Robot User>
+      robotUser: <Robot Name or ID>
       robotSecret: <Robot Secret>
-      nodeId: <Registered Node UUID>
   node:
     ingress:
       enabled: true
