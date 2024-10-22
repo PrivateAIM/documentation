@@ -9,9 +9,16 @@ This section will provide installation instructions for installing a node.<br><b
 ## Requirements
 
 ### Hardware
-A list of specified hardware requirements is currently be finalized. Please check back later.
+* 8 cores
+* 16GB (minimum) - 32GB (recommended) RAM
+* 100GB storage
 
-### Kubernetes
+### Networking
+* Ports 22 and 443 are open
+* Access to the internet for communicating with the Hub
+
+### Software
+#### Kubernetes
 Kubernetes (also known as k8s) is a container management software package which allows for rapid deployment and
 scaling of multiple applications and service. There are multiple distributions of k8s available for a variety of
 system configurations. The only requirement for the FLAME Node software is that a network plugin (e.g. Calico)
@@ -23,7 +30,7 @@ tested for use with the Node software:
 * [microk8s](https://microk8s.io/docs/getting-started)
 
 
-### Helm
+#### Helm
 The FLAME Node software package is a compilation of multiple services working together and require several
 configuration parameters to be properly set during installation. [Helm](https://helm.sh/) is k8s application
 management tool that simplifies deploying complex software. It enables one to easily install, update, or rollback
@@ -35,7 +42,7 @@ multi-service software and we highly recommend using this tool for installing th
 
 In order to deploy a node, you will need the following pieces of information for your node's robot from the Hub:
 
-1. Name **or** ID
+1. ID
 2. Secret (not hashed!)
 
 With this information, you can either edit the `values.yaml` file included with the FLAME Node helm chart or create
@@ -47,7 +54,7 @@ global:
     endpoints:
       ...
     auth:
-      robotUser: <Robot Name or ID>
+      robotUser: <Robot ID>
       robotSecret: <Robot Secret>
 ```
 
@@ -75,7 +82,7 @@ Be sure any domain names you set for these applications are configured in your D
 global:
   hub:
     auth:
-      robotUser: <Robot Name or ID>
+      robotUser: <Robot ID>
       robotSecret: <Robot Secret>
   node:
     ingress:

@@ -31,8 +31,8 @@ node.
 ## Credentials for Deployment
 
 Once the node is created, admins can access the "Robot" tab to obtain and update the credentials needed for deploying 
-the node software on their server. One this page, there are 3 pieces of information for the node's robot: ID, name, and 
-secret. 
+the node software on their server. One this page, there are 2 needed pieces of information for the node's robot: its 
+ID and secret. 
 
 Because the secret was automatically created when the node was registered and then hashed, we need to generate a new 
 one. Click the "generate" button below the secret text field to create a new secret and copy this string somewhere 
@@ -47,7 +47,7 @@ cannot be used for the node deployment. If this is the case, and you have lost o
 simply generate a new one and update it.
 :::
 
-For deployment, we need the previously generated secret and **either** the robot ID or name. Copy either the ID or 
-name to the same location you copied the secret. 
+For deployment, we need the previously generated secret and the robot **ID**. Copy the ID to the same location you 
+copied the secret. 
 
 Now, you have everything needed for deploying the node software on your system.
