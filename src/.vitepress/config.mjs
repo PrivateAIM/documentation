@@ -79,9 +79,9 @@ export default defineConfig({
                     ]
                 },
                 {
-                    text: 'SKDs',
+                    text: 'SDKs',
                     items: [
-                        {text: 'Core SDK', link: '/guide/user/sdk-core-docu'},
+                        {text: 'Core SDK', link: '/guide/user/sdk-core-doc'},
                         // {text: 'FHIR Query', link: '/guide/user/fhir-query'},
                         // {text: 'Homomorphic Encryption', link: '/guide/user/homomorphic-encryption'},
                     ]
