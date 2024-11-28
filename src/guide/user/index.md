@@ -24,4 +24,4 @@ This guide covers essential resources, including:
 - [FHIR queries](/guide/user/fhir-query)
 
 **`SDK Documentaion`**
-- [FLAME SDK](/guide/user/sdk-core-docu.md)
+- [FLAME SDK](/guide/user/sdk-core-doc.md)
