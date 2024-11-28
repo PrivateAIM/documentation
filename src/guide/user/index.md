@@ -22,3 +22,6 @@ This guide covers essential resources, including:
 **`Concepts/Tutorials`**
 - [Analysis coding](/guide/user/analysis-coding)
 - [FHIR queries](/guide/user/fhir-query)
+
+**`SDK Documentaion`**
+- [FLAME SDK](/guide/user/sdk-core-doc.md)
