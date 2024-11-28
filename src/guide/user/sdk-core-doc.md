@@ -1,3 +1,16 @@
+<!---
+How to write block comments [you can do anything you want in here]
+--->
+[comment]: # (How to write line comments [must not contain brackets])
+[comment]: # "How to write line comments [must not contain quotations]"
+[//]: # (How to write line comments [must not contain brackets])
+[//]: # "How to write line comments [must not contain quotations]"
+[comment]: <> (How to write line comments [must not contain brackets])
+[comment]: <> "How to write line comments [must not contain quotations]"
+[//]: <> (How to write line comments [must not contain brackets])
+[//]: <> "How to write line comments [must not contain quotations]"
+
+
 # Python SDK core
 ## Startup
 Every FLAME analysis starts by connecting itself to the other components of the flame platform and starting an Analysis REST-API. 
@@ -14,7 +27,8 @@ if __name__ == "__main__":
 ```
 The connection to the other components of the flame platform is established automatically when the FlameSDK object is created.
 
-[//]: TODO (Add example for successful startup (i.e. automatic prints)
+[//]: <> "TODO: Add example for successful startup (i.e. automatic prints)"
+
 
 
 ## Message Broker Client
@@ -257,7 +271,7 @@ Returns the data from the FHIR store for each of the specified queries as a list
 * If any number of queries are given...
   * FHIR queries are parsed for each available FHIR datastore individually, the results are added as values inside a dictionary to the returned list
   * each element of the returned list is a dictionary containing the queries as keys and the respective FHIR results as values
-* else all available FHIR data is directly appended to the returned list (discouraged as this will likely create lots of unnecessary overflow)
+* else all available FHIR data is appended to the list (discouraged as this will likely create unnecessary overflow)
 
 ```python
 # Example usage
@@ -274,7 +288,7 @@ Returns the data from the S3 store associated with the given key as a list.
 * If any number of S3 keys are given...
   * S3 keys are used to select datasets in each available datastore individually, the results are added as values inside a dictionary to the returned list
   * each element of the returned list is a dictionary containing the S3 keys as keys and the respective datasets as values
-* else all available datasets is directly appended to the returned list (discouraged as this will likely create lots of unnecessary overflow)
+* else all available datasets are appended to the list (discouraged as this will likely create unnecessary overflow)
 
 ```python
 # Example usage
@@ -331,6 +345,7 @@ Returns a list of all participants' ids in the analysis.
 self.flame.get_participant_ids()
 ```
 
+<!---
 #### Get node status #TODO: tba
 
 ```python
@@ -344,6 +359,7 @@ Returns the status of all nodes.
 # <>
 <>
 ```
+--->
 
 #### Get analysis id
 
