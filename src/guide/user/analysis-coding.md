@@ -6,83 +6,106 @@ This example can be used as `entrypoint.py`, which is referenced in this documen
 
 ### Example Analysis: Counting Patients Using a FHIR Query
 
-This analysis example demonstrates how to count the number of patients matching a specific FHIR query across multiple nodes,
-with the results being aggregated.
+This analysis example demonstrates how to count the total number of patients across multiple nodes with FHIR data, 
+with the results being summed up for aggregation.
 
 ```python
-import ast
-import time
-
-from flame.schemas.star import StarModel, StarAnalyzer, StarAggregator
+from flame.patterns.star import StarModel, StarAnalyzer, StarAggregator
 
 
 class MyAnalyzer(StarAnalyzer):
     def __init__(self, flame):
-        super().__init__(flame)
-        pass
+        """
+        Initializes the custom Analyzer node.
+
+        :param flame: Instance of FlameCoreSDK to interact with the FLAME components.
+        """
+        super().__init__(flame)  # Connects this analyzer to the FLAME components
 
     def analysis_method(self, data, aggregator_results):
-        # data = {query1: fhir_data1, query2: fhir_data2, etc.}, if query had multiple entries
-        # data = fhir_data, else
-        results = {}
-        for k, v in data.items():
-            results[k] = v['total']
-        return results
-        # return  # TODO: Implement your analysis method here
+        """
+        Performs analysis on the retrieved data from data sources.
+
+        :param data: A list of dictionaries containing the data from each data source.
+                     - Each dictionary corresponds to a data source.
+                     - Keys are the queries executed, and values are the results (dict for FHIR, str for S3).
+        :param aggregator_results: Results from the aggregator in previous iterations.
+                                   - None in the first iteration.
+                                   - Contains the result from the aggregator's aggregation_method in subsequent iterations.
+        :return: Any result of your analysis on one node (ex. patient count).
+        """
+        # TODO: Implement your analysis method
+        #  in this example we retrieving first fhir dataset, extract patient counts,
+        #  take total number of patients
+        patient_count = float(data[0]['Patient?_summary=count']['total'])
+        return patient_count
 
 
 class MyAggregator(StarAggregator):
     def __init__(self, flame):
-        super().__init__(flame)
-        pass
+        """
+        Initializes the custom Aggregator node.
+
+        :param flame: Instance of FlameCoreSDK to interact with the FLAME components.
+        """
+        super().__init__(flame)  # Connects this aggregator to the FLAME components
 
     def aggregation_method(self, analysis_results):
-        out_print = ''
+        """
+        Aggregates the results received from all analyzer nodes.
 
-        analysis_results = [ast.literal_eval(res) for res in analysis_results]
-        for key in analysis_results[0].keys():
-            results_of_all_nodes_k = sum([float(res[key]) for res in analysis_results])
-            out_print += f'{key}:\n' \
-                         f'\tTotal number of patients in {len(analysis_results)} hospitals: {results_of_all_nodes_k}\n'
-        return out_print
-        # return  # TODO: Implement your aggregation method here
+        :param analysis_results: A list of analysis results from each analyzer node.
+        :return: The aggregated result (e.g., total patient count across all analyzers).
+        """
+        # TODO: Implement your aggregation method
+        #  in this example we retrieving sum up total patient counts across all nodes
+        total_patient_count = sum(analysis_results)
+        return total_patient_count
 
-    def has_converged(self, result, last_result):
-        return True
-        # return  # TODO: Want to risk it and go for a machine learning pipeline? This here, would be your exit criteria.
+    def has_converged(self, result, last_result, num_iterations):
+        """
+        Determines if the aggregation process has converged.
+
+        :param result: The current aggregated result.
+        :param last_result: The aggregated result from the previous iteration.
+        :param num_iterations: The number of iterations completed so far.
+        :return: True if the aggregation has converged; False to continue iterations.
+        """
+        # TODO (optional): if the parameter 'simple_analysis' in 'StarModel' is set to False,
+        #  this function defines the exit criteria in a multi-iterative analysis (otherwise ignored)
+        return True  # Return True to indicate convergence in this simple analysis
 
 
 def main():
-    starmodel = StarModel()
+    """
+    Sets up and initiates the distributed analysis using the FLAME components.
 
-    if starmodel.is_analyzer():
-        print("Analyzer started")
-        my_analyzer = MyAnalyzer  # or MyAnalyzer(starmodel.flame, **kwargs), if implemented with custom params
-        queries = ['Patient?birthdate=ge1990-01-01&_has:Condition:subject:code=73595000',
-                   'Patient?birthdate=ge2010-01-01&_has:Condition:subject:code=73595000']  # TODO: What do we want?
-        starmodel.start_analyzer(my_analyzer, query=queries)  # TODO: Fill in query or queries here
-    elif starmodel.is_aggregator():
-        print("Aggregator started")
-        my_aggregator = MyAggregator
-        starmodel.start_aggregator(my_aggregator)
-    else:
-        raise BrokenPipeError("Has to be either analyzer or aggregator")
-
-    print("Analysis finished!")
-    time.sleep(5)
+    - Defines the custom analyzer and aggregator classes.
+    - Specifies the type of data and queries to execute.
+    - Configures analysis parameters like iteration behavior and output format.
+    """
+    StarModel(
+        analyzer=MyAnalyzer,             # Custom analyzer class (must inherit from StarAnalyzer)
+        aggregator=MyAggregator,         # Custom aggregator class (must inherit from StarAggregator)
+        data_type='fhir',                # Type of data source ('fhir' or 's3')
+        query='Patient?_summary=count',  # Query or list of queries to retrieve data
+        simple_analysis=True,            # True for single-iteration; False for multi-iterative analysis
+        output_type='str',               # Output format for the final result ('str', 'bytes', or 'pickle')
+        analyzer_kwargs=None,            # Additional keyword arguments for the custom analyzer constructor (i.e. MyAnalyzer)
+        aggregator_kwargs=None           # Additional keyword arguments for the custom aggregator constructor (i.e. MyAggregator)
+    )
 
 
 if __name__ == "__main__":
     main()
 
 
-
 ```
 
 ### Explanation
-- MyAnalyzer: Processes data from the nodes, counting the relevant patient records.
+- MyAnalyzer: Processes data from the nodes, returning the patient counts.
 - MyAggregator: Combines results from all nodes and sums the patient counts.
-- Main Function: Determines whether the script runs as an analyzer or aggregator and executes accordingly.
+- Main Function: Instanciates the StarModel class.
 
 This script serves as a basic "Hello World" example for performing federated analysis using FHIR data.
 
