@@ -17,7 +17,7 @@ Every FLAME analysis starts by connecting itself to the other components of the 
 All of this is done simply by instancing a FlameSDK object.
     
 ```python
-from flame import FlameSDK
+from flame import FlameCoreSDK
 def main():
     flame = FlameCoreSDK()
     # Your code here
