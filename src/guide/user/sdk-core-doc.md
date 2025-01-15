@@ -166,13 +166,14 @@ self.flame.submit_final_result(result=aggregated_res, output_type='str')
 #### Save intermediate data
 
 ```python
-save_intermediate_data(self, location: Literal["local", "global"], data: Any) -> dict[str, str]
+save_intermediate_data(self, data: Any, location: Literal["local", "global"], tag: Optional[str]) -> dict[str, str]
 ```
-Saves intermediate results/data either on the hub (location="global"), or locally.
+Saves intermediate results/data either on the hub (location="global").
 * returns a dictionary response containing the success state, the url to the submission location, and the id of the saved data's storage.
   * utilizing the id, allows for retrieval of the saved data (see '*#Get intermediate data*')
     * only possible for the node that saved the data if saved locally
     * for all nodes participating in the same analysis if saved globally
+  * alternatively for local data, a storage tag may be set for retrieval later analyzes
 
 ```python
 # Example usage
@@ -183,10 +184,11 @@ self.flame.save_intermediate_data(location="global", data=aggregated_res)['id']
 #### Get intermediate data
 
 ```python
-get_intermediate_data(self, location: Literal["local", "global"], id: str) -> Any
+get_intermediate_data(self, location: Literal["local", "global"], id: Optional[str], tag: Optional[str]) -> Any
 ```
 Returns the local/global intermediate data with the specified id.
 * only possible for the node that saved the data, if done locally
+  * alternatively a storage tag may be specified to retrieve local data, if they were specified during saving
 * for all nodes participating in the same analysis if saved globally
 
 ```python
@@ -217,15 +219,27 @@ successful, failed = self.flame.send_intermediate_data(["node1", "node2", "node3
 await_intermediate_data(self, senders: list[nodeID], message_category: str = "intermediate_data", timeout: Optional[int] = None) -> dict[str, Any]
 ```
 Waits for messages containing intermediate data ids from specified senders and retrieves the data.\
-*Combines functions `await_messages` and `get_intermediate_data('global')`.
+* Combines functions `await_messages` and `get_intermediate_data('global')`.
 * returns dictionary using the senders' nodeIDs as keys and the respectively retrieved data as values
 
 ```python
 # Example usage
-# Send intermediate data to partner nodes
-self.flame.data = await_intermediate_data(["node1", "node2"], timeout=60)
+# Await intermediate data by partner nodes
+data = self.flame.await_intermediate_data(["node1", "node2"], timeout=60)
 ```
+#### Get local tags
+    
+```python
+get_local_tags(self, filter: Optional[str] = None) -> list[str]:
+```
+Returns a list of tags used inside the node's local storage
+* tags can be filtered to contain a substring with the parameter `filter`
 
+```python
+# Example usage
+# List local tags containing 'result' keyword
+tags = self.flame.get_local_tags(self, filter='result')
+```
 
 ## Data Source Client
 
