@@ -1,0 +1,16 @@
+global:
+  hub:
+    auth:
+      robotUser: <Robot ID>
+      robotSecret: <Robot Secret>
+  node:
+    ingress:
+      enabled: true
+      hostname: https://your.node.ui.domain.com
+
+keycloak:
+  auth:
+    adminUser: admin
+    adminPassword: admin
+
+  proxyHeaders: ""
