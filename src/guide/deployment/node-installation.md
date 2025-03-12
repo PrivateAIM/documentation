@@ -87,25 +87,32 @@ global:
   node:
     ingress:
       enabled: true
-      hostname: your.node.ui.domain.com
-
-flame-node-ui:
-  idp:
-    host: keycloak.idp.com
+      hostname: https://your.node.ui.domain.com
 
 keycloak:
-  ingress:
-    enabled: true
-    hostname: keycloak.idp.com
+  auth:
+    adminUser: admin
+    adminPassword: admin
 ```
 
 ::: info Note
-The hostname for the keycloak instance must be currently explicitly set for both the keycloak and node UI services,
-this will be changed in the future so it must only be set once.
+The default installation method assumes that if you have SSL enabled (i.e. using HTTPS), then this is handled by 
+a reverse proxy. If this is not the case, you need to disable the proxy headers for keycloak like shown in this 
+<a href="/files/values_no_reverse_proxy_example.yaml" download>example</a>.
 :::
 
 ### Using Your Own IDP
-...
+For better security, this software uses Keycloak for authenticating the various services and users that make up FLAME. 
+Keycloak is installed along with the other services and is required for the creation and management of the individual 
+analyses. Using the keycloak console, the admin you can add additional users who can access the FLAME UI, but you may 
+also use your own IDP for authentication if you wish.
+
+To enable this, first you must create individual clients for both the Node UI and the Hub Adapter in your IDP in either 
+their own realm, or in a realm with the users you wish to grant access to. 
+Be sure to enable client authentication and take note of the client ID and secret for both of these newly created 
+clients as this information as well as the (accessible) URL for your IDP must be provided in the `values.yaml`.
+An example of how to configure this in for your cluster can be seen in this
+<a href="/files/values_separate_idp.yaml" download>separate IDP example</a>.
 
 ## Installation
 
