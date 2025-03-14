@@ -70,10 +70,7 @@ Node UI once this is completed.
 [![Deleting a Keycloak User](/images/keycloak_images/keycloak_8.png)](/images/keycloak_images/keycloak_8.png)
 
 ## Using a Different IDP
-Though it is possible to use a different identity provider or another Keycloak instance, configuring this is beyond 
-the scope of this documentation. The Node Helm Chart is designed to automatically add in the required RBAC rules and 
-node services as clients in Keycloak, and to properly set and distribute the client secrets. These steps would have to 
-be manually performed by the Node administrator for their IDP, and should refer to their IDP's documentation for 
-details. 
-
-Support for this feature may be implemented at a later date.
+Admins can configure the FLAME software to use a separate IDP (i.e. different Keycloak instance), which is incredibly 
+useful when you already have an instance with your users and roles configured. This needs to be done during 
+installation and instructions on how to achieve this can be found 
+[here](/guide/deployment/node-installation#using-your-own-idp).
