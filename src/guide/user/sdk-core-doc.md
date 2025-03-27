@@ -14,7 +14,7 @@ How to write block comments [you can do anything you want in here]
 # Python SDK core
 ## Startup
 Every FLAME analysis starts by connecting itself to the other components of the flame platform and starting an Analysis REST-API. 
-All of this is done simply by instancing a FlameSDK object.
+All of this is done simply by instancing a FlameSDK object (optionally you may set the `silent` parameter to suppress automatic system outputs therein).
     
 ```python
 from flame import FlameCoreSDK
@@ -43,24 +43,34 @@ The maximum size of messages sent is around 2 MBs.
 
 #### Send message
 ```python
-send_message(self, receivers: list[nodeID], message_category: str, message: dict, max_attempts: int = 1, timeout: Optional[int] = None, attempt_timeout: int = 10) -> tuple[list[nodeID], list[nodeID]]
+send_message(receivers: list[nodeID],
+             message_category: str,
+             message: dict,
+             max_attempts: int = 1,
+             timeout: Optional[int] = None,
+             attempt_timeout: int = 10,
+             silent: Optional[bool] = None) -> tuple[list[nodeID], list[nodeID]]
 ```
 Sends a message to all specified nodes.
 * returns a tuple with the lists of nodes that acknowledged the message (1st element) and the list that did not acknowledge (2nd element)
 * awaits acknowledgment responses within timeout
 * if timeout is set, the timeout for each attempt in max_attempts is set to timeout/max_attempts, else if timeout is set to None, the timeout for each attempt is set to attempt_timeout (with the exception of the last attempt which will indefinite)
+* if silent is set to True, the response will not be logged
 
 ```python
 # Example usage
 # Send result to Hub Mino ID aggregator
-self.flame.send_message(receivers=[aggregator_id],
-                        message_category='intermediate_results',
-                        message={'result': data_submission['id']})
+flame.send_message(receivers=[aggregator_id],
+                   message_category='intermediate_results',
+                   message={'result': data_submission['id']})
 ```
 #### Await and return responses
 
 ```python
-await_messages(self, senders: List[nodeID],  message_category: str, message_id: Optional[str] = None, timeout: int = None) -> dict[nodeID, Optional[List[Message]]]
+await_messages(senders: list[nodeID],
+               message_category: str,
+               message_id: Optional[str] = None,
+               timeout: int = None) -> dict[nodeID, Optional[list[Message]]]
 ```
 Halts process until responses with specified message_category (and optionally with specified message_id) from all specified nodes arrive and return their message objects. 
 * if the timeout is hit or all responses are received, list successful responses and return None for those that failed
@@ -69,28 +79,28 @@ Halts process until responses with specified message_category (and optionally wi
 ```python
 # Example usage
 # Check for latest aggregated result
-self.flame.await_messages(senders=[aggregator_id],
-                          message_category='aggregated_results',
-                          timeout=300)[aggregator_id][-1].body['result']
+flame.await_messages(senders=[aggregator_id],
+                     message_category='aggregated_results',
+                     timeout=300)[aggregator_id][-1].body['result']
 ```
 
 #### Get messages
 
 ```python
-get_messages(self, status: Literal['unread', 'read'] = 'unread') -> List[Message]
+get_messages(status: Literal['unread', 'read'] = 'unread') -> list[Message]
 ```
 Returns a list of all messages with the specified un-/read status.
 
 ```python
 # Example usage
 # Get read messages
-self.flame.get_messages(status='read')
+flame.get_messages(status='read')
 ```
 
 #### Delete messages by id(s)
 
 ```python
-delete_messages(self, message_ids: List[str]) -> int
+delete_messages(message_ids: list[str]) -> int
 ```
 Delete messages with the specified message ids.
 * returns the number of deleted messages
@@ -98,13 +108,14 @@ Delete messages with the specified message ids.
 ```python
 # Example usage
 # Delete message_a and message_b
-self.flame.delete_messages(message_ids=[message_a_id, message_b_id])
+flame.delete_messages(message_ids=[message_a_id, message_b_id])
 ```
 
 #### Clear messages
 
 ```python
-clear_messages(self, status: Literal["read", "unread", "all"] = "read", min_age: Optional[int] = None) -> int
+clear_messages(status: Literal["read", "unread", "all"] = "read",
+               min_age: Optional[int] = None) -> int
 ```
 Large-scale deletes messages based on the given un-/read status.
 * returns the number of deleted messages
@@ -114,27 +125,34 @@ Large-scale deletes messages based on the given un-/read status.
 ```python
 # Example usage
 # Clear all read messages
-self.flame.clear_messages(status='read', min_age=None)
+flame.clear_messages(status='read', min_age=None)
 ```
 
 #### Send message and wait for responses
 
 ```python
-send_message_and_wait_for_responses(self, receivers: list[nodeID], message_category: str, message: dict, max_attempts: int = 1, timeout: Optional[int] = None, attempt_timeout: int = 10) -> dict[nodeID, Optional[list[Message]]]
+send_message_and_wait_for_responses(receivers: list[nodeID],
+                                    message_category: str,
+                                    message: dict,
+                                    max_attempts: int = 1,
+                                    timeout: Optional[int] = None,
+                                    attempt_timeout: int = 10,
+                                    silent: Optional[bool] = None) -> dict[nodeID, Optional[list[Message]]]
 ```
 Send message to specified receivers and halt process until a message from all receivers has been returned.\
-*Combines functions `send_message` and `await_messages`.
+* Combines functions `send_message` and `await_messages`.
 * returns a dictionary with receiver node ids as keys and lists of their possible response messages as values
 * awaits acknowledgment and message responses within the timeout, if set to None is allowed to run indefinitely
 * response message has to have the same message_category as the message sent in order to trigger this
+* if silent is set to True, the response will not be logged
 
 ```python
 # Example usage
 # Send intermediate and await and return aggregated results
-self.flame.send_message_and_wait_for_responses(receivers=[aggregator_id],
-                                               message_category='intermedaite_results',
-                                               message={'result': data_submission['id']},
-                                               timeout=None)[aggregator_id][-1].body['result']
+flame.send_message_and_wait_for_responses(receivers=[aggregator_id],
+                                          message_category='intermedaite_results',
+                                          message={'result': data_submission['id']},
+                                          timeout=None)[aggregator_id][-1].body['result']
 ```
 
 
@@ -150,12 +168,15 @@ different analyzes of the same Project.
 #### Submit final result
 
 ```python
-submit_final_result(self, result: Any, output_type: Literal['str', 'bytes', 'pickle'] = 'str') -> dict[str, str]
+submit_final_result(result: Any,
+                    output_type: Literal['str', 'bytes', 'pickle'] = 'str',
+                    silent: Optional[bool] = None) -> dict[str, str]
 ```
 Submits the final result to the hub, making it available for analysts to download.
 * this method is only available for nodes for which the method `get_role(self)` returns "aggregator”
 * specifying the output_type changes the result's format to either a binary ('bytes'), text ('str'), or pickle file ('pickle)
 * returns a brief dictionary response upon success
+* if silent is set to True, the response will not be logged
 
 ```python
 # Example usage
@@ -166,14 +187,22 @@ self.flame.submit_final_result(result=aggregated_res, output_type='str')
 #### Save intermediate data
 
 ```python
-save_intermediate_data(self, data: Any, location: Literal["local", "global"], tag: Optional[str]) -> dict[str, str]
+save_intermediate_data(data: Any,
+                       location: Literal["local", "global"],
+                       remote_node_ids: Optional[list[str]] = None,
+                       tag: Optional[str] = None,
+                       silent: Optional[bool] = None) -> Union[dict[str, dict[str, str]], dict[str, str]]
 ```
 Saves intermediate results/data either on the hub (location="global").
-* returns a dictionary response containing the success state, the url to the submission location, and the id of the saved data's storage.
-  * utilizing the id, allows for retrieval of the saved data (see '*#Get intermediate data*')
-    * only possible for the node that saved the data if saved locally
-    * for all nodes participating in the same analysis if saved globally
-  * alternatively for local data, a storage tag may be set for retrieval later analyzes
+* if remote_node_ids is None, i.e. if intermediate data shouldn't be encrypted
+  * returns a dictionary response containing the success state, the url to the submission location, and the id of the saved data's storage.
+    * utilizing the id, allows for retrieval of the saved data (see '*#Get intermediate data*')
+      * only possible for the node that saved the data if saved locally
+      * for all nodes participating in the same analysis if saved globally
+    * alternatively for local data, a storage tag may be set for retrieval later analyzes
+* else, i.e. if intermediate data should be encrypted
+  * returns a dictionary of the previously mentioned dictionaries for each specified remote node id as key
+* if silent is set to True, the response will not be logged
 
 ```python
 # Example usage
@@ -210,13 +239,15 @@ Sends intermediate data to specified receivers using the Result Service and Mess
 ```python
 # Example usage
 # Send intermediate data to partner nodes
-successful, failed = self.flame.send_intermediate_data(["node1", "node2", "node3"], data)
+successful, failed = flame.send_intermediate_data(["node1", "node2", "node3"], data)
 ```
 
 #### Await intermediate data
 
 ```python
-await_intermediate_data(self, senders: list[nodeID], message_category: str = "intermediate_data", timeout: Optional[int] = None) -> dict[str, Any]
+await_intermediate_data(senders: list[nodeID],
+                        message_category: str = "intermediate_data",
+                        timeout: Optional[int] = None) -> dict[str, Any]
 ```
 Waits for messages containing intermediate data ids from specified senders and retrieves the data.\
 * Combines functions `await_messages` and `get_intermediate_data('global')`.
@@ -225,12 +256,12 @@ Waits for messages containing intermediate data ids from specified senders and r
 ```python
 # Example usage
 # Await intermediate data by partner nodes
-data = self.flame.await_intermediate_data(["node1", "node2"], timeout=60)
+data = flame.await_intermediate_data(["node1", "node2"], timeout=60)
 ```
 #### Get local tags
     
 ```python
-get_local_tags(self, filter: Optional[str] = None) -> list[str]:
+get_local_tags(filter: Optional[str] = None) -> list[str]:
 ```
 Returns a list of tags used inside the node's local storage
 * tags can be filtered to contain a substring with the parameter `filter`
@@ -238,7 +269,7 @@ Returns a list of tags used inside the node's local storage
 ```python
 # Example usage
 # List local tags containing 'result' keyword
-tags = self.flame.get_local_tags(self, filter='result')
+tags = flame.get_local_tags(filter='result')
 ```
 
 ## Data Source Client
@@ -251,7 +282,7 @@ The Data Source Client is a service for accessing data from different sources li
 #### Get data client
 
 ```python
-get_data_client(self, data_id: str) -> AsyncClient
+get_data_client(data_id: str) -> AsyncClient
 ```
 Returns the data client for a specific FHIR or S3 store used for this project.
 * raises ValueError if no data could be found for the specified data_id
@@ -265,7 +296,7 @@ self.flame.get_data_client(self, data_id=data_a_id)
 #### Get data sources
 
 ```python
-get_data_sources(self) -> List[str]
+get_data_sources() -> list[str]
 ```
 Returns a list of all data source paths available for this project.
 
@@ -279,7 +310,7 @@ self.flame.get_data_sources()
 #### Get FHIR data
 
 ```python
-get_fhir_data(self, fhir_queries: Optional[List[str]] = None) -> list[Union[dict[str, dict], dict]]
+get_fhir_data(fhir_queries: Optional[list[str]] = None) -> list[Union[dict[str, dict], dict]]
 ```
 Returns the data from the FHIR store for each of the specified queries as a list.
 * If any number of queries are given...
@@ -290,13 +321,13 @@ Returns the data from the FHIR store for each of the specified queries as a list
 ```python
 # Example usage
 # Retrieve FHIR data patient counts
-self.flame.get_fhir_data('Patient?_summary=count')
+flame.get_fhir_data(['Patient?_summary=count'])
 ```
 
 #### Get S3 data
 
 ```python
-get_s3_data(self, s3_keys: Optional[List[str]] = None) -> List[Union[dict[str, str], str]]
+get_s3_data(s3_keys: Optional[list[str]] = None) -> list[Union[dict[str, str], str]]
 ```
 Returns the data from the S3 store associated with the given key as a list.
 * If any number of S3 keys are given...
@@ -307,7 +338,7 @@ Returns the data from the S3 store associated with the given key as a list.
 ```python
 # Example usage
 # Retrieve all available S3 datasets
-self.flame.get_s3_data()
+flame.get_s3_data()
 ```
 
 
@@ -319,7 +350,7 @@ self.flame.get_s3_data()
 #### Get aggregator id
 
 ```python
-get_aggregator_id(self) -> Optional[str]
+get_aggregator_id() -> Optional[str]
 ```
 Returns node_id of node dedicated as aggregator.
 * returns aggregator id if used by an analysis node, else None (if used by the aggregator node)
@@ -327,13 +358,13 @@ Returns node_id of node dedicated as aggregator.
 ```python
 # Example usage
 # Get aggregator id
-self.flame.get_aggregator_id()
+flame.get_aggregator_id()
 ```
 
 #### Get participants
 
 ```python
-get_participants(self) -> List[dict[str, str]]
+get_participants() -> list[dict[str, str]]
 ```
 Returns a list of all participants in the analysis.
 * returns participants as dictionaries containing their configuration
@@ -342,13 +373,13 @@ Returns a list of all participants in the analysis.
 ```python
 # Example usage
 # Get full config of partner nodes
-self.flame.get_participants()
+flame.get_participants()
 ```
 
 #### Get participant ids
 
 ```python
-get_participant_ids(self) -> List[nodeID]
+get_participant_ids() -> list[nodeID]
 ```
 Returns a list of all participants' ids in the analysis.
 * does not contain id of own node
@@ -356,14 +387,14 @@ Returns a list of all participants' ids in the analysis.
 ```python
 # Example usage
 # Get ids of partner nodes
-self.flame.get_participant_ids()
+flame.get_participant_ids()
 ```
 
 <!---
 #### Get node status #TODO: tba
 
 ```python
-get_node_status(self, timeout: Optional[int] = None) -> dict[str, Literal["online", "offline", "not_connected"]]
+get_node_status(timeout: Optional[int] = None) -> dict[str, Literal["online", "offline", "not_connected"]]
 ```
 Returns the status of all nodes.
 * <>
@@ -378,46 +409,46 @@ Returns the status of all nodes.
 #### Get analysis id
 
 ```python
-get_analysis_id(self) -> str
+get_analysis_id() -> str
 ```
 Returns the analysis id.
 
 ```python
 # Example usage
 # Get analysis id
-self.flame.get_analysis_id()
+flame.get_analysis_id()
 ```
 
 #### Get project id
 
 ```python
-get_project_id(self) -> str
+get_project_id() -> str
 ```
 Returns the project id.
 
 ```python
 # Example usage
 # Get project id
-self.flame.get_project_id()
+flame.get_project_id()
 ```
 
 #### Get id
 
 ```python
-get_id(self) -> str
+get_id() -> str
 ```
 Returns the node id.
 
 ```python
 # Example usage
 # Get own node id
-self.flame.get_id()
+flame.get_id()
 ```
 
 #### Get role
 
 ```python
-get_role(self) -> str
+get_role() -> str
 ```
 Returns the role of the node.
 * "aggregator" means that the node can submit final results using "submit_final_result", else "default" (this may change with further permission settings).
@@ -425,26 +456,28 @@ Returns the role of the node.
 ```python
 # Example usage
 # Get role of node within analysis
-self.flame.get_role()
+flame.get_role()
 ```
 
 #### Analysis finished
 
 ```python
-analysis_finished(self) -> bool
+analysis_finished() -> bool
 ```
 Sends a signal to all nodes to set their node_finished to True, then sets the node to finished.
 
 ```python
 # Example usage
 # End analysis, and inform partner nodes
-self.flame.analysis_finished()
+flame.analysis_finished()
 ```
 
 #### Ready Check
 
 ```python
-ready_check(self, nodes: list[nodeID] = 'all', attempt_interval: int = 30, timeout: Optional[int] = None) -> dict[str, bool]
+ready_check(nodes: list[nodeID] = 'all',
+            attempt_interval: int = 30,
+            timeout: Optional[int] = None) -> dict[str, bool]
 ```
 Waits until specified partner nodes in a federated system are ready.
 * if nodes is set to 'all', all partner nodes will be used
@@ -454,5 +487,5 @@ Waits until specified partner nodes in a federated system are ready.
 ```python
 # Example usage
 # Check whether aggregator is ready
-self.flame.ready_check([aggregator_id])
+flame.ready_check([aggregator_id])
 ```
