@@ -19,12 +19,13 @@ All of this is done simply by instancing a FlameSDK object (optionally you may s
 ```python
 from flame import FlameCoreSDK
 def main():
-    flame = FlameCoreSDK()
+    flame = FlameCoreSDK(silent=False)
     # Your code here
 if __name__ == "__main__":
     main()
 
 ```
+
 The connection to the other components of the flame platform is established automatically when the FlameSDK object is created.
 
 [//]: <> "TODO: Add example for successful startup (i.e. automatic prints)"
@@ -173,7 +174,7 @@ submit_final_result(result: Any,
                     silent: Optional[bool] = None) -> dict[str, str]
 ```
 Submits the final result to the hub, making it available for analysts to download.
-* this method is only available for nodes for which the method `get_role(self)` returns "aggregator”
+* this method is only available for nodes for which the method `flame.get_role()` returns "aggregator”
 * specifying the output_type changes the result's format to either a binary ('bytes'), text ('str'), or pickle file ('pickle)
 * returns a brief dictionary response upon success
 * if silent is set to True, the response will not be logged
@@ -181,7 +182,7 @@ Submits the final result to the hub, making it available for analysts to downloa
 ```python
 # Example usage
 # Submit aggregated results as text file
-self.flame.submit_final_result(result=aggregated_res, output_type='str')
+flame.submit_final_result(result=aggregated_res, output_type='str')
 ```
 
 #### Save intermediate data
@@ -207,34 +208,48 @@ Saves intermediate results/data either on the hub (location="global").
 ```python
 # Example usage
 # Save data globally and retrieve storage id
-self.flame.save_intermediate_data(location="global", data=aggregated_res)['id']
+flame.save_intermediate_data(location="global", data=aggregated_res)['id']
 ```
 
 #### Get intermediate data
 
 ```python
-get_intermediate_data(self, location: Literal["local", "global"], id: Optional[str], tag: Optional[str]) -> Any
+get_intermediate_data(location: Literal["local", "global"],
+                      id: Optional[str],
+                      tag: Optional[str],
+                      tag_option: Optional[Literal["all", "last", "first"]] = "all") -> Any
 ```
 Returns the local/global intermediate data with the specified id.
 * only possible for the node that saved the data, if done locally
   * alternatively a storage tag may be specified to retrieve local data, if they were specified during saving
 * for all nodes participating in the same analysis if saved globally
+* tag_option return mode if multiple tagged data are found, "all" vs just the "first" or just the "last"  added to the intermediate data under this tag  
 
 ```python
 # Example usage
 # Retrieve globally saved data
-self.flame.get_intermediate_data(location='global', id=data_storage_id)
+flame.get_intermediate_data(location='global', id=data_storage_id)
 ```
 
 #### Send intermediate data
 
 ```python
-send_intermediate_data(self, receivers: list[nodeID], data: Any, message_category: str = "intermediate_data", max_attempts: int = 1, timeout: Optional[int] = None, attempt_timeout: int = 10) -> tuple[list[nodeID], list[nodeID]]
+send_intermediate_data(receivers: list[nodeID],
+                       data: Any,
+                       message_category: str = "intermediate_data",
+                       max_attempts: int = 1,
+                       timeout: Optional[int] = None,
+                       attempt_timeout: int = 10,
+                       encrypted: bool = True,
+                       silent: Optional[bool] = None) -> tuple[list[nodeID], list[nodeID]]
 ```
 Sends intermediate data to specified receivers using the Result Service and Message Broker.\
 *Combines functions `save_intermediate_data('global')` and `send_message`.
 * returns a tuple with the lists of nodes that acknowledged the message (1st element) and the list that did not acknowledge (2nd element)
 * awaits acknowledgment responses within timeout
+* if silent is set to True, the response will not be logged
+* if encrypted set to True, data will be send using ECDH
+
 
 ```python
 # Example usage
@@ -290,7 +305,7 @@ Returns the data client for a specific FHIR or S3 store used for this project.
 ```python
 # Example usage
 # Retrieve data client
-self.flame.get_data_client(self, data_id=data_a_id)
+flame.get_data_client(data_id=data_a_id)
 ```
 
 #### Get data sources
@@ -303,7 +318,7 @@ Returns a list of all data source paths available for this project.
 ```python
 # Example usage
 # Get list of datasource paths
-self.flame.get_data_sources()
+flame.get_data_sources()
 ```
 
 
@@ -346,6 +361,31 @@ flame.get_s3_data()
 ## General
 
 ### List of available methods
+
+#### Flame logs 
+```python
+flame_log(msg: Union[str, bytes],
+          silent: Optional[bool] = None,
+          sep: str = ' ',
+          end: str = '\n',
+          file = None,
+          flush: bool = False,
+          suppress_head: bool = False) -> None
+```
+Prints logs to console.
+* mirrors python builtin params `sep`, `end`, `file`, and `flush`
+* if silent is set to True, the response will not be logged
+* if suppress_head is set to True, the following print will not contain the normal flame log head
+
+```python
+# Example usage
+# Simple print of message
+flame.flame_log("Awaiting contact with analyzer nodes...success")
+
+# Print message, but suppress flame log head
+flame.flame_log("success", False, suppress_head=True)
+```
+
 
 #### Get aggregator id
 

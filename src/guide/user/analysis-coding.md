@@ -10,7 +10,7 @@ This analysis example demonstrates how to count the total number of patients acr
 with the results being summed up for aggregation.
 
 ```python
-from flame.patterns.star import StarModel, StarAnalyzer, StarAggregator
+from flame.star import StarModel, StarAnalyzer, StarAggregator
 
 
 class MyAnalyzer(StarAnalyzer):
