@@ -1,10 +1,7 @@
 # Installation
-
-::: info
 This section will provide installation instructions for installing a node.<br><br>**These instructions assume that the
 [node has been registered in the UI](./node-registration#creating-a-node-in-the-hub) and that you have obtained the 
 [credentials for your node's robot](./node-registration#credentials-for-deployment).**
-:::
 
 ## Requirements
 
@@ -18,6 +15,9 @@ This section will provide installation instructions for installing a node.<br><b
 * Access to the internet for communicating with the Hub
 
 ### Software
+::: tip
+A quick start guide to installing microk8s and Helm can be found [here](./microk8s-quickstart). 
+:::
 #### Kubernetes
 Kubernetes (also known as k8s) is a container management software package which allows for rapid deployment and
 scaling of multiple applications and service. There are multiple distributions of k8s available for a variety of
@@ -25,13 +25,13 @@ system configurations. The only requirement for the FLAME Node software is that 
 is installed in your k8s installation to allow for network policy management. The following distributions have been
 tested for use with the Node software:
 
-* [Kubernetes](https://kubernetes.io/docs/setup/)
-* [minikube](https://minikube.sigs.k8s.io/docs/start/?arch=%2Fwindows%2Fx86-64%2Fstable%2F.exe+download)
 * [microk8s](https://microk8s.io/docs/getting-started)
+* [minikube](https://minikube.sigs.k8s.io/docs/start/?arch=%2Fwindows%2Fx86-64%2Fstable%2F.exe+download)
+* [Kubernetes](https://kubernetes.io/docs/setup/)
 
 
 #### Helm
-The FLAME Node software package is a compilation of multiple services working together and require several
+The FLAME Node software package is a compilation of multiple services working together which require several
 configuration parameters to be properly set during installation. [Helm](https://helm.sh/) is k8s application
 management tool that simplifies deploying complex software. It enables one to easily install, update, or rollback
 multi-service software and we highly recommend using this tool for installing the FLAME Node.
@@ -116,44 +116,40 @@ An example of how to configure this in for your cluster can be seen in this
 
 ## Installation
 
-Once the `values.yaml` has been fully configured, it can then be used to install the FLAME Node.
-
-::: info Note
-Currently, one can only install the software by cloning the repository from GitHub. Additional installation methods
-will be added in the future including a dedicated chart repository.
-:::
-
-### Installing from the Cloned GitHub Repository
-Users can clone the FLAME Node Helm charts by cloning the
-`node-deployment` [repository](https://github.com/PrivateAIM/node-deployment) from GitHub. The `flame/` directory
-contains the parent helm chart used for the deployment.
-
-First you must compile the sub-charts:
-```bash
-cd flame/
-helm dependency build
-```
-
-This will package the Helm charts for the individual components and bundle them in a folder in the `flame/` directory.
-
-### Deployment
+Once you have created and configured your values file (e.g. `my-values.yaml`) with the required credentials, 
+it can then be used to install the FLAME Node.
 
 ::: info Note
 The Helm release name `flame-node` is used in the following examples, but any release name can be used in place of it.
 :::
 
-If you edited the default `values.yaml`, then you can run the following command from within the `flame/` directory to
-install the node:
-
+### Using the FLAME repo
+The FLAME helm repository can be added to your list of available repos and then used to deploy the node software. 
+First, add the FLAME repo:
 ```bash
-helm install flame-node .
+helm repo add flame https://PrivateAIM.github.io/helm
 ```
 
-If you created your own custom values template file (e.g. `my-values.yaml`) then it can be applied during
-installation (and upgrades):
-
+Deploy the FLAME Node using your values file 
 ```bash
-helm install -f my-values.yaml flame-node . 
+helm install flame-node -f my-values.yaml flame/flame-node
+```
+
+### Using the GitHub Repository
+Users can clone the FLAME Node Helm charts by cloning the
+`helm` [repository](https://github.com/PrivateAIM/helm) from GitHub. The `charts/flame-node/` directory
+contains the parent helm chart used for the deployment.
+
+First you must compile the sub-charts which will package the Helm charts for the individual components and bundle 
+them in a folder in the `flame-node/` directory:
+```bash
+cd charts/flame-node/
+helm dependency build
+```
+
+Then you can deploy the FLAME Node using this local helm chart:
+```bash
+helm install flame-node -f my-values.yaml . 
 ```
 
 ::: warning Startup Time
@@ -162,3 +158,50 @@ to properly import the configuration. This can cause the `helm install` to hang 
 is deployed and verified, so please have patience during this step and do not prematurely cancel the command.
 :::
 
+## Deploying without a Domain
+There are circumstances in which the FLAME Node needs to be deployed without a fully qualified domain name (FQDN). 
+In this case, the UI and other services will not be reachable via a domain or hostname. Those with access to the server 
+running the services can port forward the individual containers for each of the services and access them in their 
+browser using the forwarded ports.
+
+### Disable Ingress
+When deploying the FLAME node without a domain, the values file must be configured to disable ingress for the services:
+```yaml
+global:
+  hub:
+    auth:
+      robotUser: <Robot ID>
+      robotSecret: <Robot Secret>
+  node:
+    ingress:
+      enabled: false
+      hostname: ""
+```
+Be sure to still populate the `robotUser` and `robotSecret` with the credentials obtained from the Hub.
+
+### Accessing the Services
+Once you have deployed the FLAME Node with the ingress disabled, three services need to be port-forwarded:
+* Node UI
+* Hub Adapter
+* Keycloak
+
+#### Get the Service Names
+Depending on what the helm deployment was named, the service names will vary. In our example above, we used 
+`flame-node` for the release name so each of the services will have this as a prefix.
+
+Get a list of currently running services (and their names) with
+```bash
+kubectl get svc
+```
+![services.png](../../public/images/installation/services.png)
+
+#### Port Forward the Services
+Using the names obtained in the previous section, we can forward the ports these services are using to the same ports 
+on our local machine:
+```bash
+kubectl port-forward svc/flame-node-node-ui-service 3000:3000 & \
+kubectl port-forward svc/flame-node-hub-adapter-service 5000:5000 & \
+kubectl port-forward svc/flame-node-keycloak 8080:80
+```
+Now you can access these services in your browser. For example, to access the Node UI, open a browser and navigate to 
+`http://localhost:3000`.

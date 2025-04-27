@@ -129,7 +129,11 @@ export default defineConfig({
                     text: 'Node',
                     items: [
                         {text: 'Registration', link: '/guide/deployment/node-registration'},
-                        {text: 'Installation', link: '/guide/deployment/node-installation'},
+                        {text: 'Installation', items: [
+                                {text: 'Setup microk8s and Helm', link: '/guide/deployment/microk8s-quickstart'},
+                                {text: 'FLAME Node Deployment', link: '/guide/deployment/node-installation'}
+                            ]
+                        }
                         // {text: 'Troubleshooting', link: '/guide/deployment/node-troubleshooting'},
                     ]
                 },

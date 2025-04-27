@@ -1,4 +1,4 @@
-# Deployment guide
+# Deployment Guide
 
 ## Introduction
 The deployment guide is intended for people, who want to deploy parts of the PrivateAim infrastructure.
@@ -11,7 +11,9 @@ For setting up either a local node or the hub instance the following instruction
 
 **``Node``**
 - [Registration](./node-registration)
-- [Installation](./node-installation)
+- Installation
+    -  [Setup microk8s and Helm](./microk8s-quickstart)
+    -  [FLAME Node Deployment](./node-installation)
 
 **`Hub`**
 - [Introduction](./hub-introduction)

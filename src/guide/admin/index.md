@@ -1,4 +1,4 @@
-# Administrator guide
+# Administrator Guide
 
 ## Introduction
 This guide is addressed at realm/node administrators. By contacting the developer team an
@@ -22,4 +22,5 @@ local node setup:
 
 **`Node`**
 - [Managing Data Stores](/guide/admin/data-store-management)
-- [Executing analysis](/guide/admin/analysis-execution)
+- [Executing an analysis](/guide/admin/analysis-execution)
+- [Configuring Keycloak](/guide/admin/keycloak-access-control)
