@@ -30,9 +30,32 @@ node.
 
 ## Credentials for Deployment
 
-Once the node is created, admins can access the "Robot" tab to obtain and update the credentials needed for deploying 
-the node software on their server. One this page, there are 2 needed pieces of information for the node's robot: its 
-ID and secret. 
+Once the node is created, admins can access the "Robot" and "Crypto" tabs which contain needed credentials and keys 
+for deploying the node software on their server. 
+
+### Crypto
+To encrypt data that needs to be sent between different nodes, each node needs a crytographic key that can be used 
+to encrypt/decrypt the information. The "Crypto" tab allows the admin to generate a crytopgraphic key pair for this 
+purpose.
+
+![Hub Crypto](/images/ui_images/hub_crypto.png)
+
+Navigate to the "Crypto" tab and click on the "Generate" button at the bottom of the window. A public and private key 
+pair will be generated. The user should copy the contents of the "PrivateKey" section to a new file on the server 
+which is deploying the FLAME Node and name it `private_key.pem`.
+
+::: tip
+Be sure to include the `-----BEGIN PRIVATE KEY-----` and `-----END PRIVATE KEY-----` sections when copying the private 
+key.
+:::
+
+::: danger Don't Forget to Click Save!
+Be sure to click "Save" when you generate a new key pair, otherwise the public key stored in the hub and the private 
+key used during deployment will not be from the same pair.
+:::
+
+### Robot Credentials
+On this page, there are two pieces of information required for the deploying the FLAME Node: the robot ID and secret. 
 
 Because the secret was automatically created when the node was registered and then hashed, we need to generate a new 
 one. Click the "generate" button below the secret text field to create a new secret and copy this string somewhere 

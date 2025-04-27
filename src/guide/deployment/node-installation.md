@@ -1,7 +1,10 @@
 # Installation
-This section will provide installation instructions for installing a node.<br><br>**These instructions assume that the
-[node has been registered in the UI](./node-registration#creating-a-node-in-the-hub) and that you have obtained the 
-[credentials for your node's robot](./node-registration#credentials-for-deployment).**
+This section will provide installation instructions for installing a node.
+
+**These instructions assume that you have done the following:**
+* [Node has been registered in the Hub UI](./node-registration#creating-a-node-in-the-hub) 
+* [Credentials for your node's robot were generated and saved](./node-registration#robot-credentials)
+* [A keypair was generated](./node-registration#crypto) and the private key was saved as `private_key.pem`
 
 ## Requirements
 
@@ -13,6 +16,7 @@ This section will provide installation instructions for installing a node.<br><b
 ### Networking
 * Ports 22 and 443 are open
 * Access to the internet for communicating with the Hub
+* A hostname that directs to the server running the FLAME Node software
 
 ### Software
 ::: tip
@@ -46,37 +50,7 @@ In order to deploy a node, you will need the following pieces of information for
 2. Secret (not hashed!)
 
 With this information, you can either edit the `values.yaml` file included with the FLAME Node helm chart or create
-you own values template file to be applied to the installation and upgrades of the node such that it looks like this:
-
-```yaml
-global:
-  hub:
-    endpoints:
-      ...
-    auth:
-      robotUser: <Robot ID>
-      robotSecret: <Robot Secret>
-```
-
-### Keycloak
-By default, the FLAME Node package deploys keycloak as part of the installation. The clients and their secrets are
-all generated and configured within this included IDP. If you wish to your own IDP, then clients for the Node Hub
-Adapter and the Node UI will have to be created and their secrets set in the values template. See the
-[Using Your Own IDP](#using-your-own-idp) section for more information.
-
-### Ingress
-To allow domain names to be used for individual services in k8s, the ingress must be enabled and the hostnames set,
-otherwise the ports for individual services must be port forwarded to access the GUIs e.g.
-
-```bash
-kubectl port-forward svc/flame-node-node-ui 3000:3000
-```
-
-The values template file can be used to enable ingress and specify hostname for the services:
-
-::: warning Check your DNS
-Be sure any domain names you set for these applications are configured in your DNS to point towards your k8s cluster!
-:::
+your own values template file to be used during deployment. Here is a minimal example of a values file:
 
 ```yaml
 global:
@@ -88,18 +62,21 @@ global:
     ingress:
       enabled: true
       hostname: https://your.node.ui.domain.com
-
-keycloak:
-  auth:
-    adminUser: admin
-    adminPassword: admin
 ```
 
+Be sure to enable `ingress` in your values file, otherwise, your hostname will not resolve.
+
 ::: info Note
-The default installation method assumes that if you have SSL enabled (i.e. using HTTPS), then this is handled by 
-a reverse proxy. If this is not the case, you need to disable the proxy headers for keycloak like shown in this 
+The default installation method assumes that if you have SSL enabled (i.e. using HTTPS), then this is handled by
+a reverse proxy. If this is not the case, you need to disable the proxy headers for keycloak like shown in this
 <a href="/files/values_no_reverse_proxy_example.yaml" download>example</a>.
 :::
+
+### Keycloak
+By default, the FLAME Node package deploys keycloak as part of the installation. The clients and their secrets are
+all generated and configured within this included IDP. If you wish to your own IDP, then clients for the Node Hub
+Adapter and the Node UI will have to be created and their secrets set in the values template. See the
+[Using Your Own IDP](#using-your-own-idp) section for more information.
 
 ### Using Your Own IDP
 For better security, this software uses Keycloak for authenticating the various services and users that make up FLAME. 
@@ -115,9 +92,12 @@ An example of how to configure this in for your cluster can be seen in this
 <a href="/files/values_separate_idp.yaml" download>separate IDP example</a>.
 
 ## Installation
+At this point, you should have the following:
+* A values file (e.g. `my-values.yaml`) with the robot credentials for this node
+* A private key stored in a file called `private_key.pem`
 
-Once you have created and configured your values file (e.g. `my-values.yaml`) with the required credentials, 
-it can then be used to install the FLAME Node.
+If both of these files are in your current working directory, then you can proceed with deploying the FLAME Node by 
+either using the FLAME repo <u>**OR**</u> cloning the Github repository.
 
 ::: info Note
 The Helm release name `flame-node` is used in the following examples, but any release name can be used in place of it.
@@ -140,10 +120,18 @@ Users can clone the FLAME Node Helm charts by cloning the
 `helm` [repository](https://github.com/PrivateAIM/helm) from GitHub. The `charts/flame-node/` directory
 contains the parent helm chart used for the deployment.
 
-First you must compile the sub-charts which will package the Helm charts for the individual components and bundle 
-them in a folder in the `flame-node/` directory:
 ```bash
-cd charts/flame-node/
+git clone https://github.com/PrivateAIM/helm.git
+```
+
+Copy your edited values (e.g. `my-values.yaml`) and private key files to `helm/charts/flame-node/`
+```bash
+cp my-values.yaml private_key.pem ./helm/charts/flame-node/
+```
+
+Navigate to the FLAME Node helm chart directory and compile its sub-charts:
+```bash
+cd helm/charts/flame-node/
 helm dependency build
 ```
 
@@ -165,7 +153,8 @@ running the services can port forward the individual containers for each of the 
 browser using the forwarded ports.
 
 ### Disable Ingress
-When deploying the FLAME node without a domain, the values file must be configured to disable ingress for the services:
+When deploying the FLAME node without a hostname, the values file must be configured to disable ingress for the 
+services:
 ```yaml
 global:
   hub:
