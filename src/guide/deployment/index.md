@@ -1,19 +1,16 @@
 # Deployment Guide
 
 ## Introduction
-The deployment guide is intended for people, who want to deploy parts of the PrivateAim infrastructure.
-To be more specific, we will explain how to set up a local node, and how to set up a hub instance.
 
-**Note:** The setup for the local node is necessary for the administrator role (see [here](./node-registration)).
+This deployment guide contains instructions on how to deploy the FLAME Node software on your server, thereby creating
+a node that analysts can use for their federated learning models.
 
 ## Overview
-For setting up either a local node or the hub instance the following instructions are prepared:
 
-**``Node``**
-- [Registration](./node-registration)
-- Installation
-    -  [Setup microk8s and Helm](./microk8s-quickstart)
-    -  [FLAME Node Deployment](./node-installation)
+Below are links to the tasks that need to be completed to successfully create a FLAME Node:
 
-**`Hub`**
-- [Introduction](./hub-introduction)
+**`Deployment`**
+
+- [Hub Registration](/guide/deployment/node-registration)
+- [Setup microk8s and Helm](/guide/deployment/microk8s-quickstart)
+- [FLAME Node Deployment](/guide/deployment/node-installation)
