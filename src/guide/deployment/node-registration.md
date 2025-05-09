@@ -47,8 +47,7 @@ purpose.
 ![Hub Crypto](/images/ui_images/hub_crypto.png)
 
 Navigate to the "Crypto" tab and click on the "Generate" button at the bottom of the window. A public and private key
-pair will be generated. The user should copy the contents of the "PrivateKey" section to a new file on the server
-which is deploying the FLAME Node and name it `private_key.pem`.
+pair will be generated. The user should copy the contents of the "PrivateKey" section to a **local file and save it**. We will need this key during installation and will no longer be accessible in your browser after you navigate away from the Crypto tab.
 
 ::: tip
 Be sure to include the `-----BEGIN PRIVATE KEY-----` and `-----END PRIVATE KEY-----` sections when copying the private

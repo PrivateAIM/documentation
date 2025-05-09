@@ -4,23 +4,23 @@ This section will provide instructions for deploying the FLAME node software on 
 
 **These instructions assume that you have done the following:**
 
-* [Node has been registered in the Hub UI](./node-registration#creating-a-node-in-the-hub)
-* [Credentials for your node's robot were generated and saved](./node-registration#robot-credentials)
-* [A keypair was generated](./node-registration#crypto) and the private key was saved as `private_key.pem`
+-   [Node has been registered in the Hub UI](./node-registration#creating-a-node-in-the-hub)
+-   [Credentials for your node's robot were generated and saved](./node-registration#robot-credentials)
+-   [A keypair was generated](./node-registration#crypto) and the private key was saved as `private_key.pem`
 
 ## Requirements
 
 ### Hardware
 
-* 8 cores
-* 16GB (minimum) - 32GB (recommended) RAM
-* 100GB storage
+-   8 cores
+-   16GB (minimum) - 32GB (recommended) RAM
+-   100GB storage
 
 ### Networking
 
-* Ports 22 and 443 are open
-* Access to the internet for communicating with the Hub
-* A hostname that directs to the server running the FLAME Node software
+-   Ports 22 and 443 are open
+-   Access to the internet for communicating with the Hub
+-   A hostname that directs to the server running the FLAME Node software
 
 ### Software
 
@@ -36,9 +36,9 @@ system configurations. The only requirement for the FLAME Node software is that 
 is installed in your k8s installation to allow for network policy management. The following distributions have been
 tested for use with the Node software:
 
-* [microk8s](https://microk8s.io/docs/getting-started)
-* [minikube](https://minikube.sigs.k8s.io/docs/start/?arch=%2Fwindows%2Fx86-64%2Fstable%2F.exe+download)
-* [Kubernetes](https://kubernetes.io/docs/setup/)
+-   [microk8s](https://microk8s.io/docs/getting-started)
+-   [minikube](https://minikube.sigs.k8s.io/docs/start/?arch=%2Fwindows%2Fx86-64%2Fstable%2F.exe+download)
+-   [Kubernetes](https://kubernetes.io/docs/setup/)
 
 #### Helm
 
@@ -50,24 +50,33 @@ multi-service software and we highly recommend using this tool for installing th
 
 ## Preparation
 
-In order to deploy a node, you will need the following pieces of information for your node's robot from the Hub:
+In order to deploy a node, you will need the following pieces of information from the Hub:
 
-1. ID
-2. Secret (not hashed!)
+1. Robot ID
+2. Robot Secret (not hashed!)
+3. Private Key
 
 With this information, you can either edit the `values.yaml` file included with the FLAME Node helm chart or create
 your own values template file to be used during deployment. Here is a minimal example of a values file:
 
 ```yaml
 global:
-    hub:
-        auth:
-            robotUser: <Robot ID>
-            robotSecret: <Robot Secret>
+  hub:
+    auth:
+      robotUser: <Robot ID>
+      robotSecret: <Robot Secret>
     node:
-        ingress:
-            enabled: true
-            hostname: https://your.node.ui.domain.com
+      ingress:
+        enabled: true
+        hostname: https://your.node.ui.domain.com
+
+flame-node-result-service:
+  hub:
+    crypto:
+      privateKey: |
+        -----BEGIN PRIVATE KEY-----
+        myExamplePrivateKey
+        -----END PRIVATE KEY-----
 ```
 
 Be sure to enable `ingress` in your values file, otherwise, your hostname will not resolve.
@@ -101,12 +110,7 @@ An example of how to configure this in for your cluster can be seen in this
 
 ## Installation
 
-At this point, you should have the following:
-
-* A values file (e.g. `my-values.yaml`) with the robot credentials for this node
-* A private key stored in a file called `private_key.pem`
-
-If both of these files are in your current working directory, then you can proceed with deploying the FLAME Node by
+At this point, you should have a custom values file (e.g. `my-values.yaml`) which contains the robot credentials and private key for your node. If you have all of this information, then you can proceed with deploying the FLAME Node by
 either using the FLAME repo <u>**OR**</u> cloning the Github repository.
 
 ::: info Note
@@ -138,12 +142,6 @@ contains the parent helm chart used for the deployment.
 git clone https://github.com/PrivateAIM/helm.git
 ```
 
-Copy your edited values (e.g. `my-values.yaml`) and private key files to `helm/charts/flame-node/`
-
-```bash
-cp my-values.yaml private_key.pem ./helm/charts/flame-node/
-```
-
 Navigate to the FLAME Node helm chart directory and compile its sub-charts:
 
 ```bash
@@ -154,7 +152,7 @@ helm dependency build
 Then you can deploy the FLAME Node using this local helm chart:
 
 ```bash
-helm install flame-node -f my-values.yaml . 
+helm install flame-node -f my-values.yaml .
 ```
 
 ::: warning Startup Time
@@ -177,25 +175,25 @@ services:
 
 ```yaml
 global:
-    hub:
-        auth:
-            robotUser: <Robot ID>
-            robotSecret: <Robot Secret>
-    node:
-        ingress:
-            enabled: false
-            hostname: ""
+  hub:
+    auth:
+      robotUser: <Robot ID>
+      robotSecret: <Robot Secret>
+  node:
+    ingress:
+      enabled: false
+      hostname: ""
 ```
 
-Be sure to still populate the `robotUser` and `robotSecret` with the credentials obtained from the Hub.
+Be sure to still populate the `robotUser` and `robotSecret` with the credentials obtained from the Hub as well as the private key for the result service.
 
 ### Accessing the Services
 
 Once you have deployed the FLAME Node with the ingress disabled, three services need to be port-forwarded:
 
-* Node UI
-* Hub Adapter
-* Keycloak
+-   Node UI
+-   Hub Adapter
+-   Keycloak
 
 #### Get the Service Names
 
