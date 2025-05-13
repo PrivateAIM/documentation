@@ -65,10 +65,10 @@ global:
     auth:
       robotUser: <Robot ID>
       robotSecret: <Robot Secret>
-    node:
-      ingress:
-        enabled: true
-        hostname: https://your.node.ui.domain.com
+  node:
+    ingress:
+      enabled: true
+      hostname: https://your.node.ui.domain.com
 
 flame-node-result-service:
   hub:
@@ -80,6 +80,8 @@ flame-node-result-service:
 ```
 
 Be sure to enable `ingress` in your values file, otherwise, your hostname will not resolve.
+
+The crypto private key can also be provided using an existing secret. For more information on how to do this, see [Using an Existing Secret for the Crypto Private Key](./node-troubleshooting#using-an-existing-secret-for-the-crypto-private-key).
 
 ::: info Note
 The default installation method assumes that if you have SSL enabled (i.e. using HTTPS), then this is handled by
