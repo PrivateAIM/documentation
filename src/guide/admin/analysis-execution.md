@@ -7,12 +7,12 @@ To see the statuses of the approved analyses for your node, click the "Analyses"
 the Node UI after logging in.
 
 ## Table Overview
-The analysis table provides an overview of all the approved analyses on your node as well as display their current 
-states in the "Run Status" column. The columns have the table have various options for sorting the entries 
+The analysis table provides an overview of all the approved analyses on your node as well as displays their current 
+states in the "Run Status" column. The columns of the table have various options for sorting the entries 
 including being able to filter by certain categorical variables in addition to ordering by name or date. 
 
 ::: info Detailed Dates
-Hovering your mouse cursor over a date with show the exact date and time
+Hovering your mouse cursor over a date will show the exact date and time
 :::
 
 The search bar above the table allows the admin to quickly search for specific analyses using keywords or identifiers. 
