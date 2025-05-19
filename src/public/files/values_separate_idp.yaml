@@ -8,24 +8,18 @@ global:
       enabled: true
       hostname: https://your.node.ui.domain.com
 
-keycloak:
-  auth:
-     adminUser: admin
-     adminPassword: admin
-
-  proxyHeaders: ""
-  ## @param global.keycloak.hostname Hostname for a separate instance of keycloak. Overrides the /keycloak subpath
-  ## Leave this blank unless you want to use your own IDP
-  hostname: https://my.own.keycloak.instance.de
+  userIdp:
+    ## @param global.userIdp.hostname Hostname for a separate IDP to manage users who can access the FLAME Node UI.
+    ## The URL provided should be the issuer URL of the IDP.
+    ## Leave this blank unless you want to use your own IDP for user authentication
+    hostname: https://my.own.keycloak.instance.de/realms/myRealm
 
 flame-node-ui:
   idp:
     clientId: <Client ID for Node UI>
     clientSecret: <Client Secret for Node UI>
-    realm: <Realm for Node UI Client>
 
 flame-node-hub-adapter:
   idp:
     clientId: <Client ID for Hub Adapter>
     clientSecret: <Client Secret for Hub Adapter>
-    realm: <Realm for Hub Adapter Client>

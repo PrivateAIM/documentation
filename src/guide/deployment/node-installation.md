@@ -101,12 +101,11 @@ Adapter and the Node UI will have to be created and their secrets set in the val
 For better security, this software uses Keycloak for authenticating the various services and users that make up FLAME.
 Keycloak is installed along with the other services and is required for the creation and management of the individual
 analyses. Using the keycloak console, the admin you can add additional users who can access the FLAME UI, but you may
-also use your own IDP for authentication if you wish.
+also use your own IDP for user authentication if you wish.
 
-To enable this, first you must create individual clients for both the Node UI and the Hub Adapter in your IDP in either
-their own realm, or in a realm with the users you wish to grant access to.
+To enable this, first you must create individual clients for both the Node UI and the Hub Adapter in your IDP.
 Be sure to enable client authentication and take note of the client ID and secret for both of these newly created
-clients as this information as well as the (accessible) URL for your IDP must be provided in the `values.yaml`.
+clients as this information along with the (accessible) URL for your IDP must be provided in the `values.yaml`.
 An example of how to configure this in for your cluster can be seen in this
 <a href="/files/values_separate_idp.yaml" download>separate IDP example</a>.
 
@@ -163,14 +162,17 @@ to properly import the configuration. This can cause the `helm install` to hang 
 is deployed and verified, so please have patience during this step and do not prematurely cancel the command.
 :::
 
-## Deploying without a Domain
+## Deploying without a Resolvable Domain Name (FQDN)
 
-There are circumstances in which the FLAME Node needs to be deployed without a fully qualified domain name (FQDN).
-In this case, the UI and other services will not be reachable via a domain or hostname. Those with access to the server
-running the services can port forward the individual containers for each of the services and access them in their
-browser using the forwarded ports.
+It is highly recommended to deploy the FLAME Node using a domain or hsotname that is configured within your institution's DNS or proxy. However, 
+there may be circumstances in which you want to deploy the software without providing an accessible domain or hostname.
+In such cases, thee are a couple of options for configuring the FLAME Node such that you can still access the Node UI.
 
-### Disable Ingress
+1. Those with access to the server running the services can [port forward](https://kubernetes.io/docs/reference/kubectl/generated/kubectl_port-forward/) the individual containers for each of the services and access them in their browser using the forwarded ports
+2. On one or multiple machines, manually map the IP address of the FLAME Node server to a hostname
+
+### Port Forward
+#### Disable Ingress
 
 When deploying the FLAME node without a hostname, the values file must be configured to disable ingress for the
 services:
@@ -189,7 +191,7 @@ global:
 
 Be sure to still populate the `robotUser` and `robotSecret` with the credentials obtained from the Hub as well as the private key for the result service.
 
-### Accessing the Services
+#### Accessing the Services
 
 Once you have deployed the FLAME Node with the ingress disabled, three services need to be port-forwarded:
 
@@ -197,7 +199,7 @@ Once you have deployed the FLAME Node with the ingress disabled, three services 
 -   Hub Adapter
 -   Keycloak
 
-#### Get the Service Names
+##### Get the Service Names
 
 Depending on what the helm deployment was named, the service names will vary. In our example above, we used
 `flame-node` for the release name so each of the services will have this as a prefix.
@@ -210,7 +212,7 @@ kubectl get svc
 
 ![services.png](../../public/images/installation/services.png)
 
-#### Port Forward the Services
+##### Port Forward the Services
 
 Using the names obtained in the previous section, we can forward the ports these services are using to the same ports
 on our local machine:
@@ -223,3 +225,41 @@ kubectl port-forward svc/flame-node-keycloak 8080:80
 
 Now you can access these services in your browser. For example, to access the Node UI, open a browser and navigate to
 `http://localhost:3000`.
+
+### Map a Hostname
+It is possible to override a DNS entry by manually mapping an IP address to a hostname or URL in your local `hosts` file. On Unix systems, 
+this file is often located at `/etc/hosts` and it Windows it can be found at `C:\windows\system32\drivers\etc\hosts`. If you choose to do this, 
+only the machines with this manual configuration will be able to access the Node UI.
+
+#### Enable Offline Mode
+Because the provided hostname is only resolvable on those machines for which the hostname and IP were manually mapped to one another, the k8s 
+cluster will not be able to find the other services using this name. Thus, when deploying the FLAME Node in this manner, the Node UI and Hub Adapter 
+must have `offline` set to `true` in their configurations so that they can still communicate with the included keycloak instance for client authentication. 
+
+Other settings can be left as though a FQDN is being used including enabling ingress and providing the locally resolvable hostname. Your `values.yaml` should 
+look similar to this:
+```yaml
+global:
+  hub:
+    auth:
+      robotUser: <Robot ID>
+      robotSecret: <Robot Secret>
+  node:
+    ingress:
+      enabled: true
+      hostname: http://your.locally.resolvable.hostname
+
+flame-node-result-service:
+  hub:
+    crypto:
+      privateKey: |
+        -----BEGIN PRIVATE KEY-----
+        myExamplePrivateKey
+        -----END PRIVATE KEY-----
+
+flame-node-hub-adapter:
+  offline: true
+
+flame-node-ui:
+  offline: true
+```
