@@ -8,8 +8,12 @@ export const deploymentRoutes = [
         link: '/node-registration'
     },
     {
-        text: 'Setup microk8s and Helm',
-        link: '/microk8s-quickstart'
+        text: 'Installing k8s',
+        collapsed: true,
+        items: [
+            {text: 'microk8s', link: '/microk8s-quickstart'},
+            {text: 'minikube', link: '/minikube-quickstart'},
+        ]
     },
     {
         text: 'FLAME Node Deployment',

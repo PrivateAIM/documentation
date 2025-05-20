@@ -12,5 +12,7 @@ Below are links to the tasks that need to be completed to successfully create a 
 **`Deployment`**
 
 - [Hub Registration](/guide/deployment/node-registration)
-- [Setup microk8s and Helm](/guide/deployment/microk8s-quickstart)
+- Installing k8s (choose one)
+    - [microk8s](/guide/deployment/microk8s-quickstart)
+    - [minikube](/guide/deployment/minikube-quickstart)
 - [FLAME Node Deployment](/guide/deployment/node-installation)
