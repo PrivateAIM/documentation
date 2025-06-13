@@ -12,7 +12,7 @@ data integration and exchange across different systems.
 
 ## Application in FLAME
 In the FLAME platform, FHIR queries enable users to extract specific data from the MII core dataset, leveraging the standardized structure
-to conduct analyses across multiple nodes while maintaining data security and privacy. This is crucial for distributed learning and research
+to conduct analyzes across multiple nodes while maintaining data security and privacy. This is crucial for distributed learning and research
 in healthcare, allowing for the aggregation of data without compromising sensitive information.
 
 ### Example FHIR Query
@@ -28,5 +28,5 @@ These queries search for patients born after specified dates who have a specific
 You can customize FHIR queries to fit the specific needs of your analysis. These queries can filter data based on various patient attributes,
 such as demographics, conditions, or encounters, allowing for flexible and targeted data retrieval across different healthcare datasets.
 
-This allows analysts to perform precise and relevant analyses while ensuring the privacy of patient data by processing it
+This allows analysts to perform precise and relevant analyzes while ensuring the privacy of patient data by processing it
 in a federated manner across multiple nodes.
