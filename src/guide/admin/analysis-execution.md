@@ -1,13 +1,13 @@
 # Analysis Execution
 
-One of the primary functions of the Node UI is to allow admins to control the analyses running on their node. This page 
+One of the primary functions of the Node UI is to allow admins to control the analyzes running on their node. This page 
 describes the different features in the Node UI for managing and interacting with the analysis containers.
 
-To see the statuses of the approved analyses for your node, click the "Analyses" button in the menu bar at the top of 
+To see the statuses of the approved analyzes for your node, click the "Analyses" button in the menu bar at the top of 
 the Node UI after logging in.
 
 ## Table Overview
-The analysis table provides an overview of all the approved analyses on your node as well as displays their current 
+The analysis table provides an overview of all the approved analyzes on your node as well as displays their current 
 states in the "Run Status" column. The columns of the table have various options for sorting the entries 
 including being able to filter by certain categorical variables in addition to ordering by name or date. 
 
@@ -15,7 +15,7 @@ including being able to filter by certain categorical variables in addition to o
 Hovering your mouse cursor over a date will show the exact date and time
 :::
 
-The search bar above the table allows the admin to quickly search for specific analyses using keywords or identifiers. 
+The search bar above the table allows the admin to quickly search for specific analyzes using keywords or identifiers. 
 Additionally, to get the latest entries without refreshing the whole page, simply click the white "refresh" button 
 above the table on the right side of the page.
 
@@ -49,7 +49,7 @@ During an analysis run, a node admin may want to halt an analysis container manu
 yellow stop button will be enabled and can be used to prematurely stop the container. After stopping the run, the 
 green play button will change to indicate that the admin can rerun the analysis if they choose.
 
-Analyses that have run to completion will enter this "stopped" state by default.
+Analyzes that have run to completion will enter this "stopped" state by default.
 
 ### Deleting an Analysis Run
 
