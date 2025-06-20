@@ -47,9 +47,9 @@ created.
 ### Purpose
 
 The Message Broker is a service for sending and receiving messages between nodes.
-It used for simple communication between nodes for control and small data exchange purposes.
-Note that Volume Data, such as ML models, should be exchanged using the Result Service.
-The maximum size of messages sent is around 2 MBs.
+It is used for simple communication between nodes for control and small data exchange purposes.
+Note that volume data, such as ML models, should be exchanged using the Result Service.
+The maximum size of messages sent is around 2 MB.
 
 ### List of available methods
 
@@ -71,7 +71,7 @@ Sends a message to all specified nodes.
   acknowledge (2nd element)
 * awaits acknowledgment responses within timeout
 * if timeout is set, the timeout for each attempt in max_attempts is set to timeout/max_attempts, else if timeout is set
-  to None, the timeout for each attempt is set to attempt_timeout (with the exception of the last attempt which will
+  to None, the timeout for each attempt is set to attempt_timeout (with the exception of the last attempt which will be
   indefinite)
 * if silent is set to True, the response will not be logged
 
@@ -179,7 +179,7 @@ Send message to specified receivers and halt process until a message from all re
 # Example usage
 # Send intermediate and await and return aggregated results
 flame.send_message_and_wait_for_responses(receivers=[aggregator_id],
-                                          message_category='intermedaite_results',
+                                          message_category='intermediate_results',
                                           message={'result': data_submission['id']},
                                           timeout=None)[aggregator_id][-1].body['result']
 ```
@@ -189,7 +189,7 @@ flame.send_message_and_wait_for_responses(receivers=[aggregator_id],
 ### Purpose
 
 The Storage Service is a service for saving and exchanging results between nodes of one analysis and locally between
-different analyzes of the same Project.
+different analyzes of the same project.
 
 ### List of available methods
 
@@ -204,8 +204,7 @@ submit_final_result(result: Any,
 Submits the final result to the hub, making it available for analysts to download.
 
 * this method is only available for nodes for which the method `flame.get_role()` returns "aggregator”
-* specifying the output_type changes the result's format to either a binary ('bytes'), text ('str'), or pickle file ('
-  pickle)
+* specifying the output_type changes the result's format to either a binary ('bytes'), text ('str'), or pickle file ('pickle')
 * returns a brief dictionary response upon success
 * if silent is set to True, the response will not be logged
 
@@ -229,7 +228,7 @@ Saves intermediate results/data either on the hub (location="global").
 
 * if remote_node_ids is None, i.e. if intermediate data shouldn't be encrypted
     * returns a dictionary response containing the success state, the url to the submission location, and the id of the
-      saved data's storage.
+      saved data's storage
         * utilizing the id, allows for retrieval of the saved data (see '*#Get intermediate data*')
             * only possible for the node that saved the data if saved locally
             * for all nodes participating in the same analysis if saved globally
@@ -281,13 +280,13 @@ send_intermediate_data(receivers: list[nodeID],
 ```
 
 Sends intermediate data to specified receivers using the Result Service and Message Broker.\
-*Combines functions `save_intermediate_data('global')` and `send_message`.
+* Combines functions `save_intermediate_data('global')` and `send_message`.
 
 * returns a tuple with the lists of nodes that acknowledged the message (1st element) and the list that did not
   acknowledge (2nd element)
 * awaits acknowledgment responses within timeout
 * if silent is set to True, the response will not be logged
-* if encrypted set to True, data will be send using ECDH
+* if encrypted set to True, data will be sent using ECDH
 
 ```python
 # Example usage
@@ -306,7 +305,7 @@ await_intermediate_data(senders: list[nodeID],
 Waits for messages containing intermediate data ids from specified senders and retrieves the data.\
 
 * Combines functions `await_messages` and `get_intermediate_data('global')`.
-* returns dictionary using the senders' nodeIDs as keys and the respectively retrieved data as values
+* returns a dictionary using the senders' nodeIDs as keys and the respectively retrieved data as values
 
 ```python
 # Example usage
