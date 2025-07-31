@@ -49,8 +49,7 @@ kubectl create secret generic super-safe-node-key --from-file=private_key.pem=/p
 ### Use Secret in `values.yaml`
 Now that we have a sceret with our private crypto key, we can use that secret when deploying the node by providing the name of the secret in the `values.yaml`:
 ```yaml
-flame-node-result-service:
-  hub:
-    crypto:
-      existingSecret: super-safe-node-key
+hub:
+  crypto:
+    existingSecret: super-safe-node-key
 ```

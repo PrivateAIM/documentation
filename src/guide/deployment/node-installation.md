@@ -61,22 +61,20 @@ your own values template file to be used during deployment. Here is a minimal ex
 
 ```yaml
 global:
-  hub:
-    auth:
-      robotUser: <Robot ID>
-      robotSecret: <Robot Secret>
   node:
     ingress:
       enabled: true
       hostname: https://your.node.ui.domain.com
 
-flame-node-result-service:
-  hub:
-    crypto:
-      privateKey: |
-        -----BEGIN PRIVATE KEY-----
-        myExamplePrivateKey
-        -----END PRIVATE KEY-----
+hub:
+  auth:
+    robotUser: <Robot ID>
+    robotSecret: <Robot Secret>
+  crypto:
+    privateKey: |
+      -----BEGIN PRIVATE KEY-----
+      myExamplePrivateKey
+      -----END PRIVATE KEY-----
 ```
 
 Be sure to enable `ingress` in your values file, otherwise, your hostname will not resolve.
@@ -162,9 +160,40 @@ to properly import the configuration. This can cause the `helm install` to hang 
 is deployed and verified, so please have patience during this step and do not prematurely cancel the command.
 :::
 
-## Deploying without a Resolvable Domain Name (FQDN)
+## Forward Proxies
 
-It is highly recommended to deploy the FLAME Node using a domain or hsotname that is configured within your institution's DNS or proxy. However, 
+If your server is behind a proxy i.e. all traffic is routed through a specific address and/or port, then the FLAME Node needs to be configured 
+to use the same forward proxy for its requests.
+
+An easy way to tell if a proxy is configured on your machine is to run `echo $HTTP_PROXY` or check the `/etc/environment` file while logged into the server. 
+If any of the `HTTP_PROXY`, `HTTPS_PROXY`, `http_proxy`, or `https_proxy` variables are populated, then the machine is likely behind a proxy and this address needs to be 
+added to the `my-values.yaml` file as shown here:
+
+```yaml
+global:
+  node:
+    ingress:
+      enabled: true
+      hostname: https://your.node.ui.domain.com
+
+hub:
+  auth:
+    robotUser: <Robot ID>
+    robotSecret: <Robot Secret>
+  crypto:
+    privateKey: |
+      -----BEGIN PRIVATE KEY-----
+      myExamplePrivateKey
+      -----END PRIVATE KEY-----
+
+proxy:
+  httpProxy: "http://my.example.proxy.de:3128"
+  httpsProxy: "http://my.example.proxy.de:3128"
+```
+
+## Deploying without a Domain Name
+
+It is highly recommended to deploy the FLAME Node using a domain or hostname that is configured within your institution's DNS or proxy. However, 
 there may be circumstances in which you want to deploy the software without providing an accessible domain or hostname.
 In such cases, thee are a couple of options for configuring the FLAME Node such that you can still access the Node UI.
 
@@ -179,14 +208,20 @@ services:
 
 ```yaml
 global:
-  hub:
-    auth:
-      robotUser: <Robot ID>
-      robotSecret: <Robot Secret>
   node:
     ingress:
       enabled: false
       hostname: ""
+
+hub:
+  auth:
+    robotUser: <Robot ID>
+    robotSecret: <Robot Secret>
+  crypto:
+    privateKey: |
+      -----BEGIN PRIVATE KEY-----
+      myExamplePrivateKey
+      -----END PRIVATE KEY-----
 ```
 
 Be sure to still populate the `robotUser` and `robotSecret` with the credentials obtained from the Hub as well as the private key for the result service.
@@ -240,26 +275,20 @@ Other settings can be left as though a FQDN is being used including enabling ing
 look similar to this:
 ```yaml
 global:
-  hub:
-    auth:
-      robotUser: <Robot ID>
-      robotSecret: <Robot Secret>
   node:
     ingress:
       enabled: true
       hostname: http://your.locally.resolvable.hostname
 
-flame-node-result-service:
-  hub:
-    crypto:
-      privateKey: |
-        -----BEGIN PRIVATE KEY-----
-        myExamplePrivateKey
-        -----END PRIVATE KEY-----
+hub:
+  auth:
+    robotUser: <Robot ID>
+    robotSecret: <Robot Secret>
+  crypto:
+    privateKey: |
+      -----BEGIN PRIVATE KEY-----
+      myExamplePrivateKey
+      -----END PRIVATE KEY-----
 
-flame-node-hub-adapter:
-  offline: true
-
-flame-node-ui:
-  offline: true
+offline: true
 ```
