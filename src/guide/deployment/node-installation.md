@@ -245,7 +245,7 @@ Get a list of currently running services (and their names) with
 kubectl get svc
 ```
 
-![services.png](../../public/images/installation/services.png)
+![services.png](/images/installation/services.png)
 
 ##### Port Forward the Services
 
