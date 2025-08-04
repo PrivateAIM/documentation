@@ -1,12 +1,18 @@
 global:
-  hub:
-    auth:
-      robotUser: <Robot ID>
-      robotSecret: <Robot Secret>
   node:
     ingress:
       enabled: true
       hostname: https://your.node.ui.domain.com
+
+hub:
+  auth:
+    robotUser: <Robot ID>
+    robotSecret: <Robot Secret>
+  crypto:
+    privateKey: |
+      -----BEGIN PRIVATE KEY-----
+      myExamplePrivateKey
+      -----END PRIVATE KEY-----
 
 keycloak:
   auth:
