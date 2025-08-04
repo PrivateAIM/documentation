@@ -63,7 +63,7 @@ It may be that your server has a separate volume mounted for mass storage. By de
 df -h
 ```
 <figure style="margin: 3em 0 3em 0">
-<img src="../../public/images/installation/logical_volumes.png" style="display: block; margin: auto" alt="LV sizes" />
+<img src="/images/installation/logical_volumes.png" style="display: block; margin: auto" alt="LV sizes" />
 <figcaption style="text-align:center"><b>Example output</b>. Here the root file system, installed at <code>/</code> 
 (yellow arrow) only has 13GB available, 
 but a different LV mounted at <code>/mnt/vdb1</code> (green arrow) has 435GB.</figcaption></figure>

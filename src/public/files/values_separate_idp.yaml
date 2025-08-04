@@ -1,25 +1,31 @@
 global:
-  hub:
-    auth:
-      robotUser: <Robot ID>
-      robotSecret: <Robot Secret>
   node:
     ingress:
       enabled: true
       hostname: https://your.node.ui.domain.com
 
-  userIdp:
-    ## @param global.userIdp.hostname Hostname for a separate IDP to manage users who can access the FLAME Node UI.
-    ## The URL provided should be the issuer URL of the IDP.
-    ## Leave this blank unless you want to use your own IDP for user authentication
-    hostname: https://my.own.keycloak.instance.de/realms/myRealm
+hub:
+  auth:
+    robotUser: <Robot ID>
+    robotSecret: <Robot Secret>
+  crypto:
+    privateKey: |
+      -----BEGIN PRIVATE KEY-----
+      myExamplePrivateKey
+      -----END PRIVATE KEY-----
 
-flame-node-ui:
+userIdp:
+  ## @param userIdp.hostname Hostname for a separate IDP to manage users who can access the FLAME Node UI.
+  ## The URL provided should be the issuer URL of the IDP.
+  ## Leave this blank unless you want to use your own IDP for user authentication
+  hostname: https://my.own.keycloak.instance.de/realms/myRealm
+
+ui:
   idp:
     clientId: <Client ID for Node UI>
     clientSecret: <Client Secret for Node UI>
 
-flame-node-hub-adapter:
+hubAdapter:
   idp:
     clientId: <Client ID for Hub Adapter>
     clientSecret: <Client Secret for Hub Adapter>
