@@ -1,28 +1,23 @@
-# Single round aggregation using
+# Single-round aggregation using `fedstats`
 
-This example shows how a simple aggregation of local regression results can be performed using FLAME using functionalities of `fedstats`.\
-We conduct a Cox-regression at every node and aggregate the results. Aggregation is done by weighting all single coefficients by
-their inverse variance (diagonal of Fisher information matrix). More details of the method can be found, for instance, in &nbsp;[1](#ref-willer2010).
+This example demonstrates how to aggregate local **Cox regression** results in **FLAME** with the help of `fedstats`.  
+We fit a Cox regression on each node and combine the coefficients by weighting them with the inverses of their variances (the diagonal elements of the Fisher information matrix). For methodological details, see [1](#ref-willer2010).
 
 ## Procedure
 
 > [!NOTE]  
-> As this is an illustrative example, we make some simplifications concerning the data and the model.  
-> We do not use and stored data, but use some dummy data from the `lifelines` package.
-> We also run a Cox-regression and consider it as a sufficient model.
+> Info about `StarAnalyzer`, `StarAggregator`, their mandatory components and the `main()` function can be found in other tutorials.
 
-The full procedure is like this:
+1. **Local analysis**  
+   1. Load the dummy data with `load_rossi()` and randomly select 50 % of the observations to reduce the sample size.  
+   2. Fit `CoxPHFitter`.  
+   3. Extract the point estimates and their standard deviations.  
+   4. Return the results as a list of tuples from `analysis_method()` (the format expected by the aggregator).
 
-1. A Cox regression model is calculated at each node using `CoxPHFitter` from the `lifelines` package.  
-    1.1 Load dummy data using `load_rossi()` from the `lifelines` package and sample 50% of the data to reduce power.  
-    1.2 Fit the model.  
-    1.3 Extract relevant info from the model (point estimate and standard deviations)  
-    1.4 Return it as a list of tuples from `analysis_method()`, that is expected format for the aggregation.  
-
-2. Aggregation using `MetaAnalysisAggregation` from `fedstats` and compare it with full data.  
-    2.1 Fit model on full data (load data on aggregation node and fit again a Cox model) for reference and extract relevant info.  
-    2.2 Aggregate results from nodes by initializing a `MetaAnalysisAggregation` instance and use `aggregate_results()` and get relevant info.  
-    2.3 Return all results as one `pandas.DataFrame` that can be downloaded from the HubUI.  
+2. **Aggregation and comparison**  
+   1. On the aggregation node, fit the same Cox model on the *full* data for reference and extract the relevant information.  
+   2. Instantiate `MetaAnalysisAggregation`, call `aggregate_results()`, and retrieve the aggregated coefficients and confidence intervals.  
+   3. Combine the reference and aggregated results into a single `pandas.DataFrame` that can be downloaded from the Hub UI.
 
 > [!NOTE]  
 > Info about `StarAnalyzer`, `StarAggregator`, their mandatory components and the `main()` function can be found in other tutorials.
