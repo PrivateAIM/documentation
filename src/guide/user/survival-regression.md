@@ -13,16 +13,16 @@ their inverse variance (diagonal of Fisher information matrix). More details of 
 
 The full procedure is like this:
 
-1. A Cox regression model is calculated at each node using `CoxPHFitter` from the `lifelines` package.
-    1.1 Load dummy data using `load_rossi()` from the `lifelines` package and sample 50% of the data to reduce power.
-    1.2 Fit the model.
-    1.3 Extract relevant info from the model (point estimate and standard deviations)
-    1.4 Return it as a list of tuples from `analysis_method()`, that is expected format for the aggregation.
+1. A Cox regression model is calculated at each node using `CoxPHFitter` from the `lifelines` package.  
+    1.1 Load dummy data using `load_rossi()` from the `lifelines` package and sample 50% of the data to reduce power.  
+    1.2 Fit the model.  
+    1.3 Extract relevant info from the model (point estimate and standard deviations)  
+    1.4 Return it as a list of tuples from `analysis_method()`, that is expected format for the aggregation.  
 
-2. Aggregation using `MetaAnalysisAggregation` from `fedstats` and compare it with full data.
-    2.1 Fit model on full data (load data on aggregation node and fit again a Cox model) for reference and extract relevant info.
-    2.2 Aggregate results from nodes by initializing a `MetaAnalysisAggregation` instance and use `aggregate_results()` and get relevant info.
-    2.3 Return all results as one `pandas.DataFrame` that can be downloaded from the HubUI.
+2. Aggregation using `MetaAnalysisAggregation` from `fedstats` and compare it with full data.  
+    2.1 Fit model on full data (load data on aggregation node and fit again a Cox model) for reference and extract relevant info.  
+    2.2 Aggregate results from nodes by initializing a `MetaAnalysisAggregation` instance and use `aggregate_results()` and get relevant info.  
+    2.3 Return all results as one `pandas.DataFrame` that can be downloaded from the HubUI.  
 
 > [!NOTE]  
 > Info about `StarAnalyzer`, `StarAggregator`, their mandatory components and the `main()` function can be found in other tutorials.
