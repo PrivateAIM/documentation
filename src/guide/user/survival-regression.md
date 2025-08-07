@@ -2,11 +2,15 @@
 
 This example shows how a simple aggregation of local regression results can be performed using FLAME using functionalities of `fedstats`.\
 We conduct a Cox-regression at every node and aggregate the results. Aggregation is done by weighting all single coefficients by
-their inverse variance (diagonal of Fisher information matrix). More details of the method can be found, for instance, in &nbsp;[1](#ref-willer2010).\
+their inverse variance (diagonal of Fisher information matrix). More details of the method can be found, for instance, in &nbsp;[1](#ref-willer2010).
 
 ## Procedure
 
-As this is an illustrative example, we make some simplifications concerning the data and the model.\
+> [!NOTE]  
+> As this is an illustrative example, we make some simplifications concerning the data and the model.  
+> We do not use and stored data, but use some dummy data from the `lifelines` package.
+> We also run a Cox-regression and consider it as a sufficient model.
+
 The full procedure is like this:
 
 1. A Cox regression model is calculated at each node using `CoxPHFitter` from the `lifelines` package.
@@ -33,26 +37,9 @@ import pandas as pd
 
 class LocalCoxModel(StarAnalyzer):
     def __init__(self, flame):
-        """
-        Initializes the custom Analyzer node.
-
-        :param flame: Instance of FlameCoreSDK to interact with the FLAME components.
-        """
         super().__init__(flame)  # Connects this analyzer to the FLAME components
 
     def analysis_method(self, data, aggregator_results):
-        """
-        Performs analysis on the retrieved data from data sources.
-
-        :param data: A list of dictionaries containing the data from each data source.
-                     - Each dictionary corresponds to a data source.
-                     - Keys are the queries executed, and values are the results (dict for FHIR, str for S3).
-        :param aggregator_results: Results from the aggregator in previous iterations.
-                                   - None in the first iteration.
-                                   - Contains the result from the aggregator's aggregation_method in subsequent iterations.
-        :return: Any result of your analysis on one node (ex. patient count).
-        """
-
         data = load_rossi()
         # use a fraction 50% randomly selected data
         data = data.sample(frac=0.5).reset_index(drop=True)
@@ -65,20 +52,9 @@ class LocalCoxModel(StarAnalyzer):
 
 class ResultsAggregator(StarAggregator):
     def __init__(self, flame):
-        """
-        Initializes the custom Aggregator node.
-
-        :param flame: Instance of FlameCoreSDK to interact with the FLAME components.
-        """
         super().__init__(flame)  # Connects this aggregator to the FLAME components
 
     def aggregation_method(self, analysis_results):
-        """
-        Aggregates the results received from all analyzer nodes.
-
-        :param analysis_results: A list of analysis results from each analyzer node.
-        :return: The aggregated result (e.g., total patient count across all analyzers).
-        """
         # fit the model on the full data set for comparison
         data = load_rossi()
         cph = CoxPHFitter()
@@ -111,34 +87,18 @@ class ResultsAggregator(StarAggregator):
         return pd.concat((res_full_data, res_aggregated))
 
     def has_converged(self, result, last_result, num_iterations):
-        """
-        Determines if the aggregation process has converged.
-
-        :param result: The current aggregated result.
-        :param last_result: The aggregated result from the previous iteration.
-        :param num_iterations: The number of iterations completed so far.
-        :return: True if the aggregation has converged; False to continue iterations.
-        """
-        return True  # Return True to indicate convergence in this simple analysis
+        return True  # Return True as we only have one round
 
 
 def main():
-    """
-    Sets up and initiates the distributed analysis using the FLAME components.
-
-    - Defines the custom analyzer and aggregator classes.
-    - Specifies the type of data and queries to execute.
-    - Configures analysis parameters like iteration behavior and output format.
-    """
     StarModel(
-        analyzer=LocalCoxModel,  # Custom analyzer class (must inherit from StarAnalyzer)
-        aggregator=ResultsAggregator,  # Custom aggregator class (must inherit from StarAggregator)
-        data_type="s3",  # Type of data source ('fhir' or 's3')
-        # query="Patient?_summary=count",  # Query or list of queries to retrieve data
-        simple_analysis=True,  # True for single-iteration; False for multi-iterative analysis
-        output_type="str",  # Output format for the final result ('str', 'bytes', or 'pickle')
-        analyzer_kwargs=None,  # Additional keyword arguments for the custom analyzer constructor (i.e. MyAnalyzer)
-        aggregator_kwargs=None,  # Additional keyword arguments for the custom aggregator constructor (i.e. MyAggregator)
+        analyzer=LocalCoxModel,
+        aggregator=ResultsAggregator,
+        data_type="s3",
+        simple_analysis=True,
+        output_type="str",
+        analyzer_kwargs=None,
+        aggregator_kwargs=None,
     )
 
 
