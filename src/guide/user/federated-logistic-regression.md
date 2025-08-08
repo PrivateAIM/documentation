@@ -13,20 +13,19 @@ We use already implemented features from `fedstats` to iteratively update global
 **First iteration:**  
 
 *At nodes:*  
-    1. Generate local data using convergence function `simulate_logistic_regression`.  
-    2. Initialize instance of `PartialFisherScoring`. It will calculate the relevant parts of the Fisher scoring that are submitted to the aggregator.  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1. Generate local data using convergence function `simulate_logistic_regression`.  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2. Initialize instance of `PartialFisherScoring`. It will calculate the relevant parts of the Fisher scoring that are submitted to the aggregator.  
 
 *At aggregator:*  
-    1. Initialize an instance of `FederatedGLM`. It will later handle to calculate the full Fisher information from the parts calculated at the nodes.  
-    2. Set convergence flag to `False` (more information about it are given at the end of the page).  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1. Initialize an instance of `FederatedGLM`. It will later handle to calculate the full Fisher information from the parts calculated at the nodes.  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2. Set convergence flag to `False` (more information about it are given at the end of the page).  
 
 **Iterate the following process until convergence:**  
-   1.[At nodes] Set received estimates from aggregator as current.  
-   2.[At nodes] Calculate, based on local data and current estimates all parts of the Fisher scoring algorithm and return them to aggregator.  
-
-   3.[Aggregator] Set results from nodes.  
-   4.[Aggregator] Use the results to estimate a full score vector and Fisher information matrix and update coefficients of regression model.  
-   5.[Aggregator] In the last round after convergence: return summary as final results.  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.[*Nodes*] Set received estimates from aggregator as current.  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.[*Nodes*] Calculate, based on local data and current estimates all parts of the Fisher scoring algorithm and return them to aggregator.  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.[*Aggregator*] Set results from nodes.  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4.[A*ggregator*] Use the results to estimate a full score vector and Fisher information matrix and update coefficients of regression model.  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5.[*Aggregator*] In the last round after convergence: return summary as final results.  
 
 > [!NOTE]  
 > We need to keep track of convergence using a extra variable `_convergence_flag` because we want to modify the last result: We want more than just the current parameters of the model, but all relevant info that is usually used in a GLM (like standard errors, z-scores and p-values). Details why we we solve it in this way can be found at the end of the document.  
