@@ -21,12 +21,12 @@ We use already implemented features from `fedstats` to iteratively update global
     2. Set convergence flag to `False` (more information about it are given at the end of the page).  
 
 **Iterate the following process until convergence:**  
-   1.[At nodes] Set received estimates from aggregator as current.
-   2.[At nodes] Calculate, based on local data and current estimates all parts of the Fisher scoring algorithm and return them to aggregator.
+   1.[At nodes] Set received estimates from aggregator as current.  
+   2.[At nodes] Calculate, based on local data and current estimates all parts of the Fisher scoring algorithm and return them to aggregator.  
 
-   3.[Aggregator] Set results from nodes.
-   4.[Aggregator] Use the results to estimate a full score vector and Fisher information matrix and update coefficients of regression model.
-   5.[Aggregator] In the last round after convergence: return summary as final results.
+   3.[Aggregator] Set results from nodes.  
+   4.[Aggregator] Use the results to estimate a full score vector and Fisher information matrix and update coefficients of regression model.  
+   5.[Aggregator] In the last round after convergence: return summary as final results.  
 
 > [!NOTE]  
 > We need to keep track of convergence using a extra variable `_convergence_flag` because we want to modify the last result: We want more than just the current parameters of the model, but all relevant info that is usually used in a GLM (like standard errors, z-scores and p-values). Details why we we solve it in this way can be found at the end of the document.  
@@ -92,12 +92,6 @@ class FederatedLogisticRegression(StarAggregator):
         self._convergence_flag = False
 
     def aggregation_method(self, analysis_results):
-        """
-        Aggregates the results received from all analyzer nodes.
-
-        :param analysis_results: A list of analysis results from each analyzer node.
-        :return: The aggregated result (e.g., total patient count across all analyzers).
-        """
         if not self._convergence_flag:
             self.glm.set_results(analysis_results)
             self.glm.aggregate_results()
@@ -106,14 +100,6 @@ class FederatedLogisticRegression(StarAggregator):
             return self.glm.get_summary()
 
     def has_converged(self, result, last_result, num_iterations):
-        """
-        Determines if the aggregation process has converged.
-
-        :param result: The current aggregated result.
-        :param last_result: The aggregated result from the previous iteration.
-        :param num_iterations: The number of iterations completed so far.
-        :return: True if the aggregation has converged; False to continue iterations.
-        """
         if self._convergence_flag:
             print(f"Converged after {num_iterations} iterations.")
             return True
@@ -135,22 +121,14 @@ class FederatedLogisticRegression(StarAggregator):
 
 
 def main():
-    """
-    Sets up and initiates the distributed analysis using the FLAME components.
-
-    - Defines the custom analyzer and aggregator classes.
-    - Specifies the type of data and queries to execute.
-    - Configures analysis parameters like iteration behavior and output format.
-    """
     StarModel(
-        analyzer=LocalFisherScoring,  # Custom analyzer class (must inherit from StarAnalyzer)
-        aggregator=FederatedLogisticRegression,  # Custom aggregator class (must inherit from StarAggregator)
-        data_type="s3",  # Type of data source ('fhir' or 's3')
-        # query="Patient?_summary=count",  # Query or list of queries to retrieve data
-        simple_analysis=False,  # True for single-iteration; False for multi-iterative analysis
-        output_type="str",  # Output format for the final result ('str', 'bytes', or 'pickle')
-        analyzer_kwargs=None,  # Additional keyword arguments for the custom analyzer constructor (i.e. MyAnalyzer)
-        aggregator_kwargs=None,  # Additional keyword arguments for the custom aggregator constructor (i.e. MyAggregator)
+        analyzer=LocalFisherScoring,
+        aggregator=FederatedLogisticRegression,
+        data_type="s3",
+        simple_analysis=False,
+        output_type="str",
+        analyzer_kwargs=None,
+        aggregator_kwargs=None,
     )
 
 
