@@ -1,7 +1,7 @@
 # Single-round aggregation using `fedstats`
 
-This example demonstrates how to aggregate local **Cox regression** results in **FLAME** with the help of `fedstats`.  
-We fit a Cox regression on each node and combine the coefficients by weighting them with the inverses of their variances (the diagonal elements of the Fisher information matrix). For methodological details, see [1](#ref-willer2010).
+ The presented aggregation method can be used for statistical models where normality for local estimates holds. These are in particular vanilla regression models that come various types.  
+This example demonstrates how to aggregate local **Cox regression** results in **FLAME** with the help of `fedstats`.We fit a Cox regression on each node and combine the coefficients by weighting them with the inverses of their variances (the diagonal elements of the Fisher information matrix). For methodological details, see [1](#ref-willer2010).
 
 ## Procedure
 
