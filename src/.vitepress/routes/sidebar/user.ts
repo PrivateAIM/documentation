@@ -11,7 +11,16 @@ export const userRoutes = [
         text: 'Concepts/Tutorials',
         collapsed: true,
         items: [
-            {text: 'Analysis Coding', link: '/analysis-coding'},
+            {
+                text: 'Examples',
+                collapsed: true,
+                items: [
+                    {text: 'Analysis Coding', link: '/analysis-coding'},
+                    {text: 'Aggregation with fedstats', link: '/survival-regression.md'},
+                    {text: 'Federated GLM', link: '/federated-logistic-regression.md'},
+                ]
+
+            },
             {text: 'FHIR Queries', link: '/fhir-query'},
             // {text: 'Homomorphic Encryption', link: '/homomorphic-encryption'},
         ]
