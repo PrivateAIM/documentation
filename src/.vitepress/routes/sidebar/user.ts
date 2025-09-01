@@ -21,6 +21,7 @@ export const userRoutes = [
                 ]
 
             },
+            {text: 'Basic VCF QC', link: '/vcf-qc'},
             {text: 'FHIR Queries', link: '/fhir-query'},
             // {text: 'Homomorphic Encryption', link: '/homomorphic-encryption'},
         ]

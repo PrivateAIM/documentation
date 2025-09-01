@@ -27,6 +27,7 @@ integrity of the original data.
 **`Concepts/Tutorials`**
 
 - [Coding an Analysis](/guide/user/analysis-coding)
+- [Basic VCF Quality Control using Python](/guide/user/vcf-qc)
 - [FHIR Queries](/guide/user/fhir-query)
 
 **`Using the Hub`**
