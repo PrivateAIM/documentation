@@ -40,6 +40,73 @@ The script (<a href="/files/vcf_qc.py" download>vcf_qc.py</a>) defines:
      * `nodes` – the raw per‑node results (for transparency / auditing)
 
 
+## Prerequisites
+- A project (proposal) with at least one analyzer node and one aggregator node approved (see [Project Guide](/guide/user/project)).
+- The **genomics** master image available (contains `pysam` and other basic genomics tools).
+- MinIO (S3) datastores configured on each participating node. See admin docs for bucket setup: [Bucket Setup](/guide/admin/bucket-setup-for-data-store) & [Data Store Management](/guide/admin/data-store-management).
+
+## Step‑by‑Step
+1. Project Selection
+   - Open the Hub, select your existing project (or create & approve one first).
+
+2. Create Analysis
+   - Go to Analyses → Create.
+   - Select image group: `python` and choose the `genomics` image.
+   - Name & describe (optional).
+
+3. Select Nodes
+   - Choose exactly one node as **aggregator** and one or more nodes as **analyzers**.
+
+4. Add Code
+   - Use / adapt <a href="/files/vcf_qc.py" download>vcf_qc.py</a>.
+   - Upload the file and set it as the entry point.
+
+5. Prepare Data (per Node Admin)
+   - On every analyzer node AND the aggregator node, create (or reuse) an S3 bucket in MinIO.
+   - Set bucket policy to public (for this MVP example) via MinIO UI: Summary → Access Policy.
+   - Upload VCF files (`*.vcf` or `*.vcf.gz`).
+
+::: warning Important
+Ensure VCF filenames (object keys) do **not** contain sensitive identifiers. In this example, filenames are included verbatim in aggregated results.
+:::
+
+6. Connect Datastores to the Analysis
+   - Node admin connects the bucket as a datastore to the project (This is not required for the aggregator).
+   - Use protocol S3, correct host / port (e.g. `9000`), and `http` if TLS is not configured (MVP setting).
+
+7. Build & Approvals
+   - Lock the analysis.
+   - Each node admin reviews & approves (see [Analysis Review](/guide/admin/analysis-review)).
+
+8. Execute
+   - Each node admin starts the analysis manually (see [Analysis Execution](/guide/admin/analysis-execution)).
+   - The run is single‑round; once all analyzers finish, the aggregator produces the final JSON result.
+
+9. Download Result
+   - In the Hub UI, once status is Complete, download results (a tar archive). The JSON string is the final output.
+
+
+## Reference Code (Excerpt)
+The following excerpts highlight the key distributed computing patterns in <a href="/files/vcf_qc.py" download>vcf_qc.py</a>. The full file contains additional QC logic specific to VCF files.
+
+The `StarModel` configuration defines how data is distributed and processed across nodes:
+
+```python
+def main():
+    # Configure StarModel for S3/MinIO objects. The dataset configuration in each node's hub
+    # should point to the desired bucket; here we only specify the object keys.
+    StarModel(
+        analyzer=VCFAnalyzer,
+        aggregator=VCFAggregator,
+        data_type="s3",           # Distributed S3/MinIO data sources
+        query=VCF_S3_KEYS,        # Same query across all analyzer nodes
+        simple_analysis=True,     # Single-round federation
+        output_type="str",        # JSON string result
+    )
+```
+
+This setup enables each analyzer node to process its local data independently while using the same analysis logic.
+
 ::: tip File Selection (VCF_S3_KEYS)
 The script exposes a top‑level variable `VCF_S3_KEYS: List[str] | None = None`.
 
@@ -62,92 +129,98 @@ VCF_S3_KEYS = [
 Ensure VCF filenames (object keys) do **not** contain sensitive identifiers. Filenames are included verbatim in aggregated results.
 :::
 
-## Prerequisites
-- A project (proposal) with at least one analyzer node and one aggregator node approved (see [Project Guide](/guide/user/project)).
-- The **genomics** master image available (contains `pysam` and other basic genomics tools).
-- MinIO (S3) datastores configured on each participating node. See admin docs for bucket setup: [Bucket Setup](/guide/admin/bucket-setup-for-data-store) & [Data Store Management](/guide/admin/data-store-management).
-
-## Step‑by‑Step
-1. Project Selection
-   - Open the Hub, select your existing project (or create & approve one first).
-
-2. Create Analysis
-   - Go to Analyses → Create.
-   - Select image group: `python` and choose the `genomics` image.
-   - Name & describe (optional).
-
-3. Select Nodes
-   - Choose exactly one node as **aggregator** and one or more nodes as **analyzers**.
-
-4. Add Code
-   - Use / adapt <a href="/files/vcf_qc.py" download>vcf_qc.py</a> . (You can start from the reference below.)
-   - Upload the file and set it as the entry point.
-
-5. Prepare Data (per Node Admin)
-   - On every analyzer node AND the aggregator node, create (or reuse) an S3 bucket in MinIO.
-   - Set bucket policy to public (for this MVP example) via MinIO UI: Summary → Access Policy.
-   - Upload VCF files (`*.vcf` or `*.vcf.gz`).
-   - Keep consistent bucket name across nodes.
-
-::: warning Important
-Ensure VCF filenames (object keys) do **not** contain sensitive identifiers. Filenames are included verbatim in aggregated results.
-:::
-
-6. Connect Datastores to the Analysis
-   - Node admin connects the bucket as a datastore to the project (role: aggregator connects too, because it enumerates file names for reporting).
-   - Use protocol S3, correct host / port (e.g. `9000`), and `http` if TLS is not configured (MVP setting).
-
-7. Build & Approvals
-   - Lock the analysis.
-   - Each node admin reviews & approves (see [Analysis Review](/guide/admin/analysis-review)).
-
-8. Execute
-   - Each node admin starts the analysis manually (see [Analysis Execution](/guide/admin/analysis-execution)).
-   - The run is single‑round; once all analyzers finish, the aggregator produces the final JSON result.
-
-9. Download Result
-   - In the Hub UI, once status is Complete, download results (a tar archive). The JSON string is the final output.
-
-
-## Reference Code (Excerpt)
-Key logic from <a href="/files/vcf_qc.py" download>vcf_qc.py</a> (simplified for illustration; keep full version in your uploaded file):
+### Analyzer Node Processing
+Each analyzer node processes its local dataset and returns structured results. The `analysis_method` receives a list of dictionaries where each dictionary maps S3 object keys to their actual file content (bytes):
 
 ```python
 class VCFAnalyzer(StarAnalyzer):
-    def analysis_method(self, data, aggregator_results):
-        file_results = []
-        valid_file_count = 0
+    def analysis_method(self, data: List[Dict[str, Any]], aggregator_results: Any) -> Dict[str, Any]:
+        file_results: List[Dict[str, Any]] = []
 
-        for objects in data:  # one dict per connected S3 datastore
+        # data is a list of dicts: [{"s3_key1": file_content1, "s3_key2": file_content2}, ...]
+        for objects in data:
             for fname, content in objects.items():
-                if not fname.endswith((".vcf", ".vcf.gz")):
-                    continue
-                # write temp + open via pysam, gather QC stats...
-                fr = self._process_vcf_file(fname, tmp_file.name, written_size)
-                file_results.append(fr)
-                if fr["pass"]:
-                    valid_file_count += 1
-        invalid_file_count = len(file_results) - valid_file_count
+                # Write S3 object content to temporary file for processing
+                with tempfile.NamedTemporaryFile(mode="wb") as tmp_file:
+                    tmp_file.write(content)
+                    
+                    # Ensure data is flushed so pysam can read from the file
+                    tmp_file.flush()
+                    written_size = tmp_file.tell()
+                    
+                    # Process the temporary file
+                    fr = self._process_vcf_file(fname, tmp_file.name, written_size)
+                    file_results.append(fr)
 
+        # Return node-level summary + detailed file results
+        invalid_file_count = len(file_results) - valid_file_count
+        node_pass = invalid_file_count == 0 and valid_file_count > 0
+        
         return {
-            "node_pass": invalid_file_count == 0 and valid_file_count > 0,
+            "node_pass": node_pass,
+            "warnings_present": node_warnings_present,
             "valid_file_count": valid_file_count,
             "invalid_file_count": invalid_file_count,
-            "files": file_results,
-            "warnings_present": any(fr.get("warnings") for fr in file_results),
+            "files": file_results,  # Detailed per-file results
+        }
+```
+
+The temporary file approach is necessary because tools like `pysam.VariantFile` require a file path, but FLAME provides S3 object content as in-memory data. Each analyzer processes only its local data but returns results in a standardized format for aggregation.
+
+### Secure Data Handling
+Files are processed in temporary locations without exposing sensitive content:
+
+```python
+def _process_vcf_file(self, fname: str, path: str, size_bytes: int) -> Dict[str, Any]:
+    try:
+        with pysam.VariantFile(path, "r") as vf:
+            # Process file content locally ...
+
+    except Exception as e:
+        # Prevent leaking potentially sensitive error details across federation
+        fatal_reasons.append("OpenError:ValueError:invalid header")
+    
+    return {
+        "file": fname, 
+        "pass": passed,
+        "warnings": warnings_flag,
+        "reason": reason, # Generic error messages only
+        # ... aggregated metrics ...
+    }
+```
+
+Error handling ensures that sensitive details from local processing don't leak across the federation.
+
+### Cross-Node Aggregation
+The aggregator combines results from all analyzer nodes into a federated summary. Since `has_converged` evaluates to `True`, the `aggregation_method` is executed only once, using a list of each node’s output.
+
+```python
+class VCFAggregator(StarAggregator):
+    def aggregation_method(self, analysis_results: List[Dict[str, Any]]) -> str:
+        # Combine results across all participating nodes
+        overall_pass = all(r["node_pass"] for r in analysis_results)
+        overall_total = sum(r["valid_file_count"] for r in analysis_results)
+        failing = [i for i, r in enumerate(analysis_results) if not r["node_pass"]]
+        warnings_present = any(r.get("warnings_present") for r in analysis_results)
+
+        result = {
+            "overall_pass": overall_pass,
+            "warnings_present": warnings_present,
+            "overall_total": overall_total,      # Federation-wide total
+            "failing_nodes": failing,            # Which nodes had issues
+            "nodes": analysis_results,           # Full transparency of node results
         }
 
-class VCFAggregator(StarAggregator):
-    def aggregation_method(self, analysis_results):
-        result = {
-            "overall_pass": all(r["node_pass"] for r in analysis_results),
-            "warnings_present": any(r.get("warnings_present") for r in analysis_results),
-            "overall_total": sum(r["valid_file_count"] for r in analysis_results),
-            "failing_nodes": [i for i, r in enumerate(analysis_results) if not r["node_pass"]],
-            "nodes": analysis_results,
-        }
         return json.dumps(result)
+
+    def has_converged(self, result, last_result, num_iterations):
+        return True  # Single-round analysis (no iterative federation needed)
 ```
+
+The aggregator receives structured data from each node and produces federation-wide statistics without accessing raw data files.
+
+
+
 
 ## Output Structure
 Final JSON (example structure):
@@ -212,7 +285,8 @@ Fatal messages include things like `FATAL: Empty file`, `FATAL: Zero variants`, 
 ## Troubleshooting
 | Issue | Cause | Action |
 |-------|-------|--------|
-| Empty results / `node_pass=False` | No `.vcf` files detected | Confirm bucket contents & datastore connection |
+| Analysis does not start | Missing node approval | Contact the respective node admin | 
+| Empty results / `node_pass=False` | No `.vcf` files detected | Confirm bucket contents |
 | `OpenError:ValueError` (or similar) | Corrupt / unsupported file | Re‑generate or remove problematic file |
 | All files marked warning `Unsorted` | Input not coordinate-sorted | Sort with `bcftools sort` and re‑upload |
 | `Zero variants` fatal | Header present but no records | Validate file generation pipeline |
