@@ -71,7 +71,7 @@ class VCFAnalyzer(StarAnalyzer):
             except Exception as e:
                 # We do not want to leak potential private information that may be included in the error.
                 # Therefore, we catch all exceptions and report a generic error message.
-                fatal_reasons.append(f"OpenError:ValueError:invalid header")
+                fatal_reasons.append("OpenError:ValueError:invalid header")
 
         # Fatal conditions:
         if header is None or not (hasattr(header, "version") and header.version is not None):
