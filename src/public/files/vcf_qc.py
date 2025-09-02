@@ -118,14 +118,11 @@ class VCFAnalyzer(StarAnalyzer):
                 "reason": "No objects supplied",
                 "valid_file_count": 0,
                 "invalid_file_count": 0,
-                "total_variant_count": 0,
                 "files": [],
             }
 
         file_results: List[Dict[str, Any]] = []
         valid_file_count = 0
-        total_variant_count = 0
-
         for objects in data:
             for fname, content in objects.items():
                 if not fname.endswith((".vcf", ".vcf.gz")):
@@ -146,7 +143,6 @@ class VCFAnalyzer(StarAnalyzer):
 
                     if fr["pass"]:
                         valid_file_count += 1
-                        total_variant_count += fr.get("variant_count", 0)
 
         invalid_file_count = len(file_results) - valid_file_count
         node_pass = invalid_file_count == 0 and valid_file_count > 0
@@ -157,7 +153,6 @@ class VCFAnalyzer(StarAnalyzer):
             "warnings_present": node_warnings_present,
             "valid_file_count": valid_file_count,
             "invalid_file_count": invalid_file_count,
-            "total_variant_count": total_variant_count,
             "files": file_results,
         }
 

@@ -29,7 +29,7 @@ The script (<a href="/files/vcf_qc.py" download>vcf_qc.py</a>) defines:
      * (Warning) Missing contigs
      * (Warning) Unsorted records (chromosome & position order)
    - Counts variants, contigs and samples
-   - Returns a per-node summary: counts of valid / invalid files, total variants, and a list of file result dictionaries.
+   - Returns a per-node summary: counts of valid / invalid files,  and a list of file result dictionaries.
 
 2. `VCFAggregator` (runs on the aggregator node)
    - Receives all node summaries and produces JSON with:
@@ -117,7 +117,7 @@ class VCFAnalyzer(StarAnalyzer):
     def analysis_method(self, data, aggregator_results):
         file_results = []
         valid_file_count = 0
-        total_variant_count = 0
+
         for objects in data:  # one dict per connected S3 datastore
             for fname, content in objects.items():
                 if not fname.endswith((".vcf", ".vcf.gz")):
@@ -127,14 +127,13 @@ class VCFAnalyzer(StarAnalyzer):
                 file_results.append(fr)
                 if fr["pass"]:
                     valid_file_count += 1
-                    total_variant_count += fr.get("variant_count", 0)
         invalid_file_count = len(file_results) - valid_file_count
+
         return {
             "node_pass": invalid_file_count == 0 and valid_file_count > 0,
             "valid_file_count": valid_file_count,
             "invalid_file_count": invalid_file_count,
             "files": file_results,
-            "total_variant_count": total_variant_count,
             "warnings_present": any(fr.get("warnings") for fr in file_results),
         }
 
@@ -165,7 +164,6 @@ Final JSON (example structure):
             "warnings_present": true,
             "valid_file_count": 3,
             "invalid_file_count": 0,
-            "total_variant_count": 30,
             "files": [
                 {
                     "file": "sample_1.vcf.gz",
