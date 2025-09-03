@@ -14,7 +14,9 @@ Download the full reference script:  <a href="/files/fastq_qc.py" download>fastq
 :::
 
 ## Goal
-Show how to use a **command‑line tool** (FastQC in our case) inside a single‑round federated analysis: handling temporary output, enforcing runtime constraints (quiet mode + timeout), parsing only the minimal required artifacts, and aggregating per‑file module statuses and basic stats across nodes without moving raw read data. You will learn the exact CLI invocation pattern, where transient files live, what causes a FAIL / WARN at the file level, and how to reproduce a node’s result locally using plain shell commands before (or after) federation.
+Show how to use a **command‑line tool** (FastQC in our case) inside a single‑round federated analysis: handling temporary output, enforcing runtime constraints (quiet mode + timeout), parsing only the minimal required artifacts, and aggregating per‑file module statuses and basic stats across nodes without moving raw read data. 
+
+You will learn the exact CLI invocation pattern, where transient files live, and how to reproduce a node’s result locally using plain shell commands before (or after) federation.
 
 ::: tip Why python?
 As there is no FLAME StarModel for bash we must rely on python as wrapper for our CLI tools.
@@ -23,9 +25,9 @@ As there is no FLAME StarModel for bash we must rely on python as wrapper for ou
 ## What the Script Does
 Condensed overview (details parallel the VCF QC example):
 * Analyzer writes each candidate FASTQ object to a temp file and runs: `fastqc --quiet --outdir <tmp> <file>`.
-* Parses `fastqc_data.txt` (basic stats) + `summary.txt` (module statuses) from the produced `_fastqc.zip`.
+* Parses `fastqc_data.txt` (basic stats) + `summary.txt` (module statuses).
 * Fails a file on structural / runtime issues, zero sequences, missing required stats, or any module with status `FAIL`.
-* Marks warnings if one or more modules report `WARN` (but none `FAIL`).
+* Marks warnings if one or more modules report `WARN`.
 * Aggregator concatenates per‑node results into one JSON; single round (`simple_analysis=True`).
 
 Anything not listed here works identically to the VCF QC pattern (data fan‑out, approvals, convergence logic).
@@ -45,13 +47,13 @@ FASTQ filenames (object keys) are included verbatim in aggregated outputs. Ensur
 Each file is processed via (conceptually):
 
 ```python
-with tempfile.TemporaryDirectory() as temp_dir:          # Clean workspace
+with tempfile.TemporaryDirectory() as temp_dir:  # Clean workspace
 	cmd = ["fastqc", "--quiet", "--outdir", temp_dir, path]
-	result = subprocess.run(                             # Controlled execution wrapper
+	result = subprocess.run(                     # Controlled execution wrapper
 		cmd,
-		capture_output=True,                             # Prevent noisy/stdout leakage
-		text=True,                                       # Easier error string handling
-		timeout=300,                                     # Hard upper bound per file
+		capture_output=True,                     # Prevent noisy/stdout leakage
+		text=True,                               # Easier error string handling
+		timeout=300,                             # Hard upper bound per file
 	)
 	if result.returncode != 0:
 		# Mark file failed with sanitized reason (no raw stderr leakage)
@@ -70,7 +72,7 @@ If a timeout or execution failure occurs, the script simply marks that specific 
 
 
 ## Output Structure
-Example real output (abridged for width):
+Example real output:
 
 ```json
 {
@@ -103,21 +105,14 @@ Example real output (abridged for width):
   ]
 }
 ```
-## Customizing (Quick List)
-* Limit files: set `FASTQ_S3_KEYS = [...]`.
-* Tune timeout: adjust `timeout=300`.
-* Add metrics: extend `_parse_fastqc_data_content` to capture more fields.
-* Module filtering: post‑process `summary_data` before failure logic.
-* Output type changes: switch `output_type` if returning non‑string.
 
 ## Troubleshooting
 | Issue | Hint |
 |-------|------|
-| `FastQC executable not found` | Use image incl. FastQC or rebuild.
-| `FastQC timeout` | Increase timeout or subset reads.
-| All files warning same modules | Investigate data quality locally with full HTML report.
-| Zero sequences / missing stats | Validate input format; re‑download / regenerate file.
-| Node fails with no files | Check extensions & datastore mapping; maybe restrict keys incorrectly.
+| `FastQC executable not found` | Wrong image selected. |
+| `FastQC timeout` | Increase timeout or subset reads. | 
+| All files warning same modules | Investigate data quality locally with full HTML report. |
+| Node fails with no files | Check extensions & datastore mapping; maybe restrict keys incorrectly. |
 
 ## See Also
 * [VCF QC Guide](/guide/user/vcf-qc)
