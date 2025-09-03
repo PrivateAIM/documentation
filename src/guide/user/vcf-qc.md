@@ -7,7 +7,7 @@ It reuses the generic concepts from the guides on [Coding an Analysis](/guide/us
 This example is an MVP-level QC. Do not treat it as a substitute for comprehensive clinical-grade validation workflows.
 :::
 
-::: info Note
+::: info Download
 Download the full reference script: <a href="/files/vcf_qc.py" download>vcf_qc.py</a>
 :::
 
@@ -29,13 +29,14 @@ The script (<a href="/files/vcf_qc.py" download>vcf_qc.py</a>) defines:
      * (Warning) Missing contigs
      * (Warning) Unsorted records (chromosome & position order)
    - Counts variants, contigs and samples
-   - Returns a per-node summary: counts of valid / invalid files,  and a list of file result dictionaries.
+    - Returns a per-node summary: counts of valid / invalid files, a list of file result dictionaries, and the unique `node_id`.
 
 2. `VCFAggregator` (runs on the aggregator node)
    - Receives all node summaries and produces JSON with:
      * `overall_pass` – all nodes passed (no invalid files and at least one valid file per passing node)
      * `overall_total` – total number of valid files across nodes
-     * `failing_nodes` – indices of nodes whose `node_pass` is `False`
+    * `failing_nodes` – indices of nodes whose `node_pass` is `False`
+    * `failed_nodes` – list of corresponding `node_id` values for failing nodes
      * `warnings_present` – whether any node reported warnings
      * `nodes` – the raw per‑node results (for transparency / auditing)
 
@@ -135,6 +136,7 @@ Each analyzer node processes its local dataset and returns structured results. T
 ```python
 class VCFAnalyzer(StarAnalyzer):
     def analysis_method(self, data: List[Dict[str, Any]], aggregator_results: Any) -> Dict[str, Any]:
+        node_id = self.flame.get_id()
         file_results: List[Dict[str, Any]] = []
 
         # data is a list of dicts: [{"s3_key1": file_content1, "s3_key2": file_content2}, ...]
@@ -162,6 +164,7 @@ class VCFAnalyzer(StarAnalyzer):
             "valid_file_count": valid_file_count,
             "invalid_file_count": invalid_file_count,
             "files": file_results,  # Detailed per-file results
+            "node_id": node_id,
         }
 ```
 
@@ -202,12 +205,13 @@ class VCFAggregator(StarAggregator):
         overall_total = sum(r["valid_file_count"] for r in analysis_results)
         failing = [i for i, r in enumerate(analysis_results) if not r["node_pass"]]
         warnings_present = any(r.get("warnings_present") for r in analysis_results)
+        failed_nodes = [r.get("node_id") for r in analysis_results if not r["node_pass"]]
 
         result = {
             "overall_pass": overall_pass,
             "warnings_present": warnings_present,
             "overall_total": overall_total,      # Federation-wide total
-            "failing_nodes": failing,            # Which nodes had issues
+            "failed_nodes": failed_nodes,        # Node IDs of failing nodes
             "nodes": analysis_results,           # Full transparency of node results
         }
 
@@ -230,7 +234,7 @@ Final JSON (example structure):
     "overall_pass": true,
     "warnings_present": true,
     "overall_total": 7,
-    "failing_nodes": [],
+    "failed_nodes": [],
     "nodes": [
         {
             "node_pass": true,
@@ -260,6 +264,7 @@ Final JSON (example structure):
                 }
                 ... // More files
             ],
+            "node_id": "node-abc123"
         }
         ... // More nodes
     ]
