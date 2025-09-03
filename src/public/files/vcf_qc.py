@@ -111,6 +111,8 @@ class VCFAnalyzer(StarAnalyzer):
         data: List[Dict[str, Any]],
         aggregator_results: Any,
     ) -> Dict[str, Any]:  # noqa: D401 - FLAME required signature
+        node_id = self.flame.get_id()
+
         if not data:
             return {
                 "node_pass": False,
@@ -119,6 +121,7 @@ class VCFAnalyzer(StarAnalyzer):
                 "valid_file_count": 0,
                 "invalid_file_count": 0,
                 "files": [],
+                "node_id": node_id,
             }
 
         file_results: List[Dict[str, Any]] = []
@@ -154,6 +157,7 @@ class VCFAnalyzer(StarAnalyzer):
             "valid_file_count": valid_file_count,
             "invalid_file_count": invalid_file_count,
             "files": file_results,
+            "node_id": node_id,
         }
 
 
@@ -166,14 +170,14 @@ class VCFAggregator(StarAggregator):
     def aggregation_method(self, analysis_results: List[Dict[str, Any]]) -> str:  # noqa: D401
         overall_pass = all(r["node_pass"] for r in analysis_results)
         overall_total = sum(r["valid_file_count"] for r in analysis_results)
-        failing = [i for i, r in enumerate(analysis_results) if not r["node_pass"]]
         warnings_present = any(r.get("warnings_present") for r in analysis_results)
+        failed_nodes = [r["node_id"] for r in analysis_results if not r["node_pass"]]
 
         result = {
             "overall_pass": overall_pass,
             "warnings_present": warnings_present,
             "overall_total": overall_total,
-            "failing_nodes": failing,
+            "failed_nodes": failed_nodes,
             "nodes": analysis_results,
         }
 
