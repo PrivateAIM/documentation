@@ -262,11 +262,11 @@ Final JSON (example structure):
                     "sample_count": 3,
                     "variant_count": 9
                 }
-                ... // More files
+                // ... more files ...
             ],
             "node_id": "node-abc123"
         }
-        ... // More nodes
+        // ... more nodes ...
     ]
 }
 ```

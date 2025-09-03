@@ -22,12 +22,13 @@ integrity of the original data.
 
 **`SDK Documentaion`**
 
-- [FLAME Core SDK](/guide/user/sdk-core-doc.md)
+- [FLAME Core SDK](/guide/user/sdk-core-doc)
 
 **`Concepts/Tutorials`**
 
 - [Coding an Analysis](/guide/user/analysis-coding)
 - [Basic VCF Quality Control using Python](/guide/user/vcf-qc)
+- [Using CLI Tools for Federated FASTQ QC](/guide/user/cli-fastqc)
 - [FHIR Queries](/guide/user/fhir-query)
 
 **`Using the Hub`**
