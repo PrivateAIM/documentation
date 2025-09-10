@@ -160,10 +160,10 @@ to properly import the configuration. This can cause the `helm install` to hang 
 is deployed and verified, so please have patience during this step and do not prematurely cancel the command.
 :::
 
-## Forward Proxies
+## Proxies
 
 If your server is behind a proxy i.e. all traffic is routed through a specific address and/or port, then the FLAME Node needs to be configured 
-to use the same forward proxy for its requests.
+to use the same proxy for its requests.
 
 An easy way to tell if a proxy is configured on your machine is to run `echo $HTTP_PROXY` or check the `/etc/environment` file while logged into the server. 
 If any of the `HTTP_PROXY`, `HTTPS_PROXY`, `http_proxy`, or `https_proxy` variables are populated, then the machine is likely behind a proxy and this address needs to be 
@@ -189,7 +189,65 @@ hub:
 proxy:
   httpProxy: "http://my.example.proxy.de:3128"
   httpsProxy: "http://my.example.proxy.de:3128"
+  noProxy: "10.0.0.0/8,192.168.0.0/16,127.0.0.1,172.16.0.0/16,.svc,localhost,.cluster.local"
 ```
+
+The `NO_PROXY`/`no_proxy` value will depend on your kubernetes distribution and your server configuration.
+
+## Additional Certificate Authority (CA) Certificates
+
+Some locations may have additional, self-signed SSL/TLS certificates that they use for monitoring web traffic on their servers. In this case, problems can occur that pre-mature SSL termination 
+occurs and the node services cannot communicate with the Hub. To avoid this, these self-signed CA certificates need to be provided to the node during deployment. This can be done by providing 
+the CA files either:
+
+1. In the `helm/charts/flame-node/certs` directory and installing using a local version of the helm chart
+2. Using a pre-defined kubernetes ConfigMap that provides the information under a key labeled `certs.pem`
+
+### Using the `certs` Directory
+
+By cloning the [helm repository](https://github.com/PrivateAIM/helm), one can provide the CA PEM files in the `helm/charts/flame-node/certs` directory and then perform a `helm install` using the modified
+local helm chart, and the files will automatically be imported as a ConfigMap and provided to the necessary services. The CA certificates need to be in PEM format (i.e. `*.pem`) and 
+ideally, they are all concatenated into a single file. If there are multiple files, place them all (in order) in the `certs/` folder, and the deployment will automatically concatenate them for you.
+In the example below, a user copies their institution's self-signed CA certificate into the `certs/` directory and names it `myCA.pem`
+
+```bash
+├── CHANGELOG.md
+├── charts
+│   ├── flame-node
+│   │   ├── 0_setup.sh
+│   │   ├── certs
+│   │   │   └── myCA.pem  <-- Custom CA file
+│   │   ├── Chart.lock
+│   │   ├── charts
+│   │   ├── Chart.yaml
+│   │   ├── flame-node-data-store
+│   │   ├── templates
+│   │   ├── values_min.yaml
+│   │   ├── values_test.yaml
+│   │   └── values.yaml
+│   └── third-party
+└── README.md
+```
+
+### Using a Pre-Defined ConfigMap
+
+Similar to how one can create a kubernetes Secret and provide that to the `values.yaml`, one can also create a custom ConfigMap containing the certificate and use that instead. The certificate must be 
+named `certs.pem` and if you have multiple self-signed certificates to provide, they must all be contenated into that one file.
+
+Now, create your custom ConfigMap (in this example it is named `my-certs`) using that file:
+
+```bash
+kubectl create configmap my-certs --from-file=/path/to/certs.pem
+```
+
+Then must edit your `my-values.yaml` to include this new ConfigMap name:
+
+```yaml
+certificateConfigMap: "my-certs"
+```
+
+Your `my-values.yaml` can then be used during deployment to provide the certificates.
+
 
 ## Deploying without a Domain Name
 
