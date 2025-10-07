@@ -49,7 +49,7 @@ class RLAnalyzer(StarAnalyzer):
             try:
                 response = requests.get(url)
                 if response.status_code == 200:
-                    self.flame.flame_log("Healthcheck successful:", response.json())
+                    self.flame.flame_log("Healthcheck successful")
                     return True
             except requests.exceptions.ConnectionError:
                 # Service noch nicht erreichbar, warten
@@ -311,8 +311,7 @@ class RLAnalyzer(StarAnalyzer):
             self.flame.save_intermediate_data(
                 data=duplicates,
                 location="local",
-                tag="record-linkage-results",
-                silent=False
+                tag="record-linkage-results"
             )
 
             self.cleanup(self.result)  # End Mainzelliste + Postgres
@@ -394,7 +393,7 @@ class RLAggregator(StarAggregator):
             try:
                 response = requests.get(url)
                 if response.status_code == 200:
-                    self.flame.flame_log("Healthcheck successful:", response.json())
+                    self.flame.flame_log("Healthcheck successful")
                     return True
             except requests.exceptions.ConnectionError:
                 pass

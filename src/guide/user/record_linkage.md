@@ -192,8 +192,7 @@ class RLAnalyzer(StarAnalyzer):
             self.flame.save_intermediate_data(
                 data=duplicates,
                 location="local",
-                tag="record-linkage-results",
-                silent=False
+                tag="record-linkage-results"
             )
 
             self.cleanup(self.result)  # End Mainzelliste + Postgres
