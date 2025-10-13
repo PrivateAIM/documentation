@@ -21,6 +21,7 @@ export const userRoutes = [
                 ]
 
             },
+            {text: 'PPRL', link: '/record_linkage'},
             {text: 'Basic VCF QC', link: '/vcf-qc'},
             {text: 'CLI Tools FastQC', link: '/cli-fastqc'},
             {text: 'FHIR Queries', link: '/fhir-query'},
