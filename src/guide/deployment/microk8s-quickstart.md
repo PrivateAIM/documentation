@@ -119,6 +119,7 @@ the following to activate these addons:
 ```bash
 microk8s enable dashboard
 microk8s enable ingress
+microk8s enable dns
 microk8s enable hostpath-storage
 microk8s enable metrics-server
 ```
