@@ -13,7 +13,7 @@ The administrator will oversee all of those actions within their realm.
 Administrators have the following tasks in FLAME, either in the central App or in their
 local node setup:
 
-**``Hub``**
+**`Hub`**
 - [Realm-](/guide/admin/realms), [identity provider-](/guide/admin/identity-providers), [robot-](/guide/admin/robots), [user-](/guide/admin/users) & [role-management](/guide/admin/roles)
 - [Viewing and assigning permissions](/guide/admin/permissions)
 - [Registering and managing the local node](/guide/admin/node-management)
@@ -24,3 +24,5 @@ local node setup:
 - [Managing Data Stores](/guide/admin/data-store-management)
 - [Executing an analysis](/guide/admin/analysis-execution)
 - [Configuring Keycloak](/guide/admin/keycloak-access-control)
+- [Analysis Definitions](/guide/admin/analysis-definition)
+- [Bucket Setup](/guide/admin/bucket-setup-for-data-store)
