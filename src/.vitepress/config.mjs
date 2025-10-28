@@ -6,6 +6,7 @@ export default defineConfig({
     title: 'PrivateAim',
     base: '/',
     head: [['link', {rel: 'icon', href: '/images/icon/favicon.ico'}]],
+    ignoreDeadLinks: "localhostLinks",
     themeConfig: {
         socialLinks: [
             {icon: 'github', link: 'https://github.com/PrivateAim'},
