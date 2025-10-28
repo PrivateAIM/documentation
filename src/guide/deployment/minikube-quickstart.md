@@ -166,7 +166,7 @@ chmod 700 get_helm.sh
 ./get_helm.sh
 ```
 
-## Install haproxy
+## Install HAProxy
 A reverse proxy is required for routing incoming web traffic to minikube. Here, we use haproxy within a Docker container to handle this work.
 
 ### Create `haproxy.cfg`
@@ -191,28 +191,60 @@ defaults
   timeout http-request 10s
 
 frontend all
-  bind *:80
+  bind :80
+  bind :443 ssl crt /usr/local/etc/haproxy/certs/ssl.pem
+  http-request redirect scheme https unless { ssl_fc }
   mode http
   use_backend cluster
+  
+frontend stats
+  mode http
+  bind :8404
+  stats enable
+  stats refresh 10s
+  stats uri /stats
+  stats show-modules
+  stats admin if TRUE
 
 backend cluster
   mode http
   server node $MINIKUBE_IP:80 check
 ```
+In order to use TLS for encrypting traffic, a single `ssl.pem` file containing the required certificates and any associated private keys needs to be created.
+The contents need to have the following order:
+- private key (either at the start or end of the file)
+- SSL certificate
+- CA-Bundle
+- root CA.
+```bash
+cat my.key example.crt ... > ssl.pem
+```
+::: info Note
+The proxy will redirect all HTTP request to HTTPS if port 80 is open.
+:::
+For more information and other configuration possibilities on client-side encryption with HAProxy click [here](https://www.haproxy.com/documentation/haproxy-configuration-tutorials/security/ssl-tls/client-side-encryption/).
 
-### Deploy haproxy Container
-Run the following to create a haproxy container that binds port 80 and routes traffic to minikube using the recently created `haproxy.cfg` file:
+### Deploy HAProxy Container
+Run the following to create a haproxy container that binds port 80, 443 and 8404 and routes traffic to minikube using the recently created `haproxy.cfg` file:
 ```bash
 docker run --name "haproxy" \
     -p 80:80 \
+    -p 443:443 \
+    -p 8404:8404 \
     -d \
     --rm \
     --sysctl net.ipv4.ip_unprivileged_port_start=0 \
     -v ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg \
+    -v ./ssl.pem:/usr/local/etc/haproxy/certs/ssl.pem \
     -e MINIKUBE_IP="$(minikube ip)" \
     --network "minikube" \
     haproxy:3.1.7-alpine3.21@sha256:3e1367158e93d65d0186d6b2fb94b0a5a5d7e1cac0cabedb0cda52c80dad1113
 ```
+::: tip
+The frontend `stats` can be used for debugging purposes. To access it, forward port 8404 to port 8404 on the remote machine where the frontend is bound.
+Therefore, run `ssh -N -L 8404:localhost:8404 <USERNAME>@<IP>` locally and visit http://localhost:8404/stats in your browser.
+Note that this command does not create any output and will run until you interrupt it.
+:::
 
 ## Final Steps
 At this point, the domain pointing to this server should be routed to minikube. Open a browser and navigate to the domain and you should see an nginx 404 page. If this is true, you can continue with the [FLAME Node Deployment](/guide/deployment/node-installation).
