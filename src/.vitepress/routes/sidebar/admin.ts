@@ -29,7 +29,8 @@ export const adminRoutes = [
             {text: 'Bucket Setup for Data Store', link: '/bucket-setup-for-data-store'},
             {text: 'Data Store Management', link: '/data-store-management'},
             {text: 'Analysis Execution', link: '/analysis-execution'},
-            {text: 'Keycloak & Access Control', link: '/keycloak-access-control'}
+            {text: 'Keycloak & Access Control', link: '/keycloak-access-control'},
+            {text: 'Analysis Definition in k8s', link: '/analysis-definition'},
         ]
     },
 ]
