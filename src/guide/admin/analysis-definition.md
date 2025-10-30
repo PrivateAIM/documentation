@@ -1,36 +1,29 @@
 # Analysis Definition in Kubernetes
 
-As the administrator of your FLAME Node, it is important to understand how the analyses are being deployed on your system. While the [publicly available helm chart for the FLAME Node](https://github.com/PrivateAIM/helm/tree/master/charts/flame-node) makes it easy to see exactly how the components are defined, the analyses themselves are deployed using the Pod Orchestrator using the [Python kubernetes library](https://github.com/kubernetes-client/python) making it more difficult to quickly assess their configuration. This page covers the various kubernetes resources that are deployed when an analysis is started and well as how certain parameters can be modified to fit your security requirements.
+As the administrator of your FLAME Node, it is important to understand how the analyses are being deployed on your system. While the [publicly available helm chart for the FLAME Node](https://github.com/PrivateAIM/helm/tree/master/charts/flame-node) makes it easy to see exactly how the components are defined, the analyses themselves are deployed using the Pod Orchestrator using the [Python Kubernetes library](https://github.com/kubernetes-client/python) making it more difficult to quickly assess their configuration. This page covers the various Kubernetes resources that are deployed when an analysis is started as well as how certain parameters can be modified to fit your security requirements.
 
 Here is a brief overview of the resources that are deployed when initiating an analysis:
 
 * [Analysis Deployment](#analysis-deployment)
-    * Analysis ReplicaSet
-        * Analysis Pod
-* [Nginx Deployment](#nginx-deployment)
-    * Nginx ReplicaSet
-        * Nginx Pod
+    * Analysis Pod
+* [NGINX Deployment](#nginx-deployment)
+    * NGINX Pod
 * [Services](#services)
 * [ConfigMap](#configmap)
 * [NetworkPolicy](#network-policy)
 
-## Deployments
-When a FLAME Analysis is started, the Pod Orchestrator service creates two separate deployments: one for the analysis itself, and one for a nginx instance. Both are required for the analysis to be able to run and transmit its results, but as shown below, both have very stringent policies in place to severely limit their traffic.
+## Analysis Deployment
+::: info Kubernetes Deployments
+A [Kubernetes Deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/) is a resource which manages the creation and updating of Pods, Kubernetes resources built around Docker containers. Each Deployment is configured to create a [ReplicaSet](https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/) which is responsible for maintaining a specified number of [Pod](https://kubernetes.io/docs/concepts/workloads/pods/) replicas at any given time, serving as backups in case the main Pod fails due unforeseen reasons. By using Deployments, the workload can be better managed, and also allow one to monitor the state of the rollout and scale the workload as needed. Additionally, this template enables the use of [Labels and Selectors](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/) which are subsequently used to apply [NetworkPolicies](https://kubernetes.io/docs/concepts/services-networking/network-policies/) to the generated Pods, thus controlling the traffic in and out of the container.
+:::
+Though the code for each analysis is manually reviewed and approved prior to running on any node, FLAME operates under a minimal-to-none trust assumption. For an analysis this means, precautions are taken to lock down all traffic both entering and leaving the Analysis Pod in which it is running in the Kubernetes cluster. By default, every analysis deployed by the Pod Orchestrator has a restrictive Network Policy (see [NetworkPolicy](#network-policy) below) applied to it using the labels and selectors, isolating it fully from the surrounding network.
 
-Each [Deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/) is so configured to create a [ReplicaSet](https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/) which is responsible for maintaining a specified number of [Pod](https://kubernetes.io/docs/concepts/workloads/pods/) replicas at any given time. By using deployments, the workload can be better managed, and also allow one to monitor the state of the rollout and scale the workload as needed. Additionally, this template enables the use of [Labels and Selectors](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/) which are subsequently used to apply a restrictive [NetworkPolicy](https://kubernetes.io/docs/concepts/services-networking/network-policies/) to the generated Pods thus controlling the traffic in and out of the analysis container.
+However, the analysis cannot run in absolute isolation since it still requires access to the data and needs to be able to communicate with other FLAME components in order to access data, send progress updates and intermediate and final results. When a FLAME Analysis is started, the Pod Orchestrator service creates two separate Deployments: one for the analysis itself, and one for a NGINX instance. The Analysis Deployment executes the analysis script, while the NGINX Deployment acts as its forward proxy. In order to not infringe on the hosting system's safety, the Analysis Deployment is subject to very stringent policies in place to severely limit its traffic, making the NGINX Deployment its single possible point of interaction (outside of Kubernetes' own kube-dns service responsible for resolving the Analysis Deployment's cluster IP address). Details on how this NGINX sidecar controls traffic is discussed in the [NGINX Deployment](#nginx-deployment) section.
 
-### Analysis Deployment
-Though the code for each analysis is manually reviewed and approved prior to running on any node, precautions are still taken to lock down all traffic both entering and leaving the Pod in which it is running in the kubernetes cluster. By default, every analysis deployed by the Pod Orchestrator has a restrictive Network Policy (see [NetworkPolicy](#network-policy) below) applied to it using the labels and selectors. 
+An additional security measure to ensure that the Analysis Pod was created using the FLAME pipeline is verification using the OIDC protocol and the included Keycloak instance. Keycloak serves as an identity provider (IDP) to check whether requests made by certain components or services are who they say they are by bundling a JSON Web Token (JWT) with their request. Our software registers the FLAME services with Keycloak upon deployment and communication is authenticated using the OAuth2 endpoints.
 
-However, the analysis cannot run in complete isolation since it still requires access to the data and needs to communicate with other FLAME components for sending progress updates and the results. In order to control its communication, a Nginx sidecar container is deployed in parallel with the analysis which serves as a proxy for all requests into and exiting the container. Details on how this Nginx sidecar controls traffic is discussed in the [Nginx Deployment](#nginx-deployment) section.
-
-An additional security measure to ensure that the analysis pod was created using the FLAME pipeline is verification using the OIDC protocol and the included Keycloak instance. Keycloak serves as an identity provider (IDP) to check whether requests made by certain components or services are who they say they are by bundling a JSON Web Token (JWT) with their request. Our software registers the FLAME services with Keycloak upon deployment and communication is authenticated using the OAuth2 endpoints. 
-
-When an analysis is deployed via the FLAME UI or gateway, the Pod Orchestrator first verifies that the request came from an official FLAME component by checking the included JWT against Keycloak, and if authenticated, proceeds to register a new client within Keycloak. This registration process generates a token that is included in the analysis deployment and is subsequently used for retrieving a JWT from Keycloak that is included in all of its sent requests, including those sent for accessing the desired protected data being shared by your organization.
-
-
-#### Template
-Each analysis deployment can be defined with the following template:
+### Template
+Each Analysis Deployment is defined following this template:
 ```yaml
 kind: Deployment
 apiVersion: apps/v1
@@ -106,13 +99,11 @@ status:
         has successfully progressed.
 ```
 
-### Nginx Deployment
-Nginx serves as a sidecar proxy, acting as the *only* means of communication between the analysis pod and everything else. The partnered analysis container can communicate only through the endpoints defined within this Nginx deployment (endpoint descriptions can be found in the [ConfigMap](#configmap) section), and like the analysis deployment, the same restrictive Network Policy is applied to the pods in this deployment through the use of specific labels and selectors.
-
-The created Nginx pod is only capable of communication with the partnered analysis pod, itself, and the DNS service for your kubernetes cluster. Because the analysis pod needs to communicate with other FLAME components, it must be able to discover those services within the kubernetes cluster and thus requires access to the kubernetes DNS service to resolve these service names.
+### NGINX Deployment
+NGINX serves as a sidecar proxy, acting as the *only* means of communication between the Analysis Pod and everything else. The partnered analysis container can communicate only through the endpoints defined within this NGINX Deployment (endpoint descriptions can be found in the [ConfigMap](#configmap) section).
 
 #### Template
-Each Nginx deployment can be defined with the following template:
+Each NGINX Deployment can be defined with the following template:
 ```yaml
 kind: Deployment
 apiVersion: apps/v1
@@ -199,9 +190,12 @@ status:
 ```
 
 ## Services
-A kubernetes [Service](https://kubernetes.io/docs/concepts/services-networking/service/) is what allows a specific application to be exposed and accessed within a Pod. Kubernetes creates an endpoint to the specified Pod and given port, and because Pods are ephemeral, a separate Service resource is required to direct traffic to correct Pod. For the FLAME Node software, services are created for both analysis and Nginx Pods at ports `8000` and `80`, respectively. These services use the same labels and selectors as the deployments, and thus are subject the same restrictive Network Policy.
+::: info Kubernetes Service
+A [Kubernetes Service](https://kubernetes.io/docs/concepts/services-networking/service/) is what allows a specific application to be exposed and accessed within a Pod. Kubernetes creates an endpoint to the specified Pod and given port, and because Pods are ephemeral, a separate Service resource is required to direct traffic to correct Pod.
+:::
+For the FLAME Node software, services are created for both analysis and NGINX Pods at ports `8000` and `80`, respectively. These services use the same labels and selectors as the Deployments, and thus are subject the same restrictive Network Policy.
 
-Below are the configurations for both the analysis and Nginx Services.
+Below are the configurations for both the Analysis and NGINX Services.
 
 ### Analysis Service Template
 ```yaml
@@ -223,7 +217,7 @@ spec:
   type: ClusterIP
 ```
 
-### Nginx Service Template
+### NGINX Service Template
 ```yaml
 kind: Service
 apiVersion: v1
@@ -244,13 +238,13 @@ spec:
 ```
 
 ## ConfigMap
-A kubernetes [ConfigMap](https://kubernetes.io/docs/concepts/configuration/configmap/) is used in the FLAME Node to define the endpoints for the Nginx sidecar pod by providing the imported Nginx configuration. Because the traffic from the analysis pod is tightly controlled, it is necessary to pre-define the Nginx endpoints with which this pod can use for communication and transmitting results. The endpoints are to enable communication with other Flame Node components and are configured such that each one will only accept connections from the analysis container (as defined by its Service IP). 
+A Kubernetes [ConfigMap](https://kubernetes.io/docs/concepts/configuration/configmap/) is used in the FLAME Node to define the endpoints for the NGINX sidecar Pod by providing the imported NGINX configuration. Because the traffic from the Analysis Pod is tightly controlled, it is necessary to pre-define the NGINX endpoints which this Pod can use for communication and transmitting results. The endpoints are to enable communication with other FLAME Node components and are configured such that each one will only accept connections from the analysis container (as defined by its Service IP).
 
 ::: info Incoming Messages
-One endpoint, `/analysis`, is configured to allow the FLAME Message Broker and Pod Orchestrator to send information to the analysis pod and serves as the **only** point of ingress to the analysis. 
+Note: One endpoint, `/analysis`, is configured to allow the FLAME Message Broker and Pod Orchestrator to send/retrieve information to/from the Analysis Pod and serves as the **only** point of ingress to the analysis. 
 :::
 
-The ConfigMap resource name with use the format of `nginx-<analysis deployment name>-config` and is defined as such:
+The ConfigMap resource name is formatted as `nginx-<analysis deployment name>-config` and defined as such:
 ```yaml
 kind: ConfigMap
 apiVersion: v1
@@ -283,7 +277,9 @@ data:
                         location /healthz {
                             return 200 'healthy';
                         }
-                        # analysis deployment to kong
+                        
+                        
+                        # egress: analysis deployment to kong
                         location /kong {
                             rewrite     ^/kong(/.*) $1 break;
                             proxy_pass  http://flame-node-kong-proxy;
@@ -291,13 +287,17 @@ data:
                             deny        all;
                         }
                         
+                        
+                        # egress: analysis deployment to result-service
                         location ~ ^/storage/(final|local|intermediate)/ {
                             rewrite     ^/storage(/.*) $1 break;
-                            proxy_pass http://flame-node-node-result-service:8080;
+                            proxy_pass  http://flame-node-node-result-service:8080;
                             allow       <Analysis Service endpoint IP>;
                             deny        all;
                         }
                         
+                        
+                        # egress: analysis deployment to hub-adapter
                         location /hub-adapter/kong/datastore/<project UUID> {
                             rewrite     ^/hub-adapter(/.*) $1 break;
                             proxy_pass http://flame-node-hub-adapter-service:5000;
@@ -305,22 +305,22 @@ data:
                             deny        all;
                         }
                         
-                        # analysis deployment to message broker: participants
-                        location ~ ^/message-broker/analyses/<analysis UUID>/participants(|/self) {
+                        
+                        # egress: analysis deployment to message broker: participants
+                        location ~ ^/message-broker/analyses/<analysis UUID>}/participants(|/self) {
                             rewrite     ^/message-broker(/.*) $1 break;
                             proxy_pass  http://flame-node-node-message-broker;
                             allow       <Analysis Service endpoint IP>;
                             deny        all;
                         }
-                        
-                         # analysis deployment to message broker: analysis message
+                        # egress: analysis deployment to message broker: analysis message
                         location ~ ^/message-broker/analyses/<analysis UUID>/messages(|/subscriptions) {
                             rewrite     ^/message-broker(/.*) $1 break;
                             proxy_pass  http://flame-node-node-message-broker;
                             allow       <Analysis Service endpoint IP>;
                             deny        all;
                         }
-                        # analysis deployment to message broker: healthz
+                        # egress: analysis deployment to message broker: healthz
                         location /message-broker/healthz {
                             rewrite     ^/message-broker(/.*) $1 break;
                             proxy_pass  http://flame-node-node-message-broker;
@@ -328,7 +328,8 @@ data:
                             deny        all;
                         }
                         
-                        # analysis deployment to po log stream
+                        
+                        # egress: analysis deployment to po: stream logs
                         location /po/stream_logs {
                             #rewrite     ^/po(/.*) $1 break;
                             proxy_pass  http://flame-node-po-service:8000;
@@ -340,10 +341,11 @@ data:
                             send_timeout          120s;
                         }
                         
-                        # message-broker/pod-orchestration to analysis deployment
+                        
+                        # ingress: message-broker/pod-orchestration to analysis deployment
                         location /analysis {
                             rewrite     ^/analysis(/.*) $1 break;
-                            proxy_pass  http://<analysis deployment name>;
+                            proxy_pass  http://<Analysis Service Name>;
                             allow       <FLAME Message Broker Service endpoint IP>;
                             allow       <FLAME Pod Orchestrator Service endpoint IP>;
                             deny        all;
@@ -353,9 +355,10 @@ data:
 ```
 
 ## Network Policy
-The Network Policy resource is a policy which restricts traffic either exiting (egress) or entering (ingress) a matching pod. It is applied to any pod with a matching label, in the case of the FLAME Node, the label is `app: <analysis deployment name>` meaning that any resource in the kubernetes cluster with a matching label selector will have this network policy applied to it e.g. the analysis and nginx pods. the applied policy contains rules for both ingress and egress. The ingress policy makes it so that only traffic coming from the associated Nginx pod is allowed, while the egress policy only allows requests to be sent to either the Nginx pod or the kubernetes cluster's DNS pod. 
-
-The DNS permission is necessary to enable pod name resolution within the kubernetes cluster, thus allowing the analysis pod to communicate with the FLAME components. No other traffic or communication, including to others pods or the internet, is capable by the analysis and Nginx pods while this policy is in place.
+::: info Kubernetes Network Policy
+A [Kubernetes Network Policy](https://kubernetes.io/docs/concepts/services-networking/network-policies/) is a resource which restricts traffic either exiting (egress) or entering (ingress) a Pod and It is applied to any Pod via label selectors.
+:::
+In the case of the FLAME Node, the label to apply Network Policies onto is `app: <analysis deployment name>` meaning that any resource in the Kubernetes cluster with a matching label selector will have this network policy applied to it e.g. the Analysis Pod. The ingress policy makes it so that only traffic coming from the associated NGINX Pod is allowed, while the egress policy only allows requests to be sent to either the NGINX Pod or the Kubernetes cluster's DNS Pod (named 'kube-dns'). The DNS permission is necessary to enable Pod name resolution within the Kubernetes cluster, thus allowing the Analysis Pod to communicate with the NGINX. No other traffic or communication, including to others Pods or the internet, is capable by the Analysis Pod while this policy is in place.
 
 Here is the template describing this policy:
 ```yaml
