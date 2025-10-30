@@ -356,7 +356,7 @@ data:
 
 ## Network Policy
 ::: info Kubernetes Network Policy
-A [Kubernetes Network Policy](https://kubernetes.io/docs/concepts/services-networking/network-policies/) is a resource which restricts traffic either exiting (egress) or entering (ingress) a Pod and It is applied to any Pod via label selectors.
+A [Kubernetes Network Policy](https://kubernetes.io/docs/concepts/services-networking/network-policies/) is a resource which restricts traffic either exiting (egress) or entering (ingress) a Pod and is applied to any Pod via label selectors.
 :::
 In the case of the FLAME Node, the label to apply Network Policies onto is `app: <analysis deployment name>` meaning that any resource in the Kubernetes cluster with a matching label selector will have this network policy applied to it e.g. the Analysis Pod. The ingress policy makes it so that only traffic coming from the associated NGINX Pod is allowed, while the egress policy only allows requests to be sent to either the NGINX Pod or the Kubernetes cluster's DNS Pod (named 'kube-dns'). The DNS permission is necessary to enable Pod name resolution within the Kubernetes cluster, thus allowing the Analysis Pod to communicate with the NGINX. No other traffic or communication, including to others Pods or the internet, is capable by the Analysis Pod while this policy is in place.
 
