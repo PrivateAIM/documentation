@@ -99,10 +99,10 @@ status:
         has successfully progressed.
 ```
 
-### NGINX Deployment
+## NGINX Deployment
 NGINX serves as a sidecar proxy, acting as the *only* means of communication between the Analysis Pod and everything else. The partnered analysis container can communicate only through the endpoints defined within this NGINX Deployment (endpoint descriptions can be found in the [ConfigMap](#configmap) section).
 
-#### Template
+### Template
 Each NGINX Deployment can be defined with the following template:
 ```yaml
 kind: Deployment
