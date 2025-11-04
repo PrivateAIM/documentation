@@ -192,7 +192,9 @@ proxy:
   noProxy: "10.0.0.0/8,192.168.0.0/16,127.0.0.1,172.16.0.0/16,.svc,localhost,.cluster.local"
 ```
 
-The `NO_PROXY`/`no_proxy` value will depend on your kubernetes distribution and your server configuration.
+The `NO_PROXY`/`no_proxy` value will depend on your kubernetes distribution and your server configuration, please check your kubernetes distribution's documentation for suggested values. 
+It is highly recommended that you add the the DNS A record to the `noProxy` value for the cluster in which you are deploying the FLAME Node. The name for this record takes the 
+form of `<cluster-domain>` and by default is equal to `.cluster.local`.
 
 ## Additional Certificate Authority (CA) Certificates
 
