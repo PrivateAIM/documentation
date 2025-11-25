@@ -1,4 +1,4 @@
-# FHIR Overwiew
+# FHIR Overview
 FHIR (Fast Healthcare Interoperability Resources) is a standard developed by HL7 designed to facilitate the exchange of
 healthcare information electronically. It allows healthcare systems to share data efficiently and securely.
 FHIR uses standard data formats and elements (known as “resources”) to represent clinical concepts, which can be accessed through RESTful APIs.

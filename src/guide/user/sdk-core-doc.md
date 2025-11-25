@@ -61,8 +61,7 @@ send_message(receivers: list[nodeID],
              message: dict,
              max_attempts: int = 1,
              timeout: Optional[int] = None,
-             attempt_timeout: int = 10,
-             silent: Optional[bool] = None) -> tuple[list[nodeID], list[nodeID]]
+             attempt_timeout: int = 10) -> tuple[list[nodeID], list[nodeID]]
 ```
 
 Sends a message to all specified nodes.
@@ -70,10 +69,9 @@ Sends a message to all specified nodes.
 * returns a tuple with the lists of nodes that acknowledged the message (1st element) and the list that did not
   acknowledge (2nd element)
 * awaits acknowledgment responses within timeout
-* if timeout is set, the timeout for each attempt in max_attempts is set to timeout/max_attempts, else if timeout is set
-  to None, the timeout for each attempt is set to attempt_timeout (with the exception of the last attempt which will be
+* if `timeout` is set, the total timeout for all attempts in `max_attempts`, each individually bound to `attempt_timeout`, is set to `timeout` in seconds. 
+* else, if `timeout` is set to `None`, the timeout for each attempt is simply set to `attempt_timeout` (with the exception of the last attempt which will be
   indefinite)
-* if silent is set to True, the response will not be logged
 
 ```python
 # Example usage
@@ -83,7 +81,7 @@ flame.send_message(receivers=[aggregator_id],
                    message={'result': data_submission['id']})
 ```
 
-#### Await and return responses
+#### Await messages
 
 ```python
 await_messages(senders: list[nodeID],
@@ -92,11 +90,11 @@ await_messages(senders: list[nodeID],
                timeout: int = None) -> dict[nodeID, Optional[list[Message]]]
 ```
 
-Halts process until responses with specified message_category (and optionally with specified message_id) from all
-specified nodes arrive and return their message objects.
+Halts process until messages with specified `message_category` (and optionally with specified `message_id`) from all
+specified nodes arrive and returns the message objects.
 
-* if the timeout is hit or all responses are received, list successful responses and return None for those that failed
-* sets the returned responses' status to “read”
+* if the `timeout` in seconds is hit or all responses are received, list successful responses and return `None` for those that failed
+* sets the returned responses' status to `“read”`
 
 ```python
 # Example usage
@@ -126,7 +124,7 @@ flame.get_messages(status='read')
 delete_messages(message_ids: list[str]) -> int
 ```
 
-Delete messages with the specified message ids.
+Delete messages with the specified `message_ids`.
 
 * returns the number of deleted messages
 
@@ -146,8 +144,8 @@ clear_messages(status: Literal["read", "unread", "all"] = "read",
 Large-scale deletes messages based on the given un-/read status.
 
 * returns the number of deleted messages
-* if status is set to 'all', messages will be deleted regardless of un-/read status
-* if specified with a min_age only messages older than the value in seconds will be deleted, else all of them will
+* if status is set to `'all'`, messages will be deleted regardless of un-/read status
+* if specified with a `min_age` only messages older than the value in seconds will be deleted, else all of them will
 
 ```python
 # Example usage
@@ -163,17 +161,15 @@ send_message_and_wait_for_responses(receivers: list[nodeID],
                                     message: dict,
                                     max_attempts: int = 1,
                                     timeout: Optional[int] = None,
-                                    attempt_timeout: int = 10,
-                                    silent: Optional[bool] = None) -> dict[nodeID, Optional[list[Message]]]
+                                    attempt_timeout: int = 10) -> dict[nodeID, Optional[list[Message]]]
 ```
 
-Send message to specified receivers and halt process until a message from all receivers has been returned.\
+Send message to specified `receivers` and halt process until a message from all `receivers` has been returned.
 
 * Combines functions `send_message` and `await_messages`.
-* returns a dictionary with receiver node ids as keys and lists of their possible response messages as values
-* awaits acknowledgment and message responses within the timeout, if set to None is allowed to run indefinitely
-* response message has to have the same message_category as the message sent in order to trigger this
-* if silent is set to True, the response will not be logged
+* returns a dictionary with receiver node ids as keys and lists of their response messages as values
+* awaits acknowledgment and message responses within the `timeout` in seconds, if set to `None` is allowed to run indefinitely
+* response message has to have the same `message_category` as the message sent in order to trigger this
 
 ```python
 # Example usage
@@ -198,15 +194,14 @@ different analyzes of the same project.
 ```python
 submit_final_result(result: Any,
                     output_type: Literal['str', 'bytes', 'pickle'] = 'str',
-                    silent: Optional[bool] = None) -> dict[str, str]
+                    local_dp: Optional[LocalDifferentialPrivacyParams] = None) -> dict[str, str]
 ```
 
 Submits the final result to the hub, making it available for analysts to download.
 
-* this method is only available for nodes for which the method `flame.get_role()` returns "aggregator”
-* specifying the output_type changes the result's format to either a binary ('bytes'), text ('str'), or pickle file ('pickle')
+* this method is only available for nodes for which the method `flame.get_role()` returns `"aggregator”`
+* specifying the `output_type` changes the result's format to either a binary (`'bytes'`), text (`'str'`), or pickle file (`'pickle'`)
 * returns a brief dictionary response upon success
-* if silent is set to True, the response will not be logged
 
 ```python
 # Example usage
@@ -220,22 +215,20 @@ flame.submit_final_result(result=aggregated_res, output_type='str')
 save_intermediate_data(data: Any,
                        location: Literal["local", "global"],
                        remote_node_ids: Optional[list[str]] = None,
-                       tag: Optional[str] = None,
-                       silent: Optional[bool] = None) -> Union[dict[str, dict[str, str]], dict[str, str]]
+                       tag: Optional[str] = None) -> Union[dict[nodeID, dict[str, str]], dict[str, str]]
 ```
 
-Saves intermediate results/data either on the hub (location="global").
-
-* if remote_node_ids is None, i.e. if intermediate data shouldn't be encrypted
-    * returns a dictionary response containing the success state, the url to the submission location, and the id of the
-      saved data's storage
-        * utilizing the id, allows for retrieval of the saved data (see '*#Get intermediate data*')
-            * only possible for the node that saved the data if saved locally
-            * for all nodes participating in the same analysis if saved globally
-        * alternatively for local data, a storage tag may be set for retrieval later analyzes
-* else, i.e. if intermediate data should be encrypted
-    * returns a dictionary of the previously mentioned dictionaries for each specified remote node id as key
-* if silent is set to True, the response will not be logged
+Saves intermediate `data` either on the hub (`location="global"`), or locally (`location="local"`).
+* a list of `remote_node_ids` need to be provided, if the user wishes to use ECDH for the saved data
+  * if `remote_node_ids` is `None`, i.e. if intermediate data shouldn't be encrypted
+      * returns a dictionary response containing the success state with the key `"status"`, the url to the submission location with the key `"url"`, and the id of the
+        saved data's storage with the key `"id"`
+          * utilizing the id, allows for retrieval of the saved data (see `get_intermediate_data`)
+              * only possible for the node that saved the data, if saved locally
+              * for all nodes participating in the same analysis, if saved globally
+          * (optionally for local data) a storage `tag` can be set for retrieval by future analyzes (persistent; access granted to other analyzes part of the same project)
+  * else, i.e. if intermediate data should be encrypted with ECDH
+      * returns a dictionary of the previously mentioned dictionaries for each specified element of `remote_node_ids` as key
 
 ```python
 # Example usage
@@ -247,18 +240,19 @@ flame.save_intermediate_data(location="global", data=aggregated_res)['id']
 
 ```python
 get_intermediate_data(location: Literal["local", "global"],
-                      id: Optional[str],
-                      tag: Optional[str],
-                      tag_option: Optional[Literal["all", "last", "first"]] = "all") -> Any
+                      id: Optional[str] = None,
+                      tag: Optional[str] = None,
+                      tag_option: Optional[Literal["all", "last", "first"]] = "all",
+                      sender_node_id: Optional[str] = None) -> Any
 ```
 
-Returns the local/global intermediate data with the specified id.
+Returns the `local`/`global` intermediate data with the specified storage `id` or `tag`.
 
-* only possible for the node that saved the data, if done locally
-    * alternatively a storage tag may be specified to retrieve local data, if they were specified during saving
-* for all nodes participating in the same analysis if saved globally
-* tag_option return mode if multiple tagged data are found, "all" vs just the "first" or just the "last"  added to the
-  intermediate data under this tag
+* only possible for the node that saved the data, if saved locally
+* possible for all nodes participating in the same analysis, if saved globally
+* `tag_option` return mode can be specified in case multiple tagged data are found: `"all"`, just the `"first"`, or just the `"last"`  added to the
+  intermediate data under this tag (only checked if `tag` was given a value)
+* `sender_node_id` is the counterpart to `remote_node_ids` in `save_intermediate_data`, and has to be given the node id of the sender, if the data used ECDH (node ids can be exchanged via MessageBroker's `send_message`)
 
 ```python
 # Example usage
@@ -275,18 +269,16 @@ send_intermediate_data(receivers: list[nodeID],
                        max_attempts: int = 1,
                        timeout: Optional[int] = None,
                        attempt_timeout: int = 10,
-                       encrypted: bool = True,
-                       silent: Optional[bool] = None) -> tuple[list[nodeID], list[nodeID]]
+                       encrypted: bool = True) -> tuple[list[nodeID], list[nodeID]]
 ```
 
-Sends intermediate data to specified receivers using the Result Service and Message Broker.\
-* Combines functions `save_intermediate_data('global')` and `send_message`.
+Sends intermediate data to specified receivers using the Result Service and Message Broker.
+* Combines functions `save_intermediate_data(location='global')` and `send_message`.
 
 * returns a tuple with the lists of nodes that acknowledged the message (1st element) and the list that did not
   acknowledge (2nd element)
-* awaits acknowledgment responses within timeout
-* if silent is set to True, the response will not be logged
-* if encrypted set to True, data will be sent using ECDH
+* copies behaviour of MessageBroker's `send_message` for `message_category`, `max_attempts`, `timeout`, and `attempt_timeout`
+* if encrypted set to `True`, data will be sent using ECDH (i.e. will automatically retrieve and distribute `remote_node_ids` in `save_intermediate_data`)
 
 ```python
 # Example usage
@@ -299,13 +291,13 @@ successful, failed = flame.send_intermediate_data(["node1", "node2", "node3"], d
 ```python
 await_intermediate_data(senders: list[nodeID],
                         message_category: str = "intermediate_data",
-                        timeout: Optional[int] = None) -> dict[str, Any]
+                        timeout: Optional[int] = None) -> dict[nodeID, Any]
 ```
 
-Waits for messages containing intermediate data ids from specified senders and retrieves the data.\
+Waits for messages containing intermediate data ids from specified senders and retrieves the data.
 
 * Combines functions `await_messages` and `get_intermediate_data('global')`.
-* returns a dictionary using the senders' nodeIDs as keys and the respectively retrieved data as values
+* returns a dictionary using the senders' node ids as keys and the respectively retrieved data as values
 
 ```python
 # Example usage
@@ -337,6 +329,20 @@ The Data Source Client is a service for accessing data from different sources li
 
 ### List of available methods
 
+#### Get data sources
+
+```python
+get_data_sources() -> list[dict[str, ]]
+```
+
+Returns a list of all data source objects available for this project.
+
+```python
+# Example usage
+# Get list of datasource paths
+flame.get_data_sources()
+```
+
 #### Get data client
 
 ```python
@@ -345,7 +351,7 @@ get_data_client(data_id: str) -> AsyncClient
 
 Returns the data client for a specific FHIR or S3 store used for this project.
 
-* raises ValueError if no data could be found for the specified data_id
+* logs ValueError if no data could be found for the specified data_id
 
 ```python
 # Example usage
@@ -353,34 +359,19 @@ Returns the data client for a specific FHIR or S3 store used for this project.
 flame.get_data_client(data_id=data_a_id)
 ```
 
-#### Get data sources
-
-```python
-get_data_sources() -> list[str]
-```
-
-Returns a list of all data source paths available for this project.
-
-```python
-# Example usage
-# Get list of datasource paths
-flame.get_data_sources()
-```
-
 #### Get FHIR data
 
 ```python
-get_fhir_data(fhir_queries: Optional[list[str]] = None) -> list[Union[dict[str, dict], dict]]
+get_fhir_data(fhir_queries: Optional[list[str]] = []) -> Optional[list[dict[str, Union[str, dict]]]]
 ```
 
-Returns the data from the FHIR store for each of the specified queries as a list.
+Returns the data from the FHIR store for each of the specified `fhir_queries` as a list of dicts.
 
-* If any number of queries are given...
-    * FHIR queries are parsed for each available FHIR datastore individually, the results are added as values inside a
-      dictionary to the returned list
-    * each element of the returned list is a dictionary containing the queries as keys and the respective FHIR results
+* If any number of `fhir_queries` are given...
+    * FHIR queries are parsed for each available FHIR datastore individually, creating a list with x-amount of dictionaries for each datastore, with each containing y-amount of key-value pairs for each query
+    * each element of the returned list is a dictionary containing the `fhir_queries` as keys and the respective FHIR results
       as values
-* else all available FHIR data is appended to the list (discouraged as this will likely create unnecessary overflow)
+* else if an empty list is given, or `fhir_queries=None`, `None` will be returned
 
 ```python
 # Example usage
@@ -391,16 +382,16 @@ flame.get_fhir_data(['Patient?_summary=count'])
 #### Get S3 data
 
 ```python
-get_s3_data(s3_keys: Optional[list[str]] = None) -> list[Union[dict[str, str], str]]
+get_s3_data(s3_keys: Optional[list[str]] = []) -> Optional[list[dict[str, str]]]
 ```
 
-Returns the data from the S3 store associated with the given key as a list.
+Returns the data from the S3 store for each of the given `s3_keys` as a list of dicts.
 
-* If any number of S3 keys are given...
-    * S3 keys are used to select datasets in each available datastore individually, the results are added as values
-      inside a dictionary to the returned list
-    * each element of the returned list is a dictionary containing the S3 keys as keys and the respective datasets as
+* If any number of `s3_keys` are given...
+    * the elements of `s3_keys` are used to filter available datasets based on the dataset names in each available datastore individually, creating a list with x-amount of dictionaries for each datastore, with each containing y-amount of key-value pairs for each S3 key
+    * each element of the returned list is a dictionary containing the dataset names as keys and the respective datasets (in their entirety) as
       values
+* If an empty list is given, i.e. no keys are specified, all datasets will be returned for each datasource, under their names
 * else all available datasets are appended to the list (discouraged as this will likely create unnecessary overflow)
 
 ```python
@@ -413,37 +404,120 @@ flame.get_s3_data()
 
 ### List of available methods
 
+#### Ready Check
+
+```python
+ready_check(nodes: list[nodeID] = 'all',
+            attempt_interval: int = 30,
+            timeout: Optional[int] = None) -> dict[str, bool]
+```
+
+Waits until specified partner nodes in a federated system are ready.
+
+* if nodes is set to `'all'`, all partner nodes will be used
+* function continues to retry at the specified `attempt_interval` (default=30sec) until all nodes respond or the 
+timeout (default: `timeout=None`) is reached
+* return dictionary containing the nodeID as keys and booleans for whether the nodes are ready as values
+
+```python
+# Example usage
+# Check whether aggregator is ready
+flame.ready_check([aggregator_id])
+```
+
 #### Flame logs
 
 ```python
 flame_log(msg: Union[str, bytes],
-          silent: Optional[bool] = None,
           sep: str = ' ',
           end: str = '\n',
           file = None,
-          flush: bool = False,
-          suppress_head: bool = False) -> None
+          log_type: str = 'normal',
+          suppress_head: bool = False,
+          halt_submission: bool = False) -> None
 ```
 
-Prints logs to console.
+Prints `msg`-logs to console and submits them to the hub (as soon as a connection is established, until then they will be queued).
 
-* mirrors python builtin params `sep`, `end`, `file`, and `flush`
-* if silent is set to True, the response will not be logged
-* if suppress_head is set to True, the following print will not contain the normal flame log head
+* mirrors python builtin `print`-params `sep`, `end`, and `file`
+* `log_type` specifies the type of log this should be saved as
+  * accepted literals: 
+    * `'info'`
+    * `'normal'`
+    * `'notice'`
+    * `'debug'`
+    * `'warning'`
+    * `'alert'`
+    * `'emergency'`
+    * `'error'`
+    * `'critical-error'`
+    * or any other type established with `declare_log_types`
+* if `suppress_head` is set to `True`, the following print will not contain the preset Flame log head
+* if `halt_submission` is set to `True`, the log submission to the hub will be placed in a placeholder instead and added to the beginning of the next log submission
+  * useful if followed by another function call with `suppress_head=True`
 
 ```python
 # Example usage
-# Simple print of message
+# Simple log of message
 flame.flame_log("Awaiting contact with analyzer nodes...success")
 
-# Print message, but suppress flame log head
-flame.flame_log("success", False, suppress_head=True)
+# Log message, but halt first log until check passed, then submit halted log with check result
+flame.flame_log("Awaiting contact with analyzer nodes...", halt_submission=True)
+if contacted_successfully:
+    flame.flame_log("success", suppress_head=True)
+else:
+    flame.flame_log("failed", suppress_head=True)
+```
+
+```python
+declare_log_types(new_log_types: dict[str, str]) -> None
+```
+
+Declare new log_types to be added to log_type literals (see list in `flame_log`).
+
+* `new_log_types` accepts dict containing new custom log_types as keys and literals known by Flame as values
+  * values may only include: `'info'`, `'notice'`, `'debug'`, `'warn'`, `'alert'`, `'emerg'`, `'error'`, or `'crit` (not further customizable)
+  * logs error if unknown literal is used
+
+```python
+# Example usage
+# Declare new log type
+flame.declare_log_types({"custom": 'info'})
+```
+
+```python
+get_progress() -> int
+```
+
+Returns current relative progress value (integer between 0 and 100).
+
+```python
+# Example usage
+# Log current progress value
+flame.flame_log(flame.get_progress())
+```
+
+```python
+set_progress(progress: Union[int, float]) -> None
+```
+
+Set current relative progress value (integer/float between 0 and 100).
+
+* float values will be streamed to integers
+* only accepts monotone increasing values
+  * logs warnings if attempts are made to set progress to equal or smaller values
+
+```python
+# Example usage
+# Perpetually increase progress
+for i in range(0, 100):
+    flame.set_progress(i)
 ```
 
 #### Get aggregator id
 
 ```python
-get_aggregator_id() -> Optional[str]
+get_aggregator_id() -> Optional[nodeID]
 ```
 
 Returns node_id of node dedicated as aggregator.
@@ -464,12 +538,12 @@ get_participants() -> list[dict[str, str]]
 
 Returns a list of all participants in the analysis.
 
-* returns participants as dictionaries containing their configuration
+* returns participants as dictionaries containing their configuration (keys: `'nodeId'` and `'nodeType'`)
 * does not contain config of own node
 
 ```python
 # Example usage
-# Get full config of partner nodes
+# Get config of partner nodes
 flame.get_participants()
 ```
 
@@ -493,7 +567,7 @@ flame.get_participant_ids()
 #### Get node status #TODO: tba
 
 ```python
-get_node_status(timeout: Optional[int] = None) -> dict[str, Literal["online", "offline", "not_connected"]]
+get_node_status(timeout: Optional[int] = None) -> dict[nodeID, Literal["online", "offline", "not_connected"]]
 ```
 Returns the status of all nodes.
 * <>
@@ -536,7 +610,7 @@ flame.get_project_id()
 #### Get id
 
 ```python
-get_id() -> str
+get_id() -> nodeID
 ```
 
 Returns the node id.
@@ -570,31 +644,10 @@ flame.get_role()
 analysis_finished() -> bool
 ```
 
-Sends a signal to all nodes to set their node_finished to True, then sets the node to finished.
+Sends a signal to all partner nodes to set their `node_finished` state to `True`, then sets its own `node_finished` state to `True`
 
 ```python
 # Example usage
 # End analysis, and inform partner nodes
 flame.analysis_finished()
-```
-
-#### Ready Check
-
-```python
-ready_check(nodes: list[nodeID] = 'all',
-            attempt_interval: int = 30,
-            timeout: Optional[int] = None) -> dict[str, bool]
-```
-
-Waits until specified partner nodes in a federated system are ready.
-
-* if nodes is set to 'all', all partner nodes will be used
-* function continues to retry at the specified interval (default=30sec) until all nodes respond or the timeout (
-  default=None) is reached
-* return dictionary containing the nodeID as keys and booleans for whether the nodes are ready as values
-
-```python
-# Example usage
-# Check whether aggregator is ready
-flame.ready_check([aggregator_id])
 ```

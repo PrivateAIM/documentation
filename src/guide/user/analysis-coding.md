@@ -4,7 +4,7 @@ This section is currently under development. The example provided is simple and 
 :::
 This example can be used as `entrypoint.py`, which is referenced in this documentation.
 
-### Example Analysis: Counting Patients Using a FHIR Query
+### Example Analysis using ``StarModel``: Counting Patients Using a FHIR Query
 
 This analysis example demonstrates how to count the total number of patients across multiple nodes with FHIR data, 
 with the results being summed up for aggregation.
@@ -103,11 +103,36 @@ if __name__ == "__main__":
 ```
 
 ### Explanation
-- MyAnalyzer: Processes data from the nodes, returning the patient counts.
-- MyAggregator: Combines results from all nodes and sums the patient counts.
-- Main Function: Instanciates the StarModel class.
+- ``MyAnalyzer``: Custom class created by the user for analysis (has to inherit from ``StarAnalyzer`` and has to implement ``analysis_method()``).
+  - ``analysis_method()``: Custom function processing/analyzing the nodes' data according to the user's specifications. [*In Example*: Returns the patient counts.]
+    - Input-Parameters given by ``StarModel``:
+      - ``data``: Contains input data either in s3 or fhir format (depending on datastore and ``data_type`` specification in the ``StarModel`` instantiation). 
+      It is a list of python dictionaries, with each dictionary corresponding to one datasource within the node's datastore (often only one). 
+      Each dictionary utilizes the specified query or queries specified in the ``StarModel`` instantiation (``query``). 
+      For s3 data, those queries equate to the dataset filenames, for fhir they equate to the fhir-queries. If ``query=None`` is specified, 
+      for s3, all available datasets will be returned using their filenames as keys, while for fhir nothing will be returned (i.e. fhir datasets require query input to return anything). 
+      ```python
+      data = [{<query_1_1>: <dataset_1_1>, ..., <query_n_1>: <dataset_n_1>}, ..., {<query_1_n>: <dataset_1_n>, ..., <query_n_n>: <dataset_n_n>}]
+      ```
+      [*In Example (for a single datasource, and a single query)*: 
+      ```python
+      data = [{'Patient?_summary=count': 10}]
+      ```
+      ]
+      - ``aggregator_results``: Contains the output of the previous iteration's ``aggregation_method()`` (only used in multi-iterative analyzes). 
+      Can/should be used to compare results or calculate deltas from previous iterations. [*In Example*: ``aggregator_results=None``]
+- ``MyAggregator``:  Custom class created by the user for aggregation (has to inherit from ``StarAggregator`` and has to implement ``aggregation_method()`` and ``has_converged()``).
+  - ``aggregation_method()``: Combines results submitted by the nodes. [*In Example*: Sums the nodes' respective patient counts.]
+    - Input-Parameters given by ``StarModel``:
+      - ``analysis_results``: Contains results of all ``analysis_method()`` executions by the analyzer nodes. It is set as a simple list of those results, i.e. it retains no information which node sent which result. [*In Example*: Simple list of node patient counts.]
+  - ``has_converged()``: Method returning a boolean value, specifiable by the user. If this returns ``True``, a multi-iterative analysis would submit its final results to the Hub, 
+  and terminate its and all analysis node's executions, else it would return the aggregated results back to the analyzer nodes for the next iteration. 
+  This method will only be executed if ``StarModel`` was initialized with ``simple_analysis=False``, and then starting from the second iteration.
+  [*In Example*: Is set to True, but also ignored since ``simple_analysis=True`` in the ``StarModel`` instantiation in ``main()``, i.e. implying a single-iteration analysis.]
+    - Input-Parameters given by ``StarModel``:
+      - ``result``: Output of the current iteration's ``aggregation_method()``.
+      - ``last_result``: Output of the previous iteration's ``aggregation_method()``.
+      - ``num_iterations``: Number of iterations executed. This number is incremented **after** executing the ``has_converged()``-check, i.e. equates to 1 in the second iteration of the analysis.
+- ``main()``-function: Instantiates the ``StarModel`` class automatically executing the analysis on the node (either as an aggregator or analyzer node).
 
 This script serves as a basic "Hello World" example for performing federated analysis using FHIR data.
-
-
-
