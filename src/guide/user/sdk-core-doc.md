@@ -469,6 +469,8 @@ else:
     flame.flame_log("failed", suppress_head=True)
 ```
 
+#### Declare Log types
+
 ```python
 declare_log_types(new_log_types: dict[str, str]) -> None
 ```
@@ -485,6 +487,8 @@ Declare new log_types to be added to log_type literals (see list in `flame_log`)
 flame.declare_log_types({"custom": 'info'})
 ```
 
+#### Get analysis progress
+
 ```python
 get_progress() -> int
 ```
@@ -496,6 +500,8 @@ Returns current relative progress value (integer between 0 and 100).
 # Log current progress value
 flame.flame_log(flame.get_progress())
 ```
+
+#### Set analysis progress
 
 ```python
 set_progress(progress: Union[int, float]) -> None
