@@ -73,6 +73,22 @@ const members = [
             { icon: 'github', link: 'https://github.com/brucetony' },
         ],
     },
+    {
+        avatar: 'https://github.com/AbuAttieh.png',
+        name: 'Hammam Abu Attieh',
+        title: 'Privacy Engineer ',
+        links: [
+            { icon: 'github', link: 'https://github.com/AbuAttieh' },
+        ],
+    },
+    {
+        avatar: 'https://github.com/mhalilovic.png',
+        name: 'Mehmed Halilovic',
+        title: 'Privacy Engineer ',
+        links: [
+            { icon: 'github', link: 'https://github.com/mhalilovic' },
+        ],
+    },
 ];
 </script>
 <template>
