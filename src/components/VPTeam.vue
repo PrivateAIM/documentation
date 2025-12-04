@@ -26,11 +26,11 @@ const members = [
         ],
     },
     {
-        avatar: 'https://www.github.com/mjugl.png',
-        name: 'Maximilian Jugl',
+        avatar: 'https://www.github.com/brucetony.png',
+        name: 'Bruce Schultz',
         title: 'Node Lead & Developer',
         links: [
-            { icon: 'github', link: 'https://github.com/mjugl' },
+            { icon: 'github', link: 'https://github.com/brucetony' },
         ],
     },
     {
@@ -66,11 +66,19 @@ const members = [
         ],
     },
     {
-        avatar: 'https://www.github.com/brucetony.png',
-        name: 'Bruce Schultz',
+        avatar: 'https://github.com/maxju.png',
+        name: 'Max Schaible',
         title: 'Developer',
         links: [
-            { icon: 'github', link: 'https://github.com/brucetony' },
+            { icon: 'github', link: 'https://github.com/maxju' },
+        ],
+    },
+    {
+        avatar: 'https://github.com/pbrassel.png',
+        name: 'Paul Brassel',
+        title: 'Developer',
+        links: [
+            { icon: 'github', link: 'https://github.com/pbrassel' },
         ],
     },
     {
@@ -89,6 +97,57 @@ const members = [
             { icon: 'github', link: 'https://github.com/mhalilovic' },
         ],
     },
+    {
+        avatar: 'https://github.com/CemBykr.png',
+        name: 'Cem Ata Baykara',
+        title: 'Privacy Engineer ',
+        links: [
+            { icon: 'github', link: 'https://github.com/CemBykr' },
+        ],
+    },
+    {
+        avatar: 'https://github.com/not-a-feature.png',
+        name: 'Jules Kreuer',
+        title: 'Analyst',
+        links: [
+            { icon: 'github', link: 'https://github.com/not-a-feature' },
+        ],
+    },
+    {
+        avatar: 'https://github.com/marlenamey.png',
+        name: 'Marlena Meyer',
+        title: 'Analyst',
+        links: [
+            { icon: 'github', link: 'https://github.com/marlenamey' },
+        ],
+    },
+    {
+        avatar: 'https://github.com/Demokritus.png',
+        name: 'Gherman Sergei',
+        title: 'Analyst',
+        links: [
+            { icon: 'github', link: 'https://github.com/Demokritus' },
+        ],
+    },
+];
+
+const alumni = [
+    {
+        avatar: 'https://www.github.com/mjugl.png',
+        name: 'Maximilian Jugl',
+        title: 'Former Node Lead & Developer',
+        links: [
+            { icon: 'github', link: 'https://github.com/mjugl' },
+        ],
+    },
+    {
+        avatar: 'https://www.github.com/RaphaelRe.png',
+        name: 'Raphael Rehms',
+        title: 'Analyst',
+        links: [
+            { icon: 'github', link: 'https://github.com/raphaelre' },
+        ],
+    },
 ];
 </script>
 <template>
@@ -101,5 +160,13 @@ const members = [
         <VPTeamMembers
             :members="members"
         />
+
+        <VPTeamPageTitle style="padding-top: 48px;">
+            <template #title>
+                Alumni
+            </template>
+        </VPTeamPageTitle>
+
+        <VPTeamMembers :members="alumni" />
     </VPTeamPage>
 </template>
