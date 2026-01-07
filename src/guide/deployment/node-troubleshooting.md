@@ -53,3 +53,45 @@ hub:
   crypto:
     existingSecret: super-safe-node-key
 ```
+
+### Setting up TLS connection
+
+1. Produce your own certificate `my-flame-node.crt` and private key `my-flame-node.key`, either self-signed or signed with a Certificate Authority (check required steps here - )
+2. Save your public certificate inside the file `certs.pem`, [which could be used later to produce a configMap for your kube node configuration](./node-installation.md#using-a-pre-defined-configmap)
+3. Run the following command to create a secret for TLS protocol:
+    `$ kubectl create secret tls tls-secret --key my-flame-node.key --cert my-flame-node.crt`
+If you need a secret for multiple domain names (e.g. external and internal addresses), you can execute almost the same command but with multiple flags `--key` and `--cert`.
+
+After that add to your custom `my-values.yaml` file the following line inside the ingress block:
+`tlsSecretName: tls-secret`. 
+As the result, your logical block of ingress in the customized values file should look like the following:
+```yaml
+ingress:
+  enabled: true
+  hostname: "https://my-flame-node.org"
+  tlsSecretName: tls-secret
+```
+
+
+### Reinstalling a node
+
+Before installing a node again after it's been deleted, it might be crucial to clean up Persistent Volumes left by a previously deployed node instance, 
+because they tend to persist inside kubernetes cluster even after a worker node gets deleted.
+To do that launch the following command in your shell:
+`$ kubectl delete pvc --all`
+
+
+### Setting up user authorization via Keycloak
+
+Possible issues:
+- Login failure - resulting in the error message `Invalid URI`
+
+This should be dealt by providing the correct URI address inside Keycloak admin console.
+1. Click on the top right button of your NodeUI web page - "Node Keycloak Admin"; then log in as an admin.
+2. Enter your credentials (by default "admin:admin").
+3. Press the button "Manage realms", there you go to a correct realm; by default you should click on 'flame'. Thereafter you could notice that the part of your URL after '#' is changed, now it shall include a chosen realm name.
+4. Go to "Clients" on the left panel. Click on an appropriate ClientID, it should be "node-ui"
+5. Scroll down in the node-ui client settings until you'll see the fields "Valid redirect URIs". 
+6. In this field type the root URL of your node website. For example it could be the following:
+- "https://my-flame-node.org/*"
+- "http://my-flame-node.org/*"
