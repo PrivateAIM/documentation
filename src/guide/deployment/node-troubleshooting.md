@@ -73,7 +73,7 @@ ingress:
 ```
 
 
-### Reinstalling a node
+## Reinstalling a Node
 
 Before installing a node again after it's been deleted, it might be crucial to clean up Persistent Volumes left by a previously deployed node instance, 
 because they tend to persist inside kubernetes cluster even after a worker node gets deleted.
@@ -81,17 +81,17 @@ To do that launch the following command in your shell:
 `$ kubectl delete pvc --all`
 
 
-### Setting up user authorization via Keycloak
+## Setting Up User Authorization via Keycloak
 
 Possible issues:
 - Login failure - resulting in the error message `Invalid URI`
 
-This should be dealt by providing the correct URI address inside Keycloak admin console.
+Though this should be done automatically during installation provided that the `ingress.hostname` value is filled out in the `values.yaml` file used during the `helm install` step, if your domain changes or something goes wrong during deployment then follow these steps to update the bundled Keycloak instance with your used URI:
+
 1. Click on the top right button of your NodeUI web page - "Node Keycloak Admin"; then log in as an admin.
-2. Enter your credentials (by default "admin:admin").
-3. Press the button "Manage realms", there you go to a correct realm; by default you should click on 'flame'. Thereafter you could notice that the part of your URL after '#' is changed, now it shall include a chosen realm name.
-4. Go to "Clients" on the left panel. Click on an appropriate ClientID, it should be "node-ui"
-5. Scroll down in the node-ui client settings until you'll see the fields "Valid redirect URIs". 
-6. In this field type the root URL of your node website. For example it could be the following:
-- "https://my-flame-node.org/*"
-- "http://my-flame-node.org/*"
+0. Press the button "Manage realms", then go to the correct "<b>flame</b>" realm. Thereafter, you could notice that the part of your URL after '#' is changed, now it shall include a chosen realm name.
+0. Go to "Clients" on the left panel and click on the appropriate ClientID for the NodeUI (the default is "<b>node-ui</b>")
+0. Scroll down in the node-ui client settings until you'll see the fields "Valid redirect URIs". 
+0. In this field type the root URL of your node website. For example it could be the following:
+  - "https://my-flame-node.org/*"
+  - "http://my-flame-node.org/*"
