@@ -26,7 +26,7 @@ class RLAnalyzer(StarAnalyzer):
 
         super().__init__(flame)  # Connects this analyzer to the FLAME components
         self.result = None
-    
+
         flame.flame_log("Init of analyzer finished ...")
         # Start up Postgres DB
         self.PG_BIN_DIR = "/usr/lib/postgresql/14/bin"
@@ -54,7 +54,7 @@ class RLAnalyzer(StarAnalyzer):
             except requests.exceptions.ConnectionError:
                 # Service noch nicht erreichbar, warten
                 pass
-            
+
             self.flame.flame_log("Waiting for Mainzelliste...")
             time.sleep(interval)
 
@@ -112,7 +112,7 @@ class RLAnalyzer(StarAnalyzer):
         """Exits PostgreSQL cleanly."""
         self.flame.flame_log("Stop PostgreSQL...")
         subprocess.run(
-            [f"{self.PG_BIN_DIR}/pg_ctl", "stop", "-D", self.PG_DATA_DIR, "-m", "fast"],  
+            [f"{self.PG_BIN_DIR}/pg_ctl", "stop", "-D", self.PG_DATA_DIR, "-m", "fast"],
             # -m fast = beendet Verbindungen, speichert sofort
             check=True,
             preexec_fn=self.run_as_postgres,
@@ -123,16 +123,16 @@ class RLAnalyzer(StarAnalyzer):
     def get_new_pseudonyms(self, keep_keys, data, addpatienturl, headers):
         pseudonyms = {}
         for file_bytes in data[0].values():
-            decoded = file_bytes.decode("utf-8") 
-            csv_reader = csv.DictReader(io.StringIO(decoded), delimiter=";") 
+            decoded = file_bytes.decode("utf-8")
+            csv_reader = csv.DictReader(io.StringIO(decoded), delimiter=";")
             for index, row in enumerate(csv_reader):
                 self.flame.flame_log("row: ")
-                self.flame.flame_log(str(row)) 
+                self.flame.flame_log(str(row))
                 filtered_payload = {key: row[key] for key in keep_keys}
                 add_row = requests.post(addpatienturl, json = filtered_payload, headers = headers)
                 if add_row.status_code == 201: # TODO: was wenn possible match (also 409)?
                     self.flame.flame_log("Adding patient to Mainzelliste succeeded")
-                    resp_data = add_row.json()  
+                    resp_data = add_row.json()
                     if resp_data and isinstance(resp_data, list):
                         pseudonym = resp_data[0].get("idString", "Not found")
                         pseudonyms[pseudonym] = index # TODO: andersrum? weil bei gleichen wird sonst überschrieben
@@ -182,14 +182,16 @@ class RLAnalyzer(StarAnalyzer):
             "data": {
                 "searchIds": search_ids,
                 "resultFields": [
-                    "vorname_bigram_bloom", "nachname_bigram_bloom",
-                    "geburtstag_bigram_bloom", "geburtsmonat_bigram_bloom",
-                    "geburtsjahr_bigram_bloom", "plz_bigram_bloom", 
-                    "ort_bigram_bloom"
+                    "vorname", "nachname",
+                    "geburtstag", "geburtsmonat",
+                    "geburtsjahr", "plz",
+                    "ort"
                 ],
                 "resultIds": ["pid"]
             }
         }
+        self.flame.flame_log("payload read: ")
+        self.flame.flame_log(str(payload_read))
 
         token_id = self.create_session_and_token(url, payload_read, content_header, api_key)
         readpatienturl = f"{url}/patients?tokenId={token_id}"
@@ -207,7 +209,7 @@ class RLAnalyzer(StarAnalyzer):
                 patients_with_index.append((index, patient["fields"]))
 
         return sorted(patients_with_index, key=lambda x: x[0])
-    
+
     def cleanup(self, mainzelliste_proc):
         """Shut down Mainzelliste and PostgreSQL."""
         self.flame.flame_log("End Mainzelliste...")
@@ -232,7 +234,7 @@ class RLAnalyzer(StarAnalyzer):
                                    - Contains the result from the aggregator's aggregation_method in subsequent iterations.
         :return: Any result of your analysis on one node (ex. patient count).
         """
-        if aggregator_results == None: # 0 iteration
+        if not aggregator_results or aggregator_results[0] is None: # 0 iteration
             self.flame.flame_log("0. Iteration")
             return None
         elif "config" in aggregator_results[0]: # 1 iteration
@@ -247,13 +249,12 @@ class RLAnalyzer(StarAnalyzer):
             with open(config_path, "wb") as f:
                 tomli_w.dump(config, f)
 
-            self.flame.flame_log("Final analyzer configuration created under:", config_path)
 
             self.init_db()
             self.start_postgres()
             self.create_user_and_db()
 
-            # Start Mainzelliste 
+            # Start Mainzelliste
             binary_path = "/usr/local/bin/mainzelliste"
             env = os.environ.copy()
             env["PG_HOST"] = "localhost"
@@ -269,7 +270,7 @@ class RLAnalyzer(StarAnalyzer):
 
             try:
                 self.result = subprocess.Popen(
-                    [binary_path, "--config", config_path], 
+                    [binary_path, "--config", config_path],
                     env=env,
                     cwd=os.path.dirname(config_path),
                     stdout=subprocess.PIPE,
@@ -317,7 +318,7 @@ class RLAnalyzer(StarAnalyzer):
             self.cleanup(self.result)  # End Mainzelliste + Postgres
             return "finished"
 
-           
+
 
 
 class RLAggregator(StarAggregator):
@@ -330,7 +331,7 @@ class RLAggregator(StarAggregator):
         flame.flame_log("Init of aggregator started ...")
         super().__init__(flame)  # Connects this aggregator to the FLAME components
         # Generate config + salt here to send to data nodes?
-        self.hub_results = {} 
+        self.hub_results = {}
         flame.flame_log("Generate configs ...")
         aggregator_config_path = self.create_config_aggregator()
         self.flame.flame_log("Creating config for Analyzer nodes...")
@@ -338,7 +339,7 @@ class RLAggregator(StarAggregator):
 
         flame.flame_log("Start DB postgres ...")
 
-        # Start postgres db 
+        # Start postgres db
         self.PG_BIN_DIR = "/usr/lib/postgresql/14/bin"
         self.PG_DATA_DIR = "/var/lib/postgresql/data"
 
@@ -352,7 +353,7 @@ class RLAggregator(StarAggregator):
         self.init_db()
         self.start_postgres()
         self.create_user_and_db()
-        
+
         flame.flame_log("Start Aggregator Mainzelliste with Config ...")
         # Start Aggregator ML
         binary_path = "/usr/local/bin/mainzelliste"
@@ -397,7 +398,7 @@ class RLAggregator(StarAggregator):
                     return True
             except requests.exceptions.ConnectionError:
                 pass
-            
+
             self.flame.flame_log("Waiting for Mainzelliste...")
             time.sleep(interval)
 
@@ -455,7 +456,7 @@ class RLAggregator(StarAggregator):
         """Shuts down PostgreSQL"""
         self.flame.flame_log("Stop PostgreSQL...")
         subprocess.run(
-            [f"{self.PG_BIN_DIR}/pg_ctl", "stop", "-D", self.PG_DATA_DIR, "-m", "fast"],  
+            [f"{self.PG_BIN_DIR}/pg_ctl", "stop", "-D", self.PG_DATA_DIR, "-m", "fast"],
             check=True,
             preexec_fn=self.run_as_postgres,
             env=os.environ
@@ -468,8 +469,8 @@ class RLAggregator(StarAggregator):
         hub_res = set.intersection(*node_values) if node_values else set()
 
         # Collect pairwise duplicates
-        section_res = {node: {} for node in all_matches}  
-        pairwise_counts = {}  
+        section_res = {node: {} for node in all_matches}
+        pairwise_counts = {}
 
         for node1, node2 in combinations(all_matches.keys(), 2):
             matches1 = all_matches[node1]
@@ -493,7 +494,7 @@ class RLAggregator(StarAggregator):
         pairwise_counts["total"] = len(hub_res)
 
         return pairwise_counts, section_res
-    
+
     def create_config_nodes(self):
         salt_hex = get_random_bytes(64).hex()
         config_path = os.path.join(os.path.dirname(__file__), "config.toml")
@@ -515,6 +516,13 @@ class RLAggregator(StarAggregator):
         exchange_groups = user_config.get("exchange_groups", {})
         config_content = {
             "salt" : f"{salt_hex}",
+            "oidc": {
+            "issuer": "http://localhost:9000/application/o/<slot-name>/",
+            "client_id": "<insert_id>",
+            "client_secret": "<insert_secret>",
+            "user_group": "",
+            "admin_group": ""
+            },
             "ids": {"internal_id": "pid"},
             "id_generator": {
                 "pid": {"generator": "PIDGenerator", "k1": 1, "k2": 2, "k3": 3}
@@ -594,7 +602,7 @@ class RLAggregator(StarAggregator):
                 "exchange_group_1": ["geburtstag","geburtsjahr","geburtsmonat"]
             }
         }
-    
+
         if patient_settings:
             config_content["patient_settings"] = patient_settings
         if matcher_frequency:
@@ -617,8 +625,8 @@ class RLAggregator(StarAggregator):
 
         config_content["matcher_comparators"] = matcher_comparators
 
-        return config_content 
-            
+        return config_content
+
     # Generate Config
     def create_config_aggregator(self):
         config_path = os.path.join(os.path.dirname(__file__), "config.toml")
@@ -640,6 +648,13 @@ class RLAggregator(StarAggregator):
         exchange_groups = user_config.get("exchange_groups", {})
 
         aggregator_config = {
+            "oidc": {
+            "issuer": "http://localhost:9000/application/o/<slot-name>/",
+            "client_id": "<insert_id>",
+            "client_secret": "<insert_secret>",
+            "user_group": "",
+            "admin_group": ""
+            },
             "ids": {"internal_id": "pid"},
             "id_generator": {
                 "pid": {"generator": "PIDGenerator", "k1": 1, "k2": 2, "k3": 3}
@@ -663,16 +678,18 @@ class RLAggregator(StarAggregator):
                 }
             ],
             # === DEFAULT PATIENT SETTINGS ===
+
             "patient_settings": {
-                "vorname": "String",
-                "nachname": "String",
-                "geburtsname": "String",
-                "geburtstag": "Integer",
-                "geburtsmonat": "Integer",
-                "geburtsjahr": "Integer",
-                "ort": "String",
-                "plz": "Integer"
+                "vorname": "Bloom",
+                "nachname": "Bloom",
+                "geburtsname": "Bloom",
+                "geburtstag": "Bloom",
+                "geburtsmonat": "Bloom",
+                "geburtsjahr": "Bloom",
+                "ort": "Bloom",
+                "plz": "Bloom"
             },
+
             "matcher_frequency": {
                 "vorname": 0.000235,
                 "nachname": 0.0000271,
@@ -736,12 +753,16 @@ class RLAggregator(StarAggregator):
             aggregator_config["thresholds"] = thresholds
         if exchange_groups:
             aggregator_config["exchange_groups"] = exchange_groups
-        
+
         matcher_comparators = {
             field: "BloomFilterComparator" for field in aggregator_config["patient_settings"].keys()
         }
+        patient_settings_new = {
+            field: "Bloom" for field in aggregator_config["patient_settings"].keys()
+        }
 
         aggregator_config["matcher_comparators"] = matcher_comparators
+        aggregator_config["patient_settings"] = patient_settings_new
 
         temp_dir = tempfile.mkdtemp()
         final_config_path = os.path.join(temp_dir, "config.toml")
@@ -762,22 +783,22 @@ class RLAggregator(StarAggregator):
         self.flame.flame_log("analysis results:") # 1 iteration
         self.flame.flame_log(str(analysis_results))
         if analysis_results[0] is None: # 0 iteration
-            self.flame.flame_log("0 iteration") 
+            self.flame.flame_log("0 iteration")
             return {"config": self.analyzer_config_dict}
-        
+
         elif analysis_results[0] == "finished":
             self.flame.flame_log("aggregator finishes")
             return self.hub_results
-        
+
         else:
-            self.flame.flame_log("1 iteration") 
+            self.flame.flame_log("1 iteration")
             self.flame.flame_log("analysis results 1st iteration:") # 1 iteration
             self.flame.flame_log(str(analysis_results))
 
             # Health check
             url = "http://localhost:7887"
             if self.wait_for_mainzelliste():
-                self.flame.flame_log("Connected to Mainzelliste...") 
+                self.flame.flame_log("Connected to Mainzelliste...")
 
                 # Perform Matching on Bloomfilters
                 allowed_uses = 0
@@ -812,13 +833,13 @@ class RLAggregator(StarAggregator):
                             continue
 
                         matches = {}
-                        for patient in bloom_data: 
+                        for patient in bloom_data:
                             getId = requests.post(addpatienturl, json = patient[1], headers = headers)
-                            if getId.status_code == 201: 
-                                data = getId.json()  
+                            if getId.status_code == 201:
+                                data = getId.json()
                                 if data and isinstance(data, list):
                                     pseudonym = data[0].get("idString", "Not found")
-                                    matches[f"{patient[0]}"] = pseudonym 
+                                    matches[f"{patient[0]}"] = pseudonym
                             elif getId.status_code == 409:
                                 self.flame.flame_log("Possible Match occured - counted as Non Match")
 
@@ -828,15 +849,15 @@ class RLAggregator(StarAggregator):
                 self.hub_results, node_results = self.all_nodes_intersect(matches_all_nodes)
                 self.flame.flame_log("node_results:")
                 self.flame.flame_log(str(node_results))
-                
+
                 self.flame.flame_log("Mainzelliste is terminated...")
-                self.mainzelliste.terminate()   
+                self.mainzelliste.terminate()
                 try:
                     self.mainzelliste.wait(timeout=10)
                 except subprocess.TimeoutExpired:
                     self.flame.flame_log("Mainzelliste not responding. Force kill.")
                     self.mainzelliste.kill()
-            
+
                 self.stop_postgres()
                 return node_results
             else:
@@ -857,7 +878,7 @@ class RLAggregator(StarAggregator):
         if num_iterations >= 2:
             return True
         return False
-    
+
 
 def main():
     """
@@ -879,6 +900,6 @@ def main():
         aggregator_kwargs=None  # Additional keyword arguments for the custom aggregator constructor (i.e. MyAggregator)
     )
 
-        
+
 if __name__ == "__main__":
     main()
