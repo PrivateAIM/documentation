@@ -16,7 +16,7 @@ keycloak:
     adminPassword: myDefaultPassword
 ```
 
-## Creating a New Admin User
+## Access Control
 Initially, only one user can access the Node UI since only the root user is created in Keycloak during deployment. 
 In order to create another user with the ability to sign in to the Node UI via Keycloak, navigate to the Keycloak 
 console. This can be found by appending `/keycloak` to the end of the domain used for the Node UI e.g. 
@@ -24,7 +24,7 @@ console. This can be found by appending `/keycloak` to the end of the domain use
 
 ### Creating a New User
 
-Login to Keycloak with the `adminUser` and `adminPassword` used during deployment as described in the previous section. 
+Login to Keycloak with the `adminUser` and `adminPassword` values used during deployment as described in the previous section. 
 Once logged in, change the current realm to the "flame" realm:
 
 [![Changing Keycloak Realms](/images/keycloak_images/keycloak_5.png)](/images/keycloak_images/keycloak_5.png)
@@ -41,6 +41,27 @@ Your new user page should look similar to this:
 [![Creating a New Keycloak User](/images/keycloak_images/keycloak_6.png)](/images/keycloak_images/keycloak_6.png)
 
 Click "Create" and the new user will be added, and you will be directed to the "Details" tab for the user.
+
+### Role Based Access Control (RBAC)
+Admins may wish to grant certain individuals access to the Node UI, but restrict what they can do. The node software 
+package allows for Node UI RBAC via the bundled Keycloak instance. Additioanl information on the roles and how to 
+configure their names can be found in the [Node Installation](/guide/deployment/node-installation#role-based-access-control-rbac) instructions.
+
+#### Assigning Users a Role
+Login to the administrative keycloak console and navigate to the "flame" realm. If you wish to create a new user, follow 
+the steps in [Creating a New User](#creating-a-new-user), otherwise, click on the user that you wish to assign a role. Navigate 
+to the "Role Mapping" tab to view the current roles the user has (the default `flameuser` user should have the "admin" role) and 
+click on the "Assign role" button and then on "Client roles".
+
+[![Assigning a Role in Keycloak](/images/keycloak_images/keycloak_assigning_role.png)](/images/keycloak_images/keycloak_assigning_role.png)
+
+In the search box in the top left, search for role which you want to assign the user, either "admin", "researcher", or "steward". 
+There should be a result with the role name that has a "Client ID" of "node-ui". Checkmark this result and click "Assign". The user 
+now has this role and the permissions that come with it.
+
+::: info Role Names
+If you modified the names of the roles during deployment in your `values.yaml` file, then you will see those names here instead.
+:::
 
 ### Setting a Temporary Password
 
@@ -74,3 +95,4 @@ Admins can configure the FLAME software to use a separate IDP (i.e. different Ke
 useful when you already have an instance with your users and roles configured. This needs to be done during 
 installation and instructions on how to achieve this can be found 
 [here](/guide/deployment/node-installation#using-your-own-idp).
+
