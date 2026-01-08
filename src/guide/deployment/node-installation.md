@@ -94,6 +94,37 @@ all generated and configured within this included IDP. If you wish to your own I
 Adapter and the Node UI will have to be created and their secrets set in the values template. See the
 [Using Your Own IDP](#using-your-own-idp) section for more information.
 
+#### Role Based Access Control (RBAC)
+The node software package supports restricting the actions of certain users with access to the Node UI via RBAC. A 
+user can have one of three roles with the following names and permissions:
+* **steward**: can modify/create data stores, but cannot start/stop/delete analyses or view their logs
+* **researcher**: can start/stop/delete analyses and view their logs, but cannot modify data stores
+* **admin**: full access
+
+The included Keycloak instance includes these roles by default, and the initially created `flameuser` is given the "admin" role. 
+The names of these roles can be modified in your `my-values.yaml`, and these changes will be reflected in Keycloak as well:
+
+```yaml
+rbac:
+  roleClaimName: "resource_access.node-ui.roles"
+  adminRole: "admin"
+  stewardRole: "steward"
+  researcherRole: "researcher"
+```
+
+::: warning Role Claim Name
+The `roleClaimName` value is specific for how the role is defined in the JWT provided by the bundled Keycloak, and 
+should not be modified. This only ever needs to be changed if you are [using your own IDP](#using-your-own-idp).
+:::
+
+See the [Access Control](/guide/admin/keycloak-access-control#access-control) section of the documentation for more information 
+on how to create users and assign them specific roles.
+
+::: info Disabling RBAC
+If you have no need for RBAC, it can be disabled by setting `roleClaimName` to an empty string (`""`).
+:::
+
+
 ### Using Your Own IDP
 
 For better security, this software uses Keycloak for authenticating the various services and users that make up FLAME.
@@ -106,6 +137,33 @@ Be sure to enable client authentication and take note of the client ID and secre
 clients as this information along with the (accessible) URL for your IDP must be provided in the `values.yaml`.
 An example of how to configure this in for your cluster can be seen in this
 <a href="/files/values_separate_idp.yaml" download>separate IDP example</a>.
+
+#### RBAC
+Admins using their own IDP who also wish to utilize RBAC for the Node UI will need to configure the roles using 
+their IDP's documentation. Once a the role is created and assigned to a user, the `roleClaimName` value needs to 
+be modified so that the role can be extracted from the JWT provided by the IDP. The `roleClaimName` value should 
+contain the keys leading to the role value in the decrypted JWT, with each hierarchical level separated by a 
+period (".").
+
+In this example:
+```json
+{
+  "sub": "1234567890",
+  "name": "John Doe",
+  "iat": 1516239022,
+  "access_control": {
+    "node-ui-client": {
+      "user-defined-roles": [
+        "steward"
+      ]
+    }
+  },
+  "scope": "openid email profile",
+  "email_verified": true
+}
+```
+the `roleClaimName` should be changed to `"access_control.node-ui-client.user-defined-roles"`.
+
 
 ## Installation
 
