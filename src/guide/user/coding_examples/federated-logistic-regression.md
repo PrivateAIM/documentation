@@ -98,9 +98,9 @@ class FederatedLogisticRegression(StarAggregator):
         else:
             return self.glm.get_summary()
 
-    def has_converged(self, result, last_result, num_iterations):
+    def has_converged(self, result, last_result):
         if self._convergence_flag:
-            print(f"Converged after {num_iterations} iterations.")
+            print(f"Converged after {self.num_iterations} iterations.")
             return True
 
         convergence = self.glm.check_convergence(last_result[0], result[0], tol=1e-4)
@@ -109,7 +109,7 @@ class FederatedLogisticRegression(StarAggregator):
             # the final result can be modified. Maybe there is a better solution in the future.
             self._convergence_flag = True
             return False  # here, False is returned even though convergence is achieved to perform a final "redundant" round
-        elif num_iterations > 100:
+        elif self.num_iterations > 100:
             # TODO: Include option for max iteration and not hardcoded tol
             print(
                 "Maximum number of 100 iterations reached. Returning current results."

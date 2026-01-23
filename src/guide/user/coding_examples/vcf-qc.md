@@ -217,7 +217,7 @@ class VCFAggregator(StarAggregator):
 
         return json.dumps(result)
 
-    def has_converged(self, result, last_result, num_iterations):
+    def has_converged(self, result, last_result):
         return True  # Single-round analysis (no iterative federation needed)
 ```
 

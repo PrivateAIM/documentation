@@ -1,7 +1,7 @@
 # Applying platform SDK and CLI to run a Deep Learning application
 
 
-The more detailed guide to the deep learning showcase can be read [here](./Guide-showcase-deep-learning-image-classifier.pdf)
+The more detailed guide to the deep learning showcase can be read [here](../Guide-showcase-deep-learning-image-classifier.pdf)
 
 ::: warning Assumed Knowledge
 This guide assumes you're already familiar with the basic concepts of federated learning. If not, read the background docs on [Coding an Analysis](/guide/user/analysis-coding) and the [Core SDK](/guide/user/sdk-core-doc).

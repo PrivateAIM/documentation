@@ -227,8 +227,8 @@ class RLAggregator(StarAggregator):
             ...
                 return node_results
 
-    def has_converged(self, result, last_result, num_iterations):
-        if num_iterations >= 2: # iterative federation
+    def has_converged(self, result, last_result):
+        if self.num_iterations >= 2: # iterative federation
             return True
         return False
 ```

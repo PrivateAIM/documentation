@@ -81,7 +81,7 @@ class ResultsAggregator(StarAggregator):
 
         return pd.concat((res_full_data, res_aggregated))
 
-    def has_converged(self, result, last_result, num_iterations):
+    def has_converged(self, result, last_result):
         return True  # Return True as we only have one round
 
 

@@ -62,13 +62,12 @@ class MyAggregator(StarAggregator):
         total_patient_count = sum(analysis_results)
         return total_patient_count
 
-    def has_converged(self, result, last_result, num_iterations):
+    def has_converged(self, result, last_result):
         """
         Determines if the aggregation process has converged.
 
         :param result: The current aggregated result.
         :param last_result: The aggregated result from the previous iteration.
-        :param num_iterations: The number of iterations completed so far.
         :return: True if the aggregation has converged; False to continue iterations.
         """
         # TODO (optional): if the parameter 'simple_analysis' in 'StarModel' is set to False,
@@ -132,7 +131,27 @@ if __name__ == "__main__":
     - Input-Parameters given by ``StarModel``:
       - ``result``: Output of the current iteration's ``aggregation_method()``.
       - ``last_result``: Output of the previous iteration's ``aggregation_method()``.
-      - ``num_iterations``: Number of iterations executed. This number is incremented **after** executing the ``has_converged()``-check, i.e. equates to 1 in the second iteration of the analysis.
 - ``main()``-function: Instantiates the ``StarModel`` class automatically executing the analysis on the node (either as an aggregator or analyzer node).
 
 This script serves as a basic "Hello World" example for performing federated analysis using FHIR data.
+
+### Utilizing Local Differential Privacy in ``StarModel``
+::: warning Info
+In its current state, Local Differential Privacy is only supported for analyzes that return results with a single numeric value.
+:::
+There currently exists an alternate version of ``StarModel`` implementing a simplified local differential privacy (LocalDP) to enhance privacy during analysis: ``StarLocalDPModel``.
+In order to utilize said version, simply replace the ``StarModel`` import and instantiation in the above example with ``StarLocalDPModel``. 
+During instantiation, one has to specify the parameters ``sensitivity`` and ``epsilon``, in addition to ``StarModel``'s normal parameters.
+```python
+from flame.star import StarLocalDPModel
+
+StarLocalDPModel(
+        ...
+        epsilon=1.0,                     # Privacy budget for differential privacy
+        sensitivity=1.0,                 # Sensitivity parameter for differential privacy
+        ...
+    )
+```
+Executing an analysis with ``StarLocalDPModel`` will add Laplace noise to the final results sent by the aggregator node to the Hub.
+For this the given ``sensitivity`` is divided by ``epsilon`` to calculate the scale of the Laplace noise distribution. 
+For more information [see 'opendp' docs](https://docs.opendp.org/en/stable/api/python/opendp.measurements.html#opendp.measurements.make_laplace)).
