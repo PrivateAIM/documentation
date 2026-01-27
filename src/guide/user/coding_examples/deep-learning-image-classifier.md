@@ -25,9 +25,9 @@ By the end of this tutorial you will learn how to use Star patterns, and how to 
 
 
 ::: tip The reason why we use Python as the language of choice is that there is no better alternative for this kind of application due to its suitable ecosystem
+:::
 
-
-## What does the analysis code?
+## What does the analysis code do?
 Brief overview:
 * Analyzer runs network training for few specified number of epochs, then returns a dictionary with updated weights, loss value
 * The aggregator subclass computes federated average of the returned model weights, loss and its metrics received from analyzer node, and checks convergence criterion each round

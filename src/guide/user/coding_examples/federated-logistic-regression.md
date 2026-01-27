@@ -1,142 +1,488 @@
-# Federated logistic regression using `fedstats`
+# FLAME Pancreas Analysis Tutorial
 
-In this example we fit a logistic regression on distributed data using a federated version of the Fisher scoring algorithm [[1](#ref-1)].  
-We use already implemented features from `fedstats` to iteratively update global estimates of parameters at every node over multiple rounds until convergence.
+This guide provides a complete walkthrough of the pancreas analysis example, which demonstrates federated logistic regression using the STAR pattern. This tutorial explains how different components work together to train a machine learning model across distributed healthcare data without centralizing patient information.
 
-> [!NOTE]  
-> This is an illustrative example. We simulate random data at every node such that the calculations can be conducted. Info about data usage can be found elsewhere.
+## 1. Overview
 
-## Procedure
-
-> [!NOTE]  
-> Info about the object classes `StarAnalyzer`, `StarAggregator`, their mandatory components and the `main()` function can be found in other tutorials.
-**First iteration:**  
-
-*At nodes:*  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1. Generate local data using convergence function `simulate_logistic_regression`.  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2. Initialize instance of `PartialFisherScoring`. It will calculate the relevant parts of the Fisher scoring that are submitted to the aggregator.  
-
-*At aggregator:*  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1. Initialize an instance of `FederatedGLM`. It will later handle to calculate the full Fisher information from the parts calculated at the nodes.  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2. Set convergence flag to `False` (more information about it are given at the end of the page).  
-
-**Iterate the following process until convergence:**  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.[*Nodes*] Set received estimates from aggregator as current.  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.[*Nodes*] Calculate, based on local data and current estimates all parts of the Fisher scoring algorithm and return them to aggregator.  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.[*Aggregator*] Set results from nodes.  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4.[A*ggregator*] Use the results to estimate a full score vector and Fisher information matrix and update coefficients of regression model.  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5.[*Aggregator*] In the last round after convergence: return summary as final results.  
-
-> [!NOTE]  
-> We need to keep track of convergence using a extra variable `_convergence_flag` because we want to modify the last result: We want more than just the current parameters of the model, but all relevant info that is usually used in a GLM (like standard errors, z-scores and p-values). Details why we we solve it in this way can be found at the end of the document.  
-
-```python
-import numpy as np
-from flame.star import StarModel, StarAnalyzer, StarAggregator
-from fedstats import FederatedGLM, PartialFisherScoring
-from fedstats.util import simulate_logistic_regression
+This example implements **Federated Logistic Regression** for pancreas disease classification. In this scenario:
+- Multiple hospitals (nodes) have local patient data with pancreas measurements
+- Each hospital trains a logistic regression model on its local data
+- A central aggregator combines the model updates using **Federated Averaging (FedAvg)**
+- The process iterates until the global model converges
+- **No patient data ever leaves the local hospitals**
 
 
-class LocalFisherScoring(StarAnalyzer):
-    def __init__(self, flame):
-        super().__init__(flame)  # Connects this analyzer to the FLAME components
-        self.iteration = 0
-        local_PRNGKey = np.random.randint(1, 99999)
-        X, y = simulate_logistic_regression(
-            local_PRNGKey, n=50, k=1
-        )  # k=1 as we need only one dataset
-        self.X, self.y = X[0], y[0]
+### 1.1. Why Federated Learning for Healthcare?
 
-        self.local_model_parts = PartialFisherScoring(
-            self.X, self.y, family="binomial", fit_intercept=False
-        )
-        print(f"Initial values of beta: {self.local_model_parts.beta}")
+Healthcare data is:
+- **Private**: Patient data must remain at the source institution
+- **Distributed**: Different hospitals have different patient populations
+- **Sensitive**: Regulatory requirements (HIPAA, GDPR) restrict data sharing
 
-    def analysis_method(self, data, aggregator_results):
-        """
-        Runs local parts of the federated fisher scoring
-        Fits score vector and fisher information matrix on current values from aggregator results
-        aggregator_results should be a list with one element. This element is a tuple 2 elements:
-        1. Aggregation results (np.ndarray) 2. convergence flag
-        """
-        # first iteration, aggregator gives no results and therefore None, use local inital values
-        if self.iteration == 0:
-            # wrap as a list (reason in next line)
-            aggregator_results = [(self.local_model_parts.beta, False)]
+Federated learning enables collaborative model training while respecting these constraints.
 
-        # aggregator_results are a list with one element
-        aggregator_results = aggregator_results[0]
+### 1.2. Architecture
 
-        # if condition checks, converged flag. In the case of convergence, return the result
-        if not aggregator_results[1]:
-            aggregator_results = aggregator_results[0]
-            self.iteration += 1
-            print(f"Aggregator results are: {aggregator_results}")
-            self.local_model_parts.set_coefs(aggregator_results)
-            return self.local_model_parts.calc_fisher_scoring_parts(verbose=True)
-        else:
-            return aggregator_results[0]
-
-
-class FederatedLogisticRegression(StarAggregator):
-    def __init__(self, flame):
-        """
-        Initializes aggregator object and iteratively checks for convergence
-        and aggegates fisher scoring parts from each node
-        """
-        super().__init__(flame)  # Connects this aggregator to the FLAME components
-        self.glm = FederatedGLM()
-
-        # additional tmp flag to keep track of convergence *independent* of convergence in has_converged() to modify final result
-        self._convergence_flag = False
-
-    def aggregation_method(self, analysis_results):
-        if not self._convergence_flag:
-            self.glm.set_results(analysis_results)
-            self.glm.aggregate_results()
-            return self.glm.get_coefs(), self._convergence_flag
-        else:
-            return self.glm.get_summary()
-
-    def has_converged(self, result, last_result):
-        if self._convergence_flag:
-            print(f"Converged after {self.num_iterations} iterations.")
-            return True
-
-        convergence = self.glm.check_convergence(last_result[0], result[0], tol=1e-4)
-        if convergence:
-            # TODO: Currently, a the following is a workaround. Another round of analysis is done with no results such that
-            # the final result can be modified. Maybe there is a better solution in the future.
-            self._convergence_flag = True
-            return False  # here, False is returned even though convergence is achieved to perform a final "redundant" round
-        elif self.num_iterations > 100:
-            # TODO: Include option for max iteration and not hardcoded tol
-            print(
-                "Maximum number of 100 iterations reached. Returning current results."
-            )
-            return True
-        else:
-            return False
-
-
-def main():
-    StarModel(
-        analyzer=LocalFisherScoring,
-        aggregator=FederatedLogisticRegression,
-        data_type="s3",
-        simple_analysis=False,
-        output_type="str",
-        analyzer_kwargs=None,
-        aggregator_kwargs=None,
-    )
-
-
-if __name__ == "__main__":
-    main()
+```
+┌─────────────────┐         ┌─────────────────┐
+│   Hospital 1    │         │   Hospital 2    │
+│                 │         │                 │
+│  PancreasData   │         │  PancreasData   │
+│      ↓          │         │      ↓          │
+│ PancreasAnalyzer│         │ PancreasAnalyzer│
+│      ↓          │         │      ↓          │
+│ Local Model     │         │ Local Model     │
+│  Coefficients   │         │  Coefficients   │
+└────────┬────────┘         └────────┬────────┘
+         │                           │
+         └────────────┬──────────────┘
+                      ↓
+         ┌────────────────────────┐
+         │   Aggregator Node      │
+         │                        │
+         │ FederatedLogistic      │
+         │    Regression          │
+         │         ↓              │
+         │  Global Model          │
+         │    Parameters          │
+         └────────────────────────┘
+                      ↓
+         (Iterate until convergence)
 ```
 
-<!--TODO: Explain issue with converged flag-->
+## 2. Code Walkthrough
 
-## References
+### 2.1. Imports and Setup
 
-<span id="ref-1">[1]</span> Cellamare, Matteo, et al. *A federated generalized linear model for privacy-preserving analysis.* **Algorithms** 15.7 (2022): 243.
+```python
+import pandas as pd
+import numpy as np
+from sklearn.linear_model import LogisticRegression
+from io import BytesIO
+from flame.star import StarAnalyzer, StarAggregator, StarModel
+```
+
+**What's happening:**
+- **pandas**: Loads and processes CSV data
+- **numpy**: Handles numerical operations (arrays, linear algebra)
+- **LogisticRegression**: The machine learning model we're training
+- **BytesIO**: Handles in-memory byte streams (data arrives as bytes)
+- **flame.star**: FLAME framework components for federated learning
+
+### 2.2. The PancreasAnalyzer Class
+
+The analyzer runs at each hospital and performs local training.
+
+```python
+class PancreasAnalyzer(StarAnalyzer):
+    """
+    Local analyzer executed independently on each federated node.
+    Responsible for loading node-local data and computing model updates.
+    """
+
+    def __init__(self, flame):
+        super().__init__(flame)
+        
+        self.clf = LogisticRegression(
+            max_iter=1,           # One optimization step per federated round
+            fit_intercept=False,  # Intercept omitted for simplicity
+            warm_start=True       # Enables parameter reuse across iterations
+        )
+```
+
+
+**Key Configuration Choices:**
+
+- **`max_iter=1`**: Each federated round does ONE gradient descent step
+  - Why? Because we want fine-grained synchronization between nodes
+  - Each hospital updates the model slightly, then syncs with others
+  
+- **`fit_intercept=False`**: Simplifies the model (no bias term)
+  - Makes coefficient aggregation straightforward
+  - In production, you might want to include the intercept
+  
+- **`warm_start=True`**: Critical for federated learning!
+  - Preserves model parameters between `.fit()` calls
+  - Each round starts from the aggregated global parameters
+  - Without this, the model would reset each time
+
+
+
+#### 2.2.1. The Analysis Method
+
+```python
+def analysis_method(self, data, aggregator_results):
+    # Load local CSV data from byte stream
+    pancreas_df = pd.read_csv(BytesIO(data[0]['pancreasData.csv']))
+    
+    # Split features and labels (last column assumed to be target)
+    data, labels = pancreas_df.iloc[:, :-1], pancreas_df.iloc[:, -1]
+    
+    # Initialize model coefficients with global parameters
+    self.clf.coef_ = aggregator_results
+    
+    # Perform one local fitting step
+    self.clf.fit(data, labels)
+    
+    # During the first iteration, no global parameters exist yet
+    if self.num_iterations == 0:
+        aggregator_results = self.clf.coef_.copy()
+    
+    # Return updated coefficients to the aggregator
+    return self.clf.coef_
+```
+
+**Step-by-step breakdown:**
+
+1. **Data Loading**:
+   ```python
+   pancreas_df = pd.read_csv(BytesIO(data[0]['pancreasData.csv']))
+   ```
+   - `data[0]` is a dictionary: `{'pancreasData.csv': <bytes>}`
+   - `BytesIO()` creates an in-memory file from bytes
+   - `pd.read_csv()` parses the CSV into a DataFrame
+
+2. **Feature-Label Split**:
+   ```python
+   data, labels = pancreas_df.iloc[:, :-1], pancreas_df.iloc[:, -1]
+   ```
+   - All columns except the last are features (patient measurements)
+   - Last column is the label (disease classification: 0 or 1)
+
+3. **Initialize with Global Parameters**:
+   ```python
+   self.clf.coef_ = aggregator_results
+   ```
+   - Sets the model's starting point to the global parameters
+   - This ensures all nodes start from the same synchronized state
+   - On first iteration, `aggregator_results` is `None`
+
+4. **Local Training**:
+   ```python
+   self.clf.fit(data, labels)
+   ```
+   - Performs ONE step of gradient descent (remember `max_iter=1`)
+   - Updates coefficients based on local data
+   - The model improves slightly based on this hospital's patients
+
+5. **First Iteration Handling**:
+   ```python
+   if self.num_iterations == 0:
+       aggregator_results = self.clf.coef_.copy()
+   ```
+   - On the first round, there's no global model yet
+   - Each hospital initializes its own coefficients
+   - These local initializations will be averaged to create the first global model
+
+6. **Return Local Update**:
+   ```python
+   return self.clf.coef_
+   ```
+   - Sends the updated coefficients to the aggregator
+   - These are numpy arrays with shape `(1, num_features)`
+
+### 2.3. The FederatedLogisticRegression Aggregator
+
+The aggregator combines updates from all hospitals.
+
+```python
+class FederatedLogisticRegression(StarAggregator):
+    """
+    Aggregator responsible for combining model updates
+    and checking convergence across federated rounds.
+    """
+
+    def __init__(self, flame):
+        super().__init__(flame)
+        self.max_iter = 10  # Maximum number of federated iterations
+```
+
+**Configuration:**
+- `max_iter=10`: Safety limit to prevent infinite training
+- Convergence might happen earlier (see `has_converged()`)
+
+
+#### 2.3.1. The Aggregation Method
+
+```python
+def aggregation_method(self, analysis_results):
+    # Stack coefficient arrays from all nodes
+    coefs = np.stack(analysis_results, axis=0)
+    
+    # Compute mean across nodes (Federated Averaging)
+    global_params_ = coefs.mean(axis=0)
+    
+    return global_params_
+```
+
+**How Federated Averaging Works:**
+
+Imagine two hospitals:
+- Hospital 1 has coefficients: `[0.5, 0.8, 0.2]`
+- Hospital 2 has coefficients: `[0.3, 0.6, 0.4]`
+
+The aggregation computes:
+```
+global_model = ([0.5, 0.8, 0.2] + [0.3, 0.6, 0.4]) / 2
+             = [0.4, 0.7, 0.3]
+```
+
+This global model:
+- Represents knowledge from both hospitals
+- Doesn't favor any single institution
+- Becomes the starting point for the next training round
+
+**Why This Works:**
+- Linear models (like logistic regression) can be safely averaged
+- The average of local optima approximates the global optimum
+- More sophisticated aggregation schemes exist (weighted averaging, momentum, etc.)
+
+#### 2.3.2. The Convergence Check
+
+```python
+def has_converged(self, result, last_result):
+     # exclude first iteration from convergence check, because last result is None
+    if last_result is None:
+        return False
+    # L2 norm of parameter difference
+    if np.linalg.norm(result - last_result, ord=2).item() <= 1e-8:
+        self.flame.flame_log(
+            "Delta error is smaller than the tolerance threshold",
+            log_type="info"
+        )
+        return True
+    
+    # Stop if maximum number of iterations is reached
+    elif self.num_iterations > (self.max_iter - 1):
+        self.flame.flame_log(
+            f"Maximum number of {self.max_iter} iterations reached. "
+            "Returning current results.",
+            log_type="info"
+        )
+        return True
+    
+    return False
+```
+
+**Convergence Criteria Explained:**
+
+1. **Parameter Stability**:
+   ```python
+   np.linalg.norm(result - last_result, ord=2) <= 1e-8
+   ```
+   - Computes the L2 (Euclidean) distance between consecutive models
+   - If the model parameters barely change, training has converged
+   - `1e-8` is a very small threshold (parameters differ by < 0.00000001)
+
+2. **Maximum Iterations**:
+   ```python
+   self.num_iterations > (self.max_iter - 1)
+   ```
+   - Prevents infinite training loops
+   - After 10 rounds, stop regardless of convergence
+   - Protects against poorly-configured models
+
+**Why Two Criteria?**
+- Best case: Model converges early (saves computation)
+- Worst case: Model reaches max iterations (prevents hanging)
+
+### 2.4. StarModel Instantiation - Putting It All Together
+
+```python
+def main():
+    # Run federated training
+    StarModel(               
+        PancreasAnalyzer,               # Analyzer class
+        FederatedLogisticRegression,    # Aggregator class
+        's3',                           # Data source type
+        simple_analysis=False,          # Multi-round analysis
+        output_type='pickle',           # Output format
+    )
+```
+
+**StarModel Configuration:**
+
+| Parameter | Value | Purpose |
+|-----------|-------|---------|
+| `PancreasAnalyzer` | Class | Local training logic |
+| `FederatedLogisticRegression` | Class | Aggregation logic |
+| `'s3'` | Data type | Treats data as S3-like objects |
+| `simple_analysis=False` | Iterative | Enables multi-round training |
+| `output_type='pickle'` | Format | Serializes the final model |
+
+
+## 3. Training Flow Example
+
+Let's trace through two complete iterations:
+
+### 3.1. Iteration 0 (First Round)
+
+1. **Hospital 1 Analyzer**:
+   - Loads local pancreas data
+   - `aggregator_results` is `None` (first iteration)
+   - Initializes LogisticRegression and trains for 1 step
+   - Returns coefficients: `coef_1 = [0.12, 0.45, 0.33, ...]`
+
+2. **Hospital 2 Analyzer**:
+   - Loads local pancreas data
+   - `aggregator_results` is `None`
+   - Initializes LogisticRegression and trains for 1 step
+   - Returns coefficients: `coef_2 = [0.18, 0.52, 0.28, ...]`
+
+3. **Aggregator**:
+   - Receives `[coef_1, coef_2]`
+   - Computes average: `global_coef = (coef_1 + coef_2) / 2`
+   - Checks convergence: `last_result` is `None`, so continues
+   - Returns `global_coef` to all analyzers
+
+### 3.2. Iteration 1 (Second Round)
+
+1. **Hospital 1 Analyzer**:
+   - Loads local data again
+   - `aggregator_results = global_coef` (from iteration 0)
+   - Sets `self.clf.coef_ = global_coef` (warm start)
+   - Trains for 1 step (refines the global model on local data)
+   - Returns updated coefficients: `coef_1_new`
+
+2. **Hospital 2 Analyzer**:
+   - Loads local data again
+   - `aggregator_results = global_coef`
+   - Sets `self.clf.coef_ = global_coef`
+   - Trains for 1 step
+   - Returns updated coefficients: `coef_2_new`
+
+3. **Aggregator**:
+   - Receives `[coef_1_new, coef_2_new]`
+   - Computes new average: `global_coef_new`
+   - Checks convergence:
+     - Computes `||global_coef_new - global_coef||`
+     - If small enough, training stops
+     - Otherwise, continues to iteration 2
+
+This process repeats until convergence or max iterations.
+
+
+
+## 4. Key Concepts Explained
+
+### 4.1. Warm Start vs. Cold Start
+
+Many machine learning model libraries reset their model's parameters on each `.fit()` call by default, a practice often called **Cold Start** (see Example).
+
+#### 4.1.1. Cold Start (warm_start=False):
+```
+Round 1: Initialize → Train
+Round 2: Initialize → Train  (loses progress!)
+Round 3: Initialize → Train
+```
+*Here, each round starts from scratch, which is not useful for federated learning.*
+
+Most libraries, including `sklearn`, thereby provide a **Warm Start** option. This enables the manual application of model coefficients from previous iterations.
+
+#### 4.1.2. Warm Start (warm_start=True):
+```
+Round 1: Initialize → Train
+Round 2: Continue from Round 1 → Train
+Round 3: Continue from Round 2 → Train
+```
+*Each round builds on previous progress. Essential for federated learning.*
+
+### 4.2. Why max_iter=1?
+
+**Multiple iterations per round (max_iter=100)**:
+- Each hospital trains independently for 100 steps
+- Individual models diverge from each other more rapidly
+- Aggregation less effective, slower convergence
+
+**Single iteration per round (max_iter=1)**:
+- Each hospital takes one small step
+- Frequent synchronization keeps models aligned
+- Better convergence properties
+
+### 4.3. Data Privacy Guarantee
+
+##### Notice what NEVER leaves each hospital:
+
+❌ Raw patient data, able to be traced back to individuals
+
+##### What DOES get shared:
+
+✅ Model coefficients, not patient data (ex. numbers like `[0.4, 0.7, 0.3]`; coefficients: mathematical vector parameters used to distinguish arbitrary categories)
+
+## 5. Running the Example
+
+To run this example you need a project set up in FLAME with nodes that have access to pancreas data CSV files. 
+How to do that look at the [Submitting a Project Proposal](/guide/user/project) and [Starting an Analysis](/guide/user/analysis)
+
+
+## 6. Troubleshooting
+
+### 6.1. Issue: "ValueError: This LogisticRegression instance is not fitted yet"
+
+**Cause**: The model's `coef_` attribute wasn't initialized properly.
+
+**Solution**: Ensure the first iteration handles None:
+```python
+if self.num_iterations == 0:
+    aggregator_results = self.clf.coef_.copy()
+```
+
+### 6.2. Issue: Training never converges
+
+**Cause**: Convergence threshold too strict or learning not effective.
+
+**Solutions**:
+1. Increase tolerance: `1e-8` → `1e-5`
+2. Reduce max_iter in analyzer: Forces smaller updates
+3. Check data quality: Ensure all nodes have meaningful data
+
+### 6.3. Issue: "Shape mismatch" errors
+
+**Cause**: Different nodes have different numbers of features.
+
+**Solution**: Ensure all `pancreasData.csv` files have the same columns:
+```python
+# Validate data
+pancreas_df = pd.read_csv(BytesIO(data[0]['pancreasData.csv']))
+expected_features = 8  # For example
+assert pancreas_df.shape[1] == expected_features + 1  # +1 for label
+```
+
+### 6.4. Issue: Poor model performance
+
+**Possible causes:**
+1. Insufficient iterations (increase `max_iter` in aggregator)
+2. Unbalanced data (some nodes have very different distributions)
+3. Model too simple (try more complex models)
+4. Need feature engineering (normalize, add polynomial features)
+
+**Solutions:**
+```python
+# Normalize features
+from sklearn.preprocessing import StandardScaler
+
+def analysis_method(self, data, aggregator_results):
+    pancreas_df = pd.read_csv(BytesIO(data[0]['pancreasData.csv']))
+    X, y = pancreas_df.iloc[:, :-1], pancreas_df.iloc[:, -1]
+    
+    # Normalize
+    scaler = StandardScaler()
+    X = scaler.fit_transform(X)
+    
+    # Continue with training...
+```
+
+
+## 7. Best Practices
+
+1. **Always use warm_start=True** for iterative federated learning
+2. **Set max_iter=1** in the local model for fine-grained synchronization
+3. **Handle the first iteration** where aggregator_results is None
+4. **Include convergence checks** to prevent infinite loops
+5. **Log important events** using `self.flame.flame_log()`
+6. **Validate data shapes** to catch configuration errors early
+7. **Test with 2-3 nodes first** before scaling up
+8. **Save intermediate results** during development for debugging
+9. **Utilize [FlameSDK's built-in testing environments](/guide/user/testing_examples/local-testing-logistic-regression-example)** to simulate and test your federated pipeline execution 
+10. **Integrate given class fields** (like ``self.num_iterations``) efficiently instead of creating new tracking variables with identical purpose
+

@@ -20,13 +20,15 @@ export const userRoutes = [
                         text: 'Examples',
                         collapsed: true,
                         items: [
-                            {text: 'Aggregation with fedstats', link: '/coding_examples/survival-regression.md'},
-                            {text: 'Federated GLM', link: '/coding_examples/federated-logistic-regression.md'},
-                            {text: 'GeMTeX text scores', link: '/coding_examples/gemtex-text-score-example'},
-                            {text: 'PPRL', link: '/coding_examples/record_linkage'},
+                            {text: 'Aggregation with fedstats', link: '/coding_examples/survival-regression'},
                             {text: 'Basic VCF QC', link: '/coding_examples/vcf-qc'},
                             {text: 'CLI Tools FastQC', link: '/coding_examples/cli-fastqc'},
-                            {text: 'Differential Privacy', link: '/coding_examples/differential-privacy-dp'}
+                            {text: 'Deep Learning image classification', link: '/coding_examples/deep-learning-image-classifier'},
+                            {text: 'Differential Privacy', link: '/coding_examples/differential-privacy-mvp'},
+                            {text: 'Fedstats GLM', link: '/coding_examples/fedstats-logistic-regression'},
+                            {text: 'Federated Logistic Regression', link: '/coding_examples/federated-logistic-regression'},
+                            {text: 'GeMTeX text scores', link: '/coding_examples/gemtex-text-score-example'},
+                            {text: 'PPRL', link: '/coding_examples/record_linkage'},
                         ]
                     },
                 ]
