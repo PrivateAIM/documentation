@@ -1,7 +1,7 @@
 # Using CLI Tools for Federated FASTQ QC
 
 ::: warning Assumed Knowledge
-This guide assumes you're already familiar with the concepts shown in the **VCF QC** tutorial (federated execution model, analyzer vs. aggregator roles, project / datastore setup, approvals). If not, read that first: see [VCF QC Guide](/guide/user/vcf-qc) plus the background docs on [Coding an Analysis](/guide/user/analysis-coding) and the [Core SDK](/guide/user/sdk-core-doc).
+This guide assumes you're already familiar with the concepts shown in the **VCF QC** tutorial (federated execution model, analyzer vs. aggregator roles, project / datastore setup, approvals). If not, read that first: see [VCF QC Guide](/guide/user/coding_examples/vcf-qc) plus the background docs on [Coding an Analysis](/guide/user/analysis-coding) and the [Core SDK](/guide/user/sdk-core-doc).
 :::
 
 ::: info Summary
@@ -115,7 +115,7 @@ Example real output:
 | Node fails with no files | Check extensions & datastore mapping; maybe restrict keys incorrectly. |
 
 ## See Also
-* [VCF QC Guide](/guide/user/vcf-qc)
+* [VCF QC Guide](/guide/user/coding_examples/vcf-qc)
 * [Core SDK Reference](/guide/user/sdk-core-doc)
 * [Coding an Analysis](/guide/user/analysis-coding)
 * [Admin: Analysis Execution](/guide/admin/analysis-execution)

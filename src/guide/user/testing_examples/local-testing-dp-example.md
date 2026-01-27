@@ -1,7 +1,7 @@
 # Local Testing in FLAME: Star Pattern with Differential Privacy
 
 ::: info
-For an explanation of differential privacy concepts and the Star pattern, please refer to the [Star Pattern Testing Guide](./TEST_STAR_PATTERN.md) and [Differential Privacy Documentation](../examples/run_star_model_dp.md). 
+For an explanation of differential privacy concepts and the Star pattern, please refer to the [Star Pattern Testing Guide](/guide/user/local-testing) and [Differential Privacy Documentation](/guide/user/coding_examples/differential-privacy-mvp). 
 :::
 
 ## 1. Initializing Local Testing with Differential Privacy

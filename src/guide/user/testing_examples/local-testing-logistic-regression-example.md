@@ -1,6 +1,6 @@
 # Local Testing in FLAME: Pancreatic Cancer Analysis
 ::: info
-For an explanation of this example's main code, please refer to the [federated logistic regression coding example](../coding_examples/federated-logistic-regression.md). 
+For an explanation of this example's main code, please refer to the [federated logistic regression coding example](/guide/user/coding_examples/federated-logistic-regression).
 :::
 
 ## 1. Initializing Local Testing
