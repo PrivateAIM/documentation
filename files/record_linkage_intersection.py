@@ -863,19 +863,18 @@ class RLAggregator(StarAggregator):
             else:
                 self.flame.flame_log("Healthcheck failed, couldn't start Mainzelliste")
 
-    def has_converged(self, result, last_result, num_iterations):
+    def has_converged(self, result, last_result):
         """
         Determines if the aggregation process has converged.
 
         :param result: The current aggregated result.
         :param last_result: The aggregated result from the previous iteration.
-        :param num_iterations: The number of iterations completed so far.
         :return: True if the aggregation has converged; False to continue iterations.
         """
         # TODO (optional): if the parameter 'simple_analysis' in 'StarModel' is set to False,
         #  this function defines the exit criteria in a multi-iterative analysis (otherwise ignored)
         #return True  # Return True to indicate convergence in this simple analysis
-        if num_iterations >= 2:
+        if self.num_iterations >= 2:
             return True
         return False
 
