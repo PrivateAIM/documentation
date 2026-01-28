@@ -1,7 +1,7 @@
 # Applying platform SDK and CLI to run a Deep Learning application
 
 
-The more detailed guide to the deep learning showcase can be read [here](./Guide-showcase-deep-learning-image-classifier.pdf)
+The more detailed guide to the deep learning showcase can be read [here](../Guide-showcase-deep-learning-image-classifier.pdf)
 
 ::: warning Assumed Knowledge
 This guide assumes you're already familiar with the basic concepts of federated learning. If not, read the background docs on [Coding an Analysis](/guide/user/analysis-coding) and the [Core SDK](/guide/user/sdk-core-doc).
@@ -25,9 +25,9 @@ By the end of this tutorial you will learn how to use Star patterns, and how to 
 
 
 ::: tip The reason why we use Python as the language of choice is that there is no better alternative for this kind of application due to its suitable ecosystem
+:::
 
-
-## What does the analysis code?
+## What does the analysis code do?
 Brief overview:
 * Analyzer runs network training for few specified number of epochs, then returns a dictionary with updated weights, loss value
 * The aggregator subclass computes federated average of the returned model weights, loss and its metrics received from analyzer node, and checks convergence criterion each round

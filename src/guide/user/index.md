@@ -27,8 +27,20 @@ integrity of the original data.
 **`Concepts/Tutorials`**
 
 - [Coding an Analysis](/guide/user/analysis-coding)
-- [Basic VCF Quality Control using Python](/guide/user/vcf-qc)
-- [Using CLI Tools for Federated FASTQ QC](/guide/user/cli-fastqc)
+  - Example Analyses
+    - [Aggregation with fedstats](/guide/user/coding_examples/survival-regression)
+    - [Basic VCF Quality Control using Python](/guide/user/coding_examples/vcf-qc)
+    - [Using CLI Tools for Federated FASTQ QC](/guide/user/coding_examples/cli-fastqc)
+    - [Image classification using deep learning approaches](/guide/user/coding_examples/deep-learning-image-classifier)
+    - [Utilizing Differential Privacy for Privacy Enhancement](/guide/user/coding_examples/differential-privacy-mvp)
+    - [Training a Federated Generalized Linear Model (GLM) from the Fedstat library](/guide/user/coding_examples/fedstats-logistic-regression)
+    - [Federated Logistic Regression classifier for Pancreatic Cancer Data](/guide/user/coding_examples/federated-logistic-regression)
+    - [Analysing text-formatted clinical data with GeMTeX](/guide/user/coding_examples/gemtex-text-score-example)
+    - [Connecting patient records across clinical sites with Privacy-Preserving Record Linkage (PPRL)](/guide/user/coding_examples/record_linkage)
+- [Local Analysis Testing](/guide/user/local-testing)
+  - Local Testing Examples
+    - [Federated Logistic Regression classifier for Pancreatic Cancer Data](/guide/user/testing_examples/local-testing-logistic-regression-example)
+    - [Utilizing Differential Privacy for Privacy Enhancement](/guide/user/testing_examples/local-testing-dp-example)
 - [FHIR Queries](/guide/user/fhir-query)
 
 **`Using the Hub`**

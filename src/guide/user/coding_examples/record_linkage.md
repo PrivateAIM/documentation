@@ -227,8 +227,8 @@ class RLAggregator(StarAggregator):
             ...
                 return node_results
 
-    def has_converged(self, result, last_result, num_iterations):
-        if num_iterations >= 2: # iterative federation
+    def has_converged(self, result, last_result):
+        if self.num_iterations >= 2: # iterative federation
             return True
         return False
 ```
@@ -261,4 +261,4 @@ The structure summarizes the number of matching records across nodes. For docume
 - [Coding an Analysis](/guide/user/analysis-coding)
 - [Admin: Bucket Setup](/guide/admin/bucket-setup-for-data-store)
 - [Admin: Analysis Execution](/guide/admin/analysis-execution)
-- [Survival Regression Example](/guide/user/survival-regression)
+- [Survival Regression Example](/guide/user/coding_examples/survival-regression)

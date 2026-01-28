@@ -217,7 +217,7 @@ class VCFAggregator(StarAggregator):
 
         return json.dumps(result)
 
-    def has_converged(self, result, last_result, num_iterations):
+    def has_converged(self, result, last_result):
         return True  # Single-round analysis (no iterative federation needed)
 ```
 
@@ -301,7 +301,7 @@ Fatal messages include things like `FATAL: Empty file`, `FATAL: Zero variants`, 
 - [Coding an Analysis](/guide/user/analysis-coding)
 - [Admin: Bucket Setup](/guide/admin/bucket-setup-for-data-store)
 - [Admin: Analysis Execution](/guide/admin/analysis-execution)
-- [Survival Regression Example](/guide/user/survival-regression)
+- [Survival Regression Example](/guide/user/coding_examples/survival-regression)
 
 ----
 

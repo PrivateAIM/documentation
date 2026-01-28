@@ -24,7 +24,7 @@ We use already implemented features from `fedstats` to iteratively update global
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.[*Nodes*] Set received estimates from aggregator as current.  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.[*Nodes*] Calculate, based on local data and current estimates all parts of the Fisher scoring algorithm and return them to aggregator.  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.[*Aggregator*] Set results from nodes.  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4.[A*ggregator*] Use the results to estimate a full score vector and Fisher information matrix and update coefficients of regression model.  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4.[*Aggregator*] Use the results to estimate a full score vector and Fisher information matrix and update coefficients of regression model.  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5.[*Aggregator*] In the last round after convergence: return summary as final results.  
 
 > [!NOTE]  
@@ -98,9 +98,9 @@ class FederatedLogisticRegression(StarAggregator):
         else:
             return self.glm.get_summary()
 
-    def has_converged(self, result, last_result, num_iterations):
+    def has_converged(self, result, last_result):
         if self._convergence_flag:
-            print(f"Converged after {num_iterations} iterations.")
+            print(f"Converged after {self.num_iterations} iterations.")
             return True
 
         convergence = self.glm.check_convergence(last_result[0], result[0], tol=1e-4)
@@ -109,7 +109,7 @@ class FederatedLogisticRegression(StarAggregator):
             # the final result can be modified. Maybe there is a better solution in the future.
             self._convergence_flag = True
             return False  # here, False is returned even though convergence is achieved to perform a final "redundant" round
-        elif num_iterations > 100:
+        elif self.num_iterations > 100:
             # TODO: Include option for max iteration and not hardcoded tol
             print(
                 "Maximum number of 100 iterations reached. Returning current results."

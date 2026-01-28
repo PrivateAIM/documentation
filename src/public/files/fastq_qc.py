@@ -262,7 +262,7 @@ class FastqAggregator(StarAggregator):
 
         return json.dumps(result)
 
-    def has_converged(self, result, last_result, num_iterations):  # type: ignore[no-untyped-def]
+    def has_converged(self, result, last_result):  # type: ignore[no-untyped-def]
         return True  # Single pass QC
 
 
