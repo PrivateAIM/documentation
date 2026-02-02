@@ -1,19 +1,18 @@
 # Analysis Review
-As a node administrator, you have a crucial role in analysis: If your node was part of an approved project, the
-analyst who set it up can create analyzes with your node. Before a valid analysis is built, it requires approval.
+As a node administrator, you have a crucial role in analysis execution: If your node was part of an approved project, the
+analyst who set it up can create analyses with your node. Before a valid analysis is built, it requires approval.
 Here, you may review the analysis code and see whether your provided node data will be used according to the study
-protocol. If it is, approve the analyzes. If it is not, you may reject it, effectively blocking its execution on
-your site. If you do so, we encourage you to inform the data analyst of the reason, so they can revise it. After approval
+protocol. If it adheres to the protocol, then approval of the analysis is permitted, otherwise, you may reject it, effectively blocking its execution on your site. If you do so, we encourage you to inform the data analyst of the reason, so they can revise it. After approval
 or rejection of each site, the analysis is built.
 
 To review analysis, follow these steps:
 1. Within the home area (top left), you need to select **Analyses** in the left navigation, and then the Option
    **Incoming** to its right.
-2. Here, you can view all approved, rejected, as well as analyzes awaiting either (Optional: Use the search bar at the
+2. Here, you can view all approved, rejected, as well as analyses awaiting either (Optional: Use the search bar at the
    top).
    [![image](/images/ui_images/hub_analysis_review.png)](/images/ui_images/hub_analysis_review.png)
 3. **Review** incoming analysis scripts by clicking the black download button on the right of the request.
-4. **Approve** incoming analyzes by clicking the gray triple-bar button on the right of the anlaysis and then clicking the
+4. **Approve** incoming analyses by clicking the gray triple-bar button on the right of the anlaysis and then clicking the
    green approve button in the small popup.
 5. **Reject** incoming analysis by clicking the gray triple-bar button on the right of the analysis and then clicking the
    red reject button in the small popup.
