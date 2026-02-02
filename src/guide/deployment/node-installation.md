@@ -129,7 +129,7 @@ If you have no need for RBAC, it can be disabled by setting `roleClaimName` to a
 
 For better security, this software uses Keycloak for authenticating the various services and users that make up FLAME.
 Keycloak is installed along with the other services and is required for the creation and management of the individual
-analyzes. Using the keycloak console, the admin you can add additional users who can access the FLAME UI, but you may
+analyses. Using the keycloak console, the admin you can add additional users who can access the FLAME UI, but you may
 also use your own IDP for user authentication if you wish.
 
 To enable this, first you must create individual clients for both the Node UI and the Hub Adapter in your IDP.

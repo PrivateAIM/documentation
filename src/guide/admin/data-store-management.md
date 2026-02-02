@@ -30,14 +30,14 @@ A description of the fields in the table can be found below.
 
 ## Managing Data Access
 If a project is no longer approved, valid, or has been terminated, then the associated data stores should be removed. 
-The Node UI provides an interface for both disconnecting individual analyzes from accessing the requested data and 
+The Node UI provides an interface for both disconnecting individual analyses from accessing the requested data and 
 permanently deleting data stores.
 
 To manage previously created data stores as well as analysis data access, navigate to the Data Store Management page by
 clicking on "Data Stores" -> "Manage" in the menu bar at the top of the Node UI. Here, 3 tabs will be visible: 
 [Data Store Overview](#managing-a-data-store), [Analysis Overview](#disconnecting-an-analysis), and Data Store Tree 
-Table. Each of these tabs provide a tabular description of the current data stores, analyzes with data access, and an 
-interactive overview of how the data stores, projects, and analyzes of connected, respectively.
+Table. Each of these tabs provide a tabular description of the current data stores, analyses with data access, and an 
+interactive overview of how the data stores, projects, and analyses of connected, respectively.
 
 ### Managing a Data Store
 The "Data Store Overview" tab shows a table listing the previously created data stores. The columns describe the same fields used during 
@@ -49,8 +49,8 @@ creation (see [Field Descriptions](#field-descriptions)).
 The final column has a button for deleting the data store in that row. Simply click the button and confirm that you 
 want to delete the data store to remove any reference of it.
 
-::: warning Stop the Analyzes
-Deleting a data store also disconnects all analyzes for the associated project from the data. Be sure the analyzes 
+::: warning Stop the Analyses
+Deleting a data store also disconnects all analyses for the associated project from the data. Be sure the analyses 
 have either all run to completion or the users have been notified.
 :::
 

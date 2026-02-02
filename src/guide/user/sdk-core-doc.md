@@ -185,7 +185,7 @@ flame.send_message_and_wait_for_responses(receivers=[aggregator_id],
 ### Purpose
 
 The Storage Service is a service for saving and exchanging results between nodes of one analysis and locally between
-different analyzes of the same project.
+different analyses of the same project.
 
 ### List of available methods
 
@@ -226,7 +226,7 @@ Saves intermediate `data` either on the hub (`location="global"`), or locally (`
           * utilizing the id, allows for retrieval of the saved data (see `get_intermediate_data`)
               * only possible for the node that saved the data, if saved locally
               * for all nodes participating in the same analysis, if saved globally
-          * (optionally for local data) a storage `tag` can be set for retrieval by future analyzes (persistent; access granted to other analyzes part of the same project)
+          * (optionally for local data) a storage `tag` can be set for retrieval by future analyses (persistent; access granted to other analyses part of the same project)
   * else, i.e. if intermediate data should be encrypted with ECDH
       * returns a dictionary of the previously mentioned dictionaries for each specified element of `remote_node_ids` as key
 

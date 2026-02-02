@@ -118,7 +118,7 @@ if __name__ == "__main__":
       data = [{'Patient?_summary=count': 10}]
       ```
       ]
-      - ``aggregator_results``: Contains the output of the previous iteration's ``aggregation_method()`` (only used in multi-iterative analyzes). 
+      - ``aggregator_results``: Contains the output of the previous iteration's ``aggregation_method()`` (only used in multi-iterative analyses). 
       Can/should be used to compare results or calculate deltas from previous iterations. [*In Example*: ``aggregator_results=None``]
 - ``MyAggregator``:  Custom class created by the user for aggregation (has to inherit from ``StarAggregator`` and has to implement ``aggregation_method()`` and ``has_converged()``).
   - ``aggregation_method()``: Combines results submitted by the nodes. [*In Example*: Sums the nodes' respective patient counts.]
@@ -137,7 +137,7 @@ This script serves as a basic "Hello World" example for performing federated ana
 
 ### Utilizing Local Differential Privacy in ``StarModel``
 ::: warning Info
-In its current state, Local Differential Privacy is only supported for analyzes that return results with a single numeric value.
+In its current state, Local Differential Privacy is only supported for analyses that return results with a single numeric value.
 :::
 There currently exists an alternate version of ``StarModel`` implementing a simplified local differential privacy (LocalDP) to enhance privacy during analysis: ``StarLocalDPModel``.
 In order to utilize said version, simply replace the ``StarModel`` import and instantiation in the above example with ``StarLocalDPModel``. 

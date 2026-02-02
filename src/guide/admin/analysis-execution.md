@@ -49,8 +49,6 @@ During an analysis run, a node admin may want to halt an analysis container manu
 yellow stop button will be enabled and can be used to prematurely stop the container. After stopping the run, the 
 green play button will change to indicate that the admin can rerun the analysis if they choose.
 
-Analyzes that have run to completion will enter this "stopped" state by default.
-
 ### Deleting an Analysis Run
 
 [![Analysis Delete Button](/images/node_ui_images/analysis_delete.png){width=40}](/images/node_ui_images/analysis_delete.png)
