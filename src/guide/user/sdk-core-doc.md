@@ -194,6 +194,7 @@ different analyzes of the same project.
 ```python
 submit_final_result(result: Any,
                     output_type: Literal['str', 'bytes', 'pickle'] = 'str',
+                    multiple_results: bool = False,
                     local_dp: Optional[LocalDifferentialPrivacyParams] = None) -> dict[str, str]
 ```
 
@@ -201,6 +202,7 @@ Submits the final result to the hub, making it available for analysts to downloa
 
 * this method is only available for nodes for which the method `flame.get_role()` returns `"aggregator”`
 * specifying the `output_type` changes the result's format to either a binary (`'bytes'`), text (`'str'`), or pickle file (`'pickle'`)
+* `mulitple_results` can be used to define whether multiple results should be split into separate result files (if set to `True`) or returned as one (if set to `False`)  
 * returns a brief dictionary response upon success
 
 ```python
@@ -226,7 +228,7 @@ Saves intermediate `data` either on the hub (`location="global"`), or locally (`
           * utilizing the id, allows for retrieval of the saved data (see `get_intermediate_data`)
               * only possible for the node that saved the data, if saved locally
               * for all nodes participating in the same analysis, if saved globally
-          * (optionally for local data) a storage `tag` can be set for retrieval by future analyzes (persistent; access granted to other analyzes part of the same project)
+          * (optionally for local data, i.e. if `location="local"`) a storage `tag` can be set for retrieval by future analyzes (persistent; access granted only to other analyzes of the same project)
   * else, i.e. if intermediate data should be encrypted with ECDH
       * returns a dictionary of the previously mentioned dictionaries for each specified element of `remote_node_ids` as key
 
@@ -332,7 +334,7 @@ The Data Source Client is a service for accessing data from different sources li
 #### Get data sources
 
 ```python
-get_data_sources() -> list[dict[str, ]]
+get_data_sources() -> Optional[list[dict[str, Any]]]
 ```
 
 Returns a list of all data source objects available for this project.
@@ -346,7 +348,7 @@ flame.get_data_sources()
 #### Get data client
 
 ```python
-get_data_client(data_id: str) -> AsyncClient
+get_data_client(data_id: str) -> Optional[AsyncClient]
 ```
 
 Returns the data client for a specific FHIR or S3 store used for this project.
@@ -371,7 +373,7 @@ Returns the data from the FHIR store for each of the specified `fhir_queries` as
     * FHIR queries are parsed for each available FHIR datastore individually, creating a list with x-amount of dictionaries for each datastore, with each containing y-amount of key-value pairs for each query
     * each element of the returned list is a dictionary containing the `fhir_queries` as keys and the respective FHIR results
       as values
-* else if an empty list is given, or `fhir_queries=None`, `None` will be returned
+* else if an empty list is given `fhir_queries=[]`, or `fhir_queries=None`, `None` will be returned
 
 ```python
 # Example usage
@@ -382,7 +384,7 @@ flame.get_fhir_data(['Patient?_summary=count'])
 #### Get S3 data
 
 ```python
-get_s3_data(s3_keys: Optional[list[str]] = []) -> Optional[list[dict[str, str]]]
+get_s3_data(s3_keys: Optional[list[str]] = []) -> Optional[list[dict[str, bytes]]]
 ```
 
 Returns the data from the S3 store for each of the given `s3_keys` as a list of dicts.
@@ -391,8 +393,8 @@ Returns the data from the S3 store for each of the given `s3_keys` as a list of 
     * the elements of `s3_keys` are used to filter available datasets based on the dataset names in each available datastore individually, creating a list with x-amount of dictionaries for each datastore, with each containing y-amount of key-value pairs for each S3 key
     * each element of the returned list is a dictionary containing the dataset names as keys and the respective datasets (in their entirety) as
       values
-* If an empty list is given, i.e. no keys are specified, all datasets will be returned for each datasource, under their names
-* else all available datasets are appended to the list (discouraged as this will likely create unnecessary overflow)
+* else if an empty list is given, i.e. no keys are specified, all datasets will be returned for each datasource, under their names
+* else if `s3_keys` is set to `None`, `None` will be returned
 
 ```python
 # Example usage
@@ -403,6 +405,129 @@ flame.get_s3_data()
 ## General
 
 ### List of available methods
+
+#### Get aggregator id
+
+```python
+get_aggregator_id() -> Optional[nodeID]
+```
+
+Returns node_id of node dedicated as aggregator.
+
+* returns aggregator id if used by an analysis node, else `None` (if used by the aggregator node)
+
+```python
+# Example usage
+# Get aggregator id
+flame.get_aggregator_id()
+```
+
+#### Get participants
+
+```python
+get_participants() -> list[dict[str, str]]
+```
+
+Returns a list of all participant configs in the analysis.
+
+* returns participants as dictionaries containing their configuration (keys: `'nodeId'` and `'nodeType'`)
+* does not contain config of own node
+
+```python
+# Example usage
+# Get config of partner nodes
+flame.get_participants()
+```
+
+#### Get participant ids
+
+```python
+get_participant_ids() -> list[nodeID]
+```
+
+Returns a list of all participant ids in the analysis.
+
+* does not contain id of own node
+
+```python
+# Example usage
+# Get ids of partner nodes
+flame.get_participant_ids()
+```
+
+#### Get analysis id
+
+```python
+get_analysis_id() -> str
+```
+
+Returns the analysis id.
+
+```python
+# Example usage
+# Get analysis id
+flame.get_analysis_id()
+```
+
+#### Get project id
+
+```python
+get_project_id() -> str
+```
+
+Returns the project id.
+
+```python
+# Example usage
+# Get project id
+flame.get_project_id()
+```
+
+#### Get id
+
+```python
+get_id() -> nodeID
+```
+
+Returns the node id.
+
+```python
+# Example usage
+# Get own node id
+flame.get_id()
+```
+
+#### Get role
+
+```python
+get_role() -> str
+```
+
+Returns the role of the node.
+
+* "aggregator" means that the node can submit final results using "submit_final_result", else "default" (this may change
+  with further permission settings).
+
+```python
+# Example usage
+# Get role of node within analysis
+flame.get_role()
+```
+
+#### Analysis finished
+
+```python
+analysis_finished() -> bool
+```
+
+Sends a signal to all partner nodes to set their `node_finished` state to `True`, then sets its own `node_finished` state to `True`
+
+```python
+# Example usage
+# End analysis, and inform partner nodes
+flame.analysis_finished()
+```
+
 
 #### Ready Check
 
@@ -498,7 +623,7 @@ Returns current relative progress value (integer between 0 and 100).
 ```python
 # Example usage
 # Log current progress value
-flame.flame_log(flame.get_progress())
+flame.flame_log(f"Current progress: {flame.get_progress()}%)
 ```
 
 #### Set analysis progress
@@ -518,142 +643,4 @@ Set current relative progress value (integer/float between 0 and 100).
 # Perpetually increase progress
 for i in range(0, 100):
     flame.set_progress(i)
-```
-
-#### Get aggregator id
-
-```python
-get_aggregator_id() -> Optional[nodeID]
-```
-
-Returns node_id of node dedicated as aggregator.
-
-* returns aggregator id if used by an analysis node, else None (if used by the aggregator node)
-
-```python
-# Example usage
-# Get aggregator id
-flame.get_aggregator_id()
-```
-
-#### Get participants
-
-```python
-get_participants() -> list[dict[str, str]]
-```
-
-Returns a list of all participants in the analysis.
-
-* returns participants as dictionaries containing their configuration (keys: `'nodeId'` and `'nodeType'`)
-* does not contain config of own node
-
-```python
-# Example usage
-# Get config of partner nodes
-flame.get_participants()
-```
-
-#### Get participant ids
-
-```python
-get_participant_ids() -> list[nodeID]
-```
-
-Returns a list of all participants' ids in the analysis.
-
-* does not contain id of own node
-
-```python
-# Example usage
-# Get ids of partner nodes
-flame.get_participant_ids()
-```
-
-<!---
-#### Get node status #TODO: tba
-
-```python
-get_node_status(timeout: Optional[int] = None) -> dict[nodeID, Literal["online", "offline", "not_connected"]]
-```
-Returns the status of all nodes.
-* <>
-
-```python
-# Example usage
-# <>
-<>
-```
---->
-
-#### Get analysis id
-
-```python
-get_analysis_id() -> str
-```
-
-Returns the analysis id.
-
-```python
-# Example usage
-# Get analysis id
-flame.get_analysis_id()
-```
-
-#### Get project id
-
-```python
-get_project_id() -> str
-```
-
-Returns the project id.
-
-```python
-# Example usage
-# Get project id
-flame.get_project_id()
-```
-
-#### Get id
-
-```python
-get_id() -> nodeID
-```
-
-Returns the node id.
-
-```python
-# Example usage
-# Get own node id
-flame.get_id()
-```
-
-#### Get role
-
-```python
-get_role() -> str
-```
-
-Returns the role of the node.
-
-* "aggregator" means that the node can submit final results using "submit_final_result", else "default" (this may change
-  with further permission settings).
-
-```python
-# Example usage
-# Get role of node within analysis
-flame.get_role()
-```
-
-#### Analysis finished
-
-```python
-analysis_finished() -> bool
-```
-
-Sends a signal to all partner nodes to set their `node_finished` state to `True`, then sets its own `node_finished` state to `True`
-
-```python
-# Example usage
-# End analysis, and inform partner nodes
-flame.analysis_finished()
 ```
