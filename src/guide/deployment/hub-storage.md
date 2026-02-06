@@ -19,12 +19,9 @@ Use the script `prepare_for_mayastor.sh`.
 Download the script: [prepare_for_mayastor.sh](https://github.com/PrivateAIM/hub-deployment/tree/master/scripts)
 
 ```bash
-wget https://docs.privateaim.de/scripts/prepare_for_mayastor.sh
 chmod +x prepare_for_mayastor.sh
 sudo ./prepare_for_mayastor.sh
 ```
-*Note: Adjust the URL to match your documentation hosting or use the relative path if accessing directly.*
-
 Alternatively, you can manually do the following:
 
 ### 1. Configure hugepages
