@@ -10,7 +10,7 @@ This setup does not include the Harbor service, you must either provide the cred
 
 ## Configuration
 Basic configuration occurs via environment variables in an `.env` file.
-An example (`.env.example`) located in the root of the repository.
+An example (`.env.example`) is located in the root of the repository.
 
 | Variable        | Mandatory | Default | Use/Meaning                                                       |
 |-----------------|:---------:|---------|-------------------------------------------------------------------|
