@@ -5,7 +5,7 @@ OpenEBS is a chart that provides extra storage options. We will be using Mayasto
 If you want to enable storage replication, you need to:
 1. Prepare your k8s nodes
 2. Install OpenEBS into your k8s cluster 
-3. Configure the your Application (FLAME Hub) to use the new storage class
+3. Configure your Application (FLAME Hub) to use the new storage class
 
 ## Node Setup
 Before installing OpenEBS, you must prepare the k8s nodes you want to use for mayastor.
@@ -87,8 +87,8 @@ helm install openebs . --namespace openebs --create-namespace -f values_local.ya
 7. Verify disk pools and `mayastor` storage classes:
 ```bash
 kubectl get diskpools -n openebs
-```
 kubectl get storageclasses
+```
 8. Edit your FLAME-Hub values-file to use the new StorageClass. A reinstall of the Hub will probably be required.
 
 ## Use the new storage class
