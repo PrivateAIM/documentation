@@ -93,7 +93,7 @@ kubectl get storageclasses
 
 ## Use the new storage class
 
-In your `values.yaml`(or better `values_override.yaml`) you can specify the storage class for the different components of the FLAME Hub. 
+In your `values.yaml` (or better `values_override.yaml`) you can specify the storage class for the different components of the FLAME Hub.
 
 Example:
 ```yaml
