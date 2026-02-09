@@ -19,6 +19,7 @@ An example (`.env.example`) located in the root of the repository.
 | `SUBNET`        |     ❌     | `172.40.1.0/24` | Used to change the default docker subnet.                         |
 
 To provide credentials to Harbor (either local or external), use the following Variable:
+> ⚠️ Important: Harbor must be accessible via https (plain http will fail). This is a limitation of Harbor.
 
 | Variable        | Mandatory | Use/Meaning                                                       |
 |-----------------|:---------:|-------------------------------------------------------------------|
