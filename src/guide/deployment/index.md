@@ -2,17 +2,32 @@
 
 ## Introduction
 
-This deployment guide contains instructions on how to deploy the FLAME Node software on your server, thereby creating
-a node that analysts can use for their federated learning models.
+The FLAME project consists of two major components:
+- **FLAME Hub**: The central component coordinating the nodes.
+- **FLAME Node**: The component installed at data sites (hospitals, research centers) to execute federated learning tasks.
+
+This guide contains instructions for deploying both components.
 
 ## Overview
 
-Below are links to the tasks that need to be completed to successfully create a FLAME Node:
+### Hub Deployment
 
-**`Deployment`**
+Instructions for deploying the FLAME Hub.
+
+- **Production (Kubernetes)**
+    - [Helm Chart Installation](/guide/deployment/hub-installation)
+    - [Storage Setup (Mayastor) (optional)](/guide/deployment/hub-storage)
+- **Development / Test**
+    - [Hub Docker Compose](/guide/deployment/hub-docker-compose)
+
+### Node Deployment
+
+Instructions for deploying a FLAME Node.
+
+**Tasks:**
 
 - [Hub Registration](/guide/deployment/node-registration)
-- Installing k8s (choose one)
+- Cluster Setup (choose one)
     - [microk8s](/guide/deployment/microk8s-quickstart)
     - [minikube](/guide/deployment/minikube-quickstart)
-- [FLAME Node Deployment](/guide/deployment/node-installation)
+- [FLAME Node Installation](/guide/deployment/node-installation)

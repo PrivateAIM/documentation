@@ -18,7 +18,7 @@ const members = [
     },
     {
         avatar: 'https://www.github.com/SirHerr.png',
-        name: 'Marius de Arruda Botelho Herr',
+        name: 'Marius Herr',
         title: 'Coordinator & Analyst',
         links: [
             { icon: 'github', link: 'https://github.com/SirHerr' },
@@ -129,6 +129,38 @@ const members = [
             { icon: 'github', link: 'https://github.com/Demokritus' },
         ],
     },
+    {
+        avatar: 'https://github.com/NAS-Ragde.png',
+        name: 'Nayeli A. Silva',
+        title: 'Analyst',
+        links: [
+            { icon: 'github', link: 'https://github.com/NAS-Ragde' },
+        ],
+    },
+    {
+        avatar: 'https://github.com/basavaraj-hampiholi.png',
+        name: 'Basavaraj Hampiholi',
+        title: 'Analyst',
+        links: [
+            { icon: 'github', link: 'https://github.com/basavaraj-hampiholi' },
+        ],
+    },
+    {
+        avatar: 'https://github.com/reneraab.png',
+        name: 'René Raab',
+        title: 'Analyst',
+        links: [
+            { icon: 'github', link: 'https://github.com/reneraab' },
+        ],
+    },
+    {
+        avatar: 'https://github.com/tippmannp.png',
+        name: 'Patric Tippmann',
+        title: 'Analyst',
+        links: [
+            { icon: 'github', link: 'https://github.com/tippmannp' },
+        ],
+    },
 ];
 
 const alumni = [
@@ -149,6 +181,82 @@ const alumni = [
         ],
     },
 ];
+
+const pi = [
+    {
+        avatar: 'https://www.github.com/okohlbacher.png',
+        name: 'Oliver Kohlbacher',
+        title: 'PI & Professor',
+        links: [
+            { icon: 'github', link: 'https://github.com/okohlbacher' },
+        ],
+    },
+    {
+        avatar: 'https://www.github.com/prasser.png',
+        name: 'Fabian Prasser',
+        title: 'PI & Professor',
+        links: [
+            { icon: 'github', link: 'https://github.com/prasser' },
+        ],
+    },
+    {
+        avatar: 'https://www.github.com/danielrueckert.png',
+        name: 'Daniel Rückert',
+        title: 'PI & Professor',
+        links: [
+            { icon: 'github', link: 'https://github.com/danielrueckert' },
+        ],
+    },
+    {
+        avatar: 'https://www.github.com/tkirsten.png',
+        name: 'Toralf Kirsten',
+        title: 'Professor',
+        links: [
+            { icon: 'github', link: 'https://github.com/tkirsten' },
+        ],
+    },
+    {
+        avatar: 'https://www.github.com/mjugl.png',
+        name: 'Thomas Ganslandt',
+        title: 'Professor',
+        links: [
+            { icon: 'github', link: 'https://github.com/mjugl' },
+        ],
+    },
+    {
+        avatar: 'https://www.github.com/RaphaelRe.png',
+        name: 'Christoph Dietrich',
+        title: 'Professor',
+        links: [
+            { icon: 'github', link: 'https://github.com/raphaelre' },
+        ],
+    },
+    {
+        avatar: 'https://www.github.com/meteakgun.png',
+        name: 'Mete Akgün',
+        title: 'Junior Professor',
+        links: [
+            { icon: 'github', link: 'https://github.com/meteakgun' },
+        ],
+    },
+    {
+        avatar: 'https://www.github.com/NicoPfeifer.png',
+        name: 'Nico Pfeifer',
+        title: 'Professor',
+        links: [
+            { icon: 'github', link: 'https://github.com/NicoPfeifer' },
+        ],
+    },
+    {
+        avatar: 'https://www.github.com/rfloca.png',
+        name: 'Ralf Floca',
+        title: 'Professor',
+        links: [
+            { icon: 'github', link: 'https://github.com/rfloca' },
+        ],
+    },
+];
+
 </script>
 <template>
     <VPTeamPage style="margin-top:0px;">
@@ -163,10 +271,16 @@ const alumni = [
 
         <VPTeamPageTitle style="padding-top: 48px;">
             <template #title>
+                Project Leads
+            </template>
+        </VPTeamPageTitle>
+        <VPTeamMembers :members="pi" />
+
+        <VPTeamPageTitle style="padding-top: 48px;">
+            <template #title>
                 Alumni
             </template>
         </VPTeamPageTitle>
-
         <VPTeamMembers :members="alumni" />
     </VPTeamPage>
 </template>
