@@ -216,11 +216,11 @@ const pi = [
         ],
     },
     {
-        avatar: 'https://www.github.com/mjugl.png',
+        avatar: 'https://www.github.com/ganslats.png',
         name: 'Thomas Ganslandt',
         title: 'Professor',
         links: [
-            { icon: 'github', link: 'https://github.com/mjugl' },
+            { icon: 'github', link: 'https://github.com/ganslats' },
         ],
     },
     {
