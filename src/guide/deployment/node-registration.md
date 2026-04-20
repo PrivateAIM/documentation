@@ -59,16 +59,16 @@ Be sure to click "Save" when you generate a new key pair, otherwise the public k
 key used during deployment will not be from the same pair.
 :::
 
-### Robot Credentials
+### Client Credentials
 
-On this page, there are two pieces of information required for the deploying the FLAME Node: the robot ID and secret.
+On this page, there are two pieces of information required for the deploying the FLAME Node: the client ID and secret.
 
 Because the secret was automatically created when the node was registered and then hashed, we need to generate a new
 one. Click the "generate" button below the secret text field to create a new secret and copy this string somewhere
-for later. Then click "update" and you will see a green text box appear indicating that the robot secret
+for later. Then click "update" and you will see a green text box appear indicating that the client secret
 for this node was successfully updated.
 
-[![Getting Robot Credentials](/images/ui_images/hub_node_robot_credentials.png)](/images/ui_images/hub_node_robot_credentials.png)
+[![Getting Client Credentials](/images/ui_images/hub_node_robot_credentials.png)](/images/ui_images/hub_node_robot_credentials.png)
 
 ::: warning Don't Copy the Hashed Secret!
 If you see "hashed" next to the word secret above the text field, this means the value in the box below is hashed and
@@ -76,7 +76,7 @@ cannot be used for the node deployment. If this is the case, and you have lost o
 simply generate a new one and update it.
 :::
 
-For deployment, we need the previously generated secret and the robot **ID**. Copy the ID to the same location you
+For deployment, we need the previously generated secret and the client **ID**. Copy the ID to the same location you
 copied the secret.
 
 Now, you have everything needed for deploying the node software on your system.
