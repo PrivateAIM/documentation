@@ -30,10 +30,10 @@ A description of the fields in the table can be found below.
 |-------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Project                 | Select from the currently approved list of projects for your node                                                                                                           |
 | Data Store              | This field is automatically populated using the UUID of the selected project. This identifier is used as the name of the data store when it is created in the node software |
-| Data Store Type         | Type of repository in which the data is stored. Currrently, only FHIR and S3 are supported                                                                                  |
+| Data Store Type         | Type of repository in which the data is stored. Currently, only FHIR and S3 are supported                                                                                   |
 | Data Path (FHIR only)   | The absolute directory path where the requested data is located                                                                                                             |
 | Bucket Name (S3 only)   | The name of the S3 bucket in which the data is located                                                                                                                      |
-| Bucket Access (S3 only) | Whether the S3 bucket is "Private" or "Public". It is highly recommeded to keep all S3 buckets set to private                                                               |
+| Bucket Access (S3 only) | Whether the S3 bucket is "Private" or "Public". It is highly recommended to keep all S3 buckets set to private                                                              |
 | Access Key (S3 only)    | Generated access key used for accessing the listed, private S3 bucket                                                                                                       |
 | Secret Key (S3 only)    | Generated secret key used for accessing the listed, private S3 bucket                                                                                                       |
 | Hostname                | Name of the server on which the data is located                                                                                                                             |
