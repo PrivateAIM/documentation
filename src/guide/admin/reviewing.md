@@ -1,6 +1,6 @@
 # Why is there a review?
-Each site must independently approve or reject projects and individual analyzes to fulfill the requirements of German
-hospitals. You can automatically approve proposals or analyzes if you have contracts or other trust delegations.
+Each site must independently approve or reject projects and individual analyses to fulfill the requirements of German
+hospitals. You can automatically approve proposals or analyses if you have contracts or other trust delegations.
 
 # What is there to review?
 Before accepting a proposal or a analysis, the requested data and the code contained in a analysis need to be reviewed. While

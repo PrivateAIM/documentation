@@ -47,7 +47,7 @@ This script serves as an example for performing privacy-preserving federated ana
 
 ### Understanding Local Differential Privacy in `StarLocalDPModel`
 ::: warning Info
-In its current state, Local Differential Privacy is only supported for analyzes that return results with a single numeric value.
+In its current state, Local Differential Privacy is only supported for analyses that return results with a single numeric value.
 :::
 `StarLocalDPModel` is an enhanced version of `StarModel` that implements Local Differential Privacy (LocalDP) to strengthen privacy guarantees during distributed analysis. The key difference is the addition of calibrated noise to the final aggregated results before they are sent to the Hub.
 

@@ -22,9 +22,9 @@ Fill in the necessary information for your organization:
 * **External Name**: Human-readable name for your node
 * **Registry**: The repository from which your node will pull the analysis images. You must select at least one by
   clicking on the "+" next to the name
-* **Type**: The type of node this will represent. A "default" node is one in which individual analyzes will run, and
-  an "aggregator" is one which performs the aggregation of the results for the analyzes
-* **Visibility**: Whether this node can be seen and selected as an option for projects and analyzes
+* **Type**: The type of node this will represent. A "default" node is one in which individual analyses will run, and
+  an "aggregator" is one which performs the aggregation of the results for the analyses
+* **Visibility**: Whether this node can be seen and selected as an option for projects and analyses
 
 The page should look similar to this when finished:
 
