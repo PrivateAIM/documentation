@@ -33,8 +33,17 @@ A quick start guide to installing microk8s and Helm can be found [here](./microk
 Kubernetes (also known as k8s) is a container management software package which allows for rapid deployment and
 scaling of multiple applications and service. There are multiple distributions of k8s available for a variety of
 system configurations. The only requirement for the FLAME Node software is that a network plugin (e.g. Calico)
-is installed in your k8s installation to allow for network policy management. The following distributions have been
-tested for use with the Node software:
+is installed in your k8s installation to allow for network policy management. Additionally, the DNS provider in 
+your cluster must use the standard `k8s-app: kube-dns` label on its pods (e.g. CoreDNS or kube-dns deployed via kubeadm). 
+This label is required so that analysis pods can resolve internal service names through the cluster DNS. Most standard
+Kubernetes distributions — including microk8s, kubeadm, EKS, GKE, AKS, and k3s — use this label by default.
+You can verify this with:                                                                
+   
+  ```bash                                                                                                                                                                                                                                     
+  kubectl get pods -n kube-system -l k8s-app=kube-dns                                                                                                                                                                                       
+  ```                                                                                                                                                                                                                                         
+If this returns no pods, your DNS provider uses a non-standard label and network policy enforcement for analysis pods
+will not work correctly.The following distributions have been tested for use with the Node software:
 
 -   [microk8s](https://microk8s.io/docs/getting-started)
 -   [minikube](https://minikube.sigs.k8s.io/docs/start/?arch=%2Fwindows%2Fx86-64%2Fstable%2F.exe+download)
