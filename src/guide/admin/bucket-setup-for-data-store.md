@@ -8,6 +8,12 @@ The bucket will later be referenced by a data store configuration, which connect
 
 The examples shown below use the included MinIO object store, but these steps can be applied to other S3 stores.
 
+::: info FLAME Node <0.0.10
+As of flame-node v0.0.10, private buckets are supported and are set as the default. If you have flame-node <0.0.10 
+deployed, consider upgrading to the latest version, otherwise, only S3 buckets set to "Public" will work and any 
+instructions on this page mentioning "keys" are not applicable.
+:::
+
 ## Creating a Bucket
 
 To create a new bucket, go to the "Buckets" tab in the Administrator Area on the left side of the page and click "Create
