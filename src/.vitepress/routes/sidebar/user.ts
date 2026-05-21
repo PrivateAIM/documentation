@@ -28,6 +28,7 @@ export const userRoutes = [
                             {text: 'Fedstats GLM', link: '/coding_examples/fedstats-logistic-regression'},
                             {text: 'Federated Logistic Regression', link: '/coding_examples/federated-logistic-regression'},
                             {text: 'GeMTeX text scores', link: '/coding_examples/gemtex-text-score-example'},
+                            {text: 'Long COVID (PASC) Analysis', link: '/coding_examples/pasc-long-covid-analysis'},
                             {text: 'PPRL', link: '/coding_examples/record_linkage'},
                         ]
                     },
@@ -45,6 +46,7 @@ export const userRoutes = [
                         items: [
                             {text: 'Logistic Regression', link: '/testing_examples/local-testing-logistic-regression-example'},
                             {text: 'Differential Privacy', link: '/testing_examples/local-testing-dp-example'},
+                            {text: 'Long COVID (PASC) Analysis', link: '/testing_examples/local-testing-pasc-example'},
                         ]
                     },
                 ]
