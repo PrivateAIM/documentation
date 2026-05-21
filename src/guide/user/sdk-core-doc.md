@@ -24,13 +24,12 @@ How to write block comments [you can do anything you want in here]
 
 Every FLAME analysis starts by connecting itself to the other components of the flame platform and starting an Analysis
 REST-API.
-All of this is done simply by instancing a FlameSDK object (optionally you may set the `silent` parameter to suppress
-automatic system outputs therein).
+All of this is done simply by instancing a FlameSDK object.
 
 ```python
 from flame import FlameCoreSDK
 def main():
-    flame = FlameCoreSDK(silent=False)
+    flame = FlameCoreSDK()
     # Your code here
 if __name__ == "__main__":
     main()
@@ -40,8 +39,38 @@ if __name__ == "__main__":
 The connection to the other components of the flame platform is established automatically when the FlameSDK object is
 created.
 
-[//]: <> "TODO: Add example for successful startup (i.e. automatic prints)"
+### Constructor parameters
 
+```python
+FlameCoreSDK(aggregator_requires_data: bool = False,
+             stream_log_level: int = 20,
+             silent: bool = False,
+             status_sync: Optional[tuple[Literal['executed', 'stopped', 'failed']]] = ('executed', 'stopped', 'failed'))
+```
+
+* `aggregator_requires_data`: by default the Data API is only connected for `"default"` nodes. Set this to `True` if the
+  aggregator node also needs access to data sources.
+* `stream_log_level`: minimum log level streamed to the hub (defaults to `20`, i.e. `'info'`; see log levels in
+  `flame_log`).
+* `silent`: if set to `True`, suppresses automatic console outputs (logs are still submitted to the hub).
+* `status_sync`: tuple of terminal analysis states, that if provided via the Analysis REST-API by partner nodes, this node will be set to.
+
+The connection to each flame-node component is wrapped individually, so a partial startup is tolerated. The SDK logs any failed
+connection and continues. Once all services and the Analysis REST-API thread are up, the analysis status is set to
+`executing`, otherwise `failed`.
+
+Example logs during successful analysis startup process:
+```
+Starting FlameCoreSDK
+Extracting node config
+Connecting to nginx...success
+Connecting to MessageBroker...success
+Connecting to PO service...success
+Connecting to ResultService...success
+Connecting to DataApi...success
+Starting FlameApi thread...success
+FlameCoreSDK ready
+```
 ## Message Broker Client
 
 ### Purpose
@@ -193,17 +222,23 @@ different analyzes of the same project.
 
 ```python
 submit_final_result(result: Any,
-                    output_type: Literal['str', 'bytes', 'pickle'] = 'str',
+                    output_type: Union[Literal['str', 'bytes', 'pickle'], list] = 'str',
                     multiple_results: bool = False,
-                    local_dp: Optional[LocalDifferentialPrivacyParams] = None) -> dict[str, str]
+                    filename: Optional[Union[str, list[str]]] = None,
+                    local_dp: Optional[LocalDifferentialPrivacyParams] = None) -> Union[dict[str, str], list[dict[str, str]]]
 ```
 
 Submits the final result to the hub, making it available for analysts to download.
 
 * this method is only available for nodes for which the method `flame.get_role()` returns `"aggregator”`
 * specifying the `output_type` changes the result's format to either a binary (`'bytes'`), text (`'str'`), or pickle file (`'pickle'`)
-* `mulitple_results` can be used to define whether multiple results should be split into separate result files (if set to `True`) or returned as one (if set to `False`)  
-* returns a brief dictionary response upon success
+* `multiple_results` can be used to define whether multiple results should be split into separate result files (if set to `True`) or returned as one (if set to `False`)
+  * if `True`, `result` must be a `list` or `tuple`; each element is submitted as a separate result file
+  * `output_type` may then be given as a list (one entry per result element)
+* `filename` optionally sets the result file name(s) on the hub
+  * pass a list of names one for each `result` element if `multiple_results=True`, or a single string for a single file, which will alternatively be auto-indexed as `name_1`, `name_2`, … if `multiple_results=True`
+  * defaults to auto-generated name(s) when `None`
+* returns a brief dictionary response upon success (a list of such dictionaries if `result` was submitted as `multiple_results=True`)
 
 ```python
 # Example usage
@@ -216,50 +251,48 @@ flame.submit_final_result(result=aggregated_res, output_type='str')
 ```python
 save_intermediate_data(data: Any,
                        location: Literal["local", "global"],
-                       remote_node_ids: Optional[list[str]] = None,
+                       remote_node_ids: Optional[list[nodeID]] = None,
                        tag: Optional[str] = None) -> Union[dict[nodeID, dict[str, str]], dict[str, str]]
 ```
 
 Saves intermediate `data` either on the hub (`location="global"`), or locally (`location="local"`).
-* a list of `remote_node_ids` need to be provided, if the user wishes to use ECDH for the saved data
-  * if `remote_node_ids` is `None`, i.e. if intermediate data shouldn't be encrypted
-      * returns a dictionary response containing the success state with the key `"status"`, the url to the submission location with the key `"url"`, and the id of the
-        saved data's storage with the key `"id"`
-          * utilizing the id, allows for retrieval of the saved data (see `get_intermediate_data`)
-              * only possible for the node that saved the data, if saved locally
-              * for all nodes participating in the same analysis, if saved globally
-          * (optionally for local data, i.e. if `location="local"`) a storage `tag` can be set for retrieval by future analyzes (persistent; access granted only to other analyzes of the same project)
-  * else, i.e. if intermediate data should be encrypted with ECDH
-      * returns a dictionary of the previously mentioned dictionaries for each specified element of `remote_node_ids` as key
+
+* when saving globally (`location="global"`), a list of `remote_node_ids` **must** be provided — global intermediate data is always encrypted with ECDH for the specified recipient nodes (a `ValueError` is raised if `remote_node_ids` is `None`)
+  * returns a dictionary using each specified element of `remote_node_ids` as key, mapping to a dictionary response containing the success state (`"status"`), the url to the submission location (`"url"`), and the storage id of the saved data (`"id"`)
+* when saving locally (`location="local"`) with `remote_node_ids` left as `None`
+  * returns a single dictionary response containing the success state (`"status"`), the url to the submission location (`"url"`), and the storage id of the saved data (`"id"`)
+  * a storage `tag` can optionally be set for retrieval by future analyzes (persistent; access granted only to other analyzes of the same project)
+* the storage id allows for retrieval of the saved data (see `get_intermediate_data`)
+  * only possible for the node that saved the data, if saved locally
+  * for all addressed nodes participating in the same analysis, if saved globally
 
 ```python
 # Example usage
-# Save data globally and retrieve storage id
-flame.save_intermediate_data(location="global", data=aggregated_res)['id']
+# Save data globally for partner nodes and retrieve storage ids
+flame.save_intermediate_data(location="global", data=aggregated_res, remote_node_ids=["10b9d309-b7c5...", "1fa053a9-3898..."])
 ```
 
 #### Get intermediate data
 
 ```python
 get_intermediate_data(location: Literal["local", "global"],
-                      id: Optional[str] = None,
+                      query: Optional[str] = None,
                       tag: Optional[str] = None,
-                      tag_option: Optional[Literal["all", "last", "first"]] = "all",
-                      sender_node_id: Optional[str] = None) -> Any
+                      tag_option: Optional[Literal["all", "last", "first"]] = "all") -> Any
 ```
 
-Returns the `local`/`global` intermediate data with the specified storage `id` or `tag`.
+Returns the `local`/`global` intermediate data with the specified storage `query` (the storage id returned by
+`save_intermediate_data`) or `tag`.
 
 * only possible for the node that saved the data, if saved locally
-* possible for all nodes participating in the same analysis, if saved globally
+* possible for all addressed nodes participating in the same analysis, if saved globally
 * `tag_option` return mode can be specified in case multiple tagged data are found: `"all"`, just the `"first"`, or just the `"last"`  added to the
   intermediate data under this tag (only checked if `tag` was given a value)
-* `sender_node_id` is the counterpart to `remote_node_ids` in `save_intermediate_data`, and has to be given the node id of the sender, if the data used ECDH (node ids can be exchanged via MessageBroker's `send_message`)
 
 ```python
 # Example usage
 # Retrieve globally saved data
-flame.get_intermediate_data(location='global', id=data_storage_id)
+flame.get_intermediate_data(location='global', query=data_storage_id)
 ```
 
 #### Send intermediate data
@@ -270,8 +303,7 @@ send_intermediate_data(receivers: list[nodeID],
                        message_category: str = "intermediate_data",
                        max_attempts: int = 1,
                        timeout: Optional[int] = None,
-                       attempt_timeout: int = 10,
-                       encrypted: bool = True) -> tuple[list[nodeID], list[nodeID]]
+                       attempt_timeout: int = 10) -> tuple[list[nodeID], list[nodeID]]
 ```
 
 Sends intermediate data to specified receivers using the Result Service and Message Broker.
@@ -280,12 +312,12 @@ Sends intermediate data to specified receivers using the Result Service and Mess
 * returns a tuple with the lists of nodes that acknowledged the message (1st element) and the list that did not
   acknowledge (2nd element)
 * copies behaviour of MessageBroker's `send_message` for `message_category`, `max_attempts`, `timeout`, and `attempt_timeout`
-* if encrypted set to `True`, data will be sent using ECDH (i.e. will automatically retrieve and distribute `remote_node_ids` in `save_intermediate_data`)
+* data is always sent encrypted using ECDH (the `receivers` are used as `remote_node_ids` in `save_intermediate_data`)
 
 ```python
 # Example usage
 # Send intermediate data to partner nodes
-successful, failed = flame.send_intermediate_data(["node1", "node2", "node3"], data)
+successful, failed = flame.send_intermediate_data(["1fa053a9-3898...", "10b9d309-b7c5..."], data)
 ```
 
 #### Await intermediate data
@@ -304,7 +336,7 @@ Waits for messages containing intermediate data ids from specified senders and r
 ```python
 # Example usage
 # Await intermediate data by partner nodes
-data = flame.await_intermediate_data(["node1", "node2"], timeout=60)
+data = flame.await_intermediate_data(["1fa053a9-3898...", "10b9d309-b7c5..."], timeout=60)
 ```
 
 #### Get local tags
@@ -405,6 +437,44 @@ flame.get_s3_data()
 ## General
 
 ### List of available methods
+
+#### FHIR to CSV
+
+```python
+fhir_to_csv(fhir_data: dict[str, Any],
+            col_key_seq: str,
+            value_key_seq: str,
+            input_resource: str,
+            row_key_seq: Optional[str] = None,
+            row_id_filters: Optional[list[str]] = None,
+            col_id_filters: Optional[list[str]] = None,
+            row_col_name: str = '',
+            separator: str = ',',
+            output_type: Literal["file", "dict"] = "file") -> Optional[Union[StringIO, dict[Any, dict[Any, Any]]]]
+```
+
+Converts a FHIR Bundle (or other FHIR-formatted dict) into a CSV table, pivoting entries on the specified row and column keys.
+
+* `fhir_data` is the FHIR data to convert (e.g. a bundle as returned by `get_fhir_data`)
+* `col_key_seq` and `value_key_seq` are dot-separated key sequences locating the column identifier and the cell value within each FHIR entry
+* `input_resource` is the FHIR resource type to parse — currently `'Observation'` or `'QuestionnaireResponse'`
+* `row_key_seq` is the dot-separated key sequence locating the row identifier (required for `input_resource='Observation'`)
+* `row_id_filters`/`col_id_filters` are optional lists of substrings; only rows/columns whose identifier contains one of them are kept
+* `row_col_name` sets the header label of the row-identifier column
+* `separator` is the CSV field separator (default `,`)
+* `output_type` selects the return format: `"file"` returns a CSV-formatted `StringIO`, `"dict"` returns a nested dictionary
+* returns `None` if the Data API is not available on this node
+
+```python
+# Example usage
+# Convert fetched FHIR observations to a CSV file-like object
+fhir_data = flame.get_fhir_data(['Observation'])[0]['Observation']
+csv = flame.fhir_to_csv(fhir_data,
+                        col_key_seq='resource.code.coding.code',
+                        value_key_seq='resource.valueQuantity.value',
+                        input_resource='Observation',
+                        row_key_seq='resource.subject.reference')
+```
 
 #### Get aggregator id
 
@@ -553,63 +623,50 @@ flame.ready_check([aggregator_id])
 #### Flame logs
 
 ```python
-flame_log(msg: Union[str, bytes],
-          sep: str = ' ',
-          end: str = '\n',
-          file = None,
-          log_type: str = 'normal',
-          suppress_head: bool = False,
+flame_log(msg: Union[str, bytes, Iterable],
+          sep: str = '',
+          end: str = '',
+          log_type: str = 'info',
+          append: bool = False,
           halt_submission: bool = False) -> None
 ```
 
 Prints `msg`-logs to console and submits them to the hub (as soon as a connection is established, until then they will be queued).
 
-* mirrors python builtin `print`-params `sep`, `end`, and `file`
+* `msg` accepts a string, bytes, or any iterable joinable into a string
+* `sep` is used to join the elements of `msg` if it is an iterable, `end` is appended to the resulting log
 * `log_type` specifies the type of log this should be saved as
-  * accepted literals: 
-    * `'info'`
-    * `'normal'`
-    * `'notice'`
-    * `'debug'`
-    * `'warning'`
-    * `'alert'`
-    * `'emergency'`
-    * `'error'`
-    * `'critical-error'`
-    * or any other type established with `declare_log_types`
-* if `suppress_head` is set to `True`, the following print will not contain the preset Flame log head
-* if `halt_submission` is set to `True`, the log submission to the hub will be placed in a placeholder instead and added to the beginning of the next log submission
-  * useful if followed by another function call with `suppress_head=True`
+  * accepted literals:
+
+    | literal | level |
+    |---------|-------|
+    | `debug` | `10`  |
+    | `info` | `20`  |
+    | `notice` | `25`  |
+    | `warn` | `30`  |
+    | `alert` | `33`  |
+    | `emerg` | `36`  |
+    | `error` | `40`  |
+    | `crit` | `50`  |
+  * the level of a log given `stream_log_level` (set in the constructor) determines whether it is streamed to the hub
+
+  * passing `'error'` raises the error and sets the analysis status to `failed`
+* if `halt_submission` is set to `True`, the log is printed but its submission to the hub is held back in a placeholder instead of being sent
+* if `append` is set to `True`, any log held back by a previous `halt_submission=True` call is prepended to this log before it is submitted
+  * together these allow emitting a `"…success"`/`"…failed"` continuation on the same conceptual log line
+
 
 ```python
 # Example usage
 # Simple log of message
 flame.flame_log("Awaiting contact with analyzer nodes...success")
 
-# Log message, but halt first log until check passed, then submit halted log with check result
+# Log message, but halt first log until check passed, then submit halted log together with check result
 flame.flame_log("Awaiting contact with analyzer nodes...", halt_submission=True)
 if contacted_successfully:
-    flame.flame_log("success", suppress_head=True)
+    flame.flame_log("success", append=True)
 else:
-    flame.flame_log("failed", suppress_head=True)
-```
-
-#### Declare Log types
-
-```python
-declare_log_types(new_log_types: dict[str, str]) -> None
-```
-
-Declare new log_types to be added to log_type literals (see list in `flame_log`).
-
-* `new_log_types` accepts dict containing new custom log_types as keys and literals known by Flame as values
-  * values may only include: `'info'`, `'notice'`, `'debug'`, `'warn'`, `'alert'`, `'emerg'`, `'error'`, or `'crit` (not further customizable)
-  * logs error if unknown literal is used
-
-```python
-# Example usage
-# Declare new log type
-flame.declare_log_types({"custom": 'info'})
+    flame.flame_log("failed", append=True)
 ```
 
 #### Get analysis progress
@@ -623,7 +680,7 @@ Returns current relative progress value (integer between 0 and 100).
 ```python
 # Example usage
 # Log current progress value
-flame.flame_log(f"Current progress: {flame.get_progress()}%)
+flame.flame_log(f"Current progress: {flame.get_progress()}%")
 ```
 
 #### Set analysis progress
