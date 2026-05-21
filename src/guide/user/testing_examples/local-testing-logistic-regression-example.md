@@ -31,7 +31,7 @@ def main():
         's3',                           # Data source type
         simple_analysis=False,          # Multi-round analysis
         output_type='pickle',           # Output format
-        result_filepath="./pancreas.pkl"# Save final model
+        filename="./pancreas.pkl"       # Save final model
     )
 ```
 
@@ -63,7 +63,7 @@ This creates a specific data structure:
 | `'s3'` | Data type | Treats data as S3-like objects |
 | `simple_analysis=False` | Iterative | Enables multi-round training |
 | `output_type='pickle'` | Format | Serializes the final model |
-| `result_filepath` | Path | Saves model to disk |
+| `filename` | Path | Saves model to disk |
 
 ## 2. Running the Example
 

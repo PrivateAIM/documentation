@@ -131,16 +131,19 @@ The testing harness that simulates the distributed environment locally.
 StarModelTester(
     data_splits,              # List of data fragments (one per analyzer node)
     analyzer,                 # Your StarAnalyzer subclass (not an instance)
-    aggregator,              # Your StarAggregator subclass (not an instance)
-    data_type,               # 'fhir' or 's3'
-    query=None,              # Optional: Query string or list for FHIR
-    simple_analysis=True,    # False for iterative training
-    output_type='str',       # 'str', 'bytes', or 'pickle'
-    analyzer_kwargs=None,    # Optional: Additional kwargs for analyzer
-    aggregator_kwargs=None,  # Optional: Additional kwargs for aggregator
-    epsilon=None,            # Optional: For differential privacy
-    sensitivity=None,        # Optional: For differential privacy
-    result_filepath=None     # Optional: Save results to file
+    aggregator,               # Your StarAggregator subclass (not an instance)
+    data_type,                # 'fhir' or 's3'
+    node_roles=None,          # Optional: Explicit role per node ('default'/'aggregator')
+    query=None,               # Optional: Query string or list for FHIR
+    simple_analysis=True,     # False for iterative training
+    output_type='str',        # 'str', 'bytes', or 'pickle' (or a list, one per result)
+    multiple_results=False,   # True if the final result is a list/tuple of separate results
+    filename=None,            # Optional: Save results to file (str or list of paths)
+    stream_log_level=20,      # Optional: Logging verbosity (Python logging level)
+    analyzer_kwargs=None,     # Optional: Additional kwargs for analyzer
+    aggregator_kwargs=None,   # Optional: Additional kwargs for aggregator
+    epsilon=None,             # Optional: For differential privacy
+    sensitivity=None          # Optional: For differential privacy
 )
 ```
 
@@ -178,10 +181,17 @@ StarModelTester(
   - `True`: Single iteration (analyze → aggregate → done)
   - `False`: Iterative training until convergence
 
-- **`output_type`** (Literal['str', 'bytes', 'pickle'], default='str'):
+- **`output_type`** (Literal['str', 'bytes', 'pickle'] | list, default='str'):
   - `'str'`: Convert result to string
   - `'bytes'`: Raw bytes output
   - `'pickle'`: Serialize with pickle
+  - A list of these values can be passed when `multiple_results=True`, specifying one output type per result
+
+- **`node_roles`** (list[str]): Explicit role for each node (`'default'` for analyzers, `'aggregator'`). If omitted, all splits become analyzers and one extra aggregator node is added automatically.
+
+- **`multiple_results`** (bool, default=False): Set to `True` when the aggregator returns a list or tuple of separate results that should each be written/printed individually.
+
+- **`stream_log_level`** (int, default=20): Logging verbosity, using standard Python `logging` levels (e.g. `10`=DEBUG, `20`=INFO). Is currently not modeled in the MockFlameCoreSDK and doesn't change the output. 
 
 - **`analyzer_kwargs`** (dict): Additional keyword arguments passed to analyzer constructor
   ```python
@@ -195,9 +205,9 @@ StarModelTester(
 
 - **`epsilon`** (float): Privacy budget for differential privacy
 - **`sensitivity`** (float): Sensitivity parameter for differential privacy
-- **`result_filepath`** (str): Path to save final results
+- **`filename`** (str | list[str]): Path (or list of paths) to save final results. If omitted, results are printed instead of written to disk.
   ```python
-  result_filepath='results/model_output.pkl'
+  filename='results/model_output.pkl'
   ```
 
 ## Usage Patterns
@@ -278,7 +288,7 @@ StarModelTester(
     aggregator=MyAggregator,
     data_type='s3',
     output_type='pickle',
-    result_filepath='results/trained_model.pkl'
+    filename='results/trained_model.pkl'
 )
 ```
 
@@ -297,28 +307,21 @@ class MyAnalyzer(StarAnalyzer):
     def __init__(self, flame):
         super().__init__(flame)
 
-    def analysis_method(self, data, aggregator_results):
-        """Compute local average, adjusted by previous global average."""
-        self.flame.flame_log(
-            f"\tAggregator results in MyAnalyzer: {aggregator_results}", 
-            log_type='debug'
-        )
+       def analysis_method(self, data, aggregator_results):
+            """
+            Performs analysis on the retrieved data from data sources.
+    
+            :param data: A list of dictionaries containing the data from each data source.
+                         - Each dictionary corresponds to a data source.
+                         - Keys are the queries executed, and values are the results (dict for FHIR, str for S3).
+            :param aggregator_results: Results from the aggregator in previous iterations.
+                                       - None in the first iteration.
+                                       - Contains the result from the aggregator's aggregation_method in subsequent iterations.
+            :return: Any result of your analysis on one node (ex. patient count).
+            """
         
-        # Compute local average
-        local_avg = sum(data) / len(data)
-        
-        # Adjust with global feedback if available
-        if aggregator_results is None:
-            analysis_result = local_avg
-        else:
-            # Move towards global average
-            analysis_result = (local_avg + aggregator_results) / 2 + 0.5
-        
-        self.flame.flame_log(
-            f"MyAnalysis result ({self.id}): {analysis_result}", 
-            log_type='notice'
-        )
-        return analysis_result
+            patient_count = float(data[0]['Patient?_summary=count']['total'])
+            return patient_count
 
 
 class MyAggregator(StarAggregator):
@@ -327,20 +330,16 @@ class MyAggregator(StarAggregator):
     def __init__(self, flame):
         super().__init__(flame)
 
-    def aggregation_method(self, analysis_results: list[Any]) -> Any:
-        """Compute average of all analyzer results."""
-        self.flame.flame_log(
-            f"\tAnalysis results in MyAggregator: {analysis_results}", 
-            log_type='notice'
-        )
+        def aggregation_method(self, analysis_results):
+            """
+            Aggregates the results received from all analyzer nodes.
         
-        result = sum(analysis_results) / len(analysis_results)
-        
-        self.flame.flame_log(
-            f"MyAggregator result ({self.id}): {result}", 
-            log_type='notice'
-        )
-        return result
+            :param analysis_results: A list of analysis results from each analyzer node.
+            :return: The aggregated result (e.g., total patient count across all analyzers).
+            """
+            total_patient_count = sum(analysis_results)
+            return total_patient_count
+
 
     def has_converged(self, result: Any, last_result: Optional[Any]) -> bool:
         """Check if training should stop."""
@@ -359,13 +358,12 @@ class MyAggregator(StarAggregator):
 
 if __name__ == "__main__":
     # Prepare test data (simulating data from different nodes)
-    data_1 = [1, 2, 3, 4]
-    data_2 = [5, 6, 7, 8]
-    data_splits = [data_1, data_2]
+    data = [[{'Patient?_summary=count': {'total': 10}}],
+            [{'Patient?_summary=count': {'total': 18}}]]
 
     # Run the test
     StarModelTester(
-        data_splits=data_splits,
+        data_splits=data,
         analyzer=MyAnalyzer,
         aggregator=MyAggregator,
         data_type='s3',
