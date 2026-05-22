@@ -1,7 +1,7 @@
 # Registering in the Hub
 
 As an institution wishing to become part of the FLAME platform, administrators must first register their organization
-in the [Hub](https://privateaim.dev/) as an available **Node**. Once registered, they will be provided credentials
+in the [Hub](https://privateaim.net/) as an available **Node**. Once registered, they will be provided credentials
 that will be used during the deployment of the node software so that their node can communicate with the Hub to send
 updates and results.
 
@@ -11,7 +11,7 @@ When changing the settings of your node in the central UI you need to restart yo
 
 ## Creating a Node in the Hub
 
-Navigate to the [Hub UI](https://privateaim.dev/) and log in using your provided administrator credentials.
+Navigate to the [Hub UI](https://privateaim.net/) and log in using your provided administrator credentials.
 
 Click on **Admin** (1.) -> **General** (2.) -> **Nodes** (3.) -> **+add** (4.) to create a new node.
 [![Navigate to Node Registration](/images/ui_images/add_node_hub.png)](/images/ui_images/add_node_hub.png)
