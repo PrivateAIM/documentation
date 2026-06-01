@@ -1,13 +1,11 @@
-global:
-  node:
-    ingress:
-      enabled: true
-      hostname: https://your.node.ui.domain.com
+expose:
+  type: "ingress"
+  hostname: https://your.node.ui.domain.com
 
 hub:
   auth:
-    robotUser: <Robot ID>
-    robotSecret: <Robot Secret>
+    clientID: <Client ID>
+    clientSecret: <Client Secret>
   crypto:
     privateKey: |
       -----BEGIN PRIVATE KEY-----
@@ -19,13 +17,10 @@ userIdp:
   ## The URL provided should be the issuer URL of the IDP.
   ## Leave this blank unless you want to use your own IDP for user authentication
   hostname: https://my.own.keycloak.instance.de/realms/myRealm
+  ## @param userIdp.provider User auth provider. Can be 'keycloak', 'auth0', 'authentik', 'onelogin', 'okta', 'zitadel', or 'hub'
+  provider: keycloak
 
 ui:
   idp:
     clientId: <Client ID for Node UI>
     clientSecret: <Client Secret for Node UI>
-
-hubAdapter:
-  idp:
-    clientId: <Client ID for Hub Adapter>
-    clientSecret: <Client Secret for Hub Adapter>

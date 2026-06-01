@@ -1,13 +1,11 @@
-global:
-  node:
-    ingress:
-      enabled: true
-      hostname: https://your.node.ui.domain.com
+expose:
+  type: "ingress"
+  hostname: https://your.node.ui.domain.com
 
 hub:
   auth:
-    robotUser: <Robot ID>
-    robotSecret: <Robot Secret>
+    clientID: <Client ID>
+    clientSecret: <Client Secret>
   crypto:
     privateKey: |
       -----BEGIN PRIVATE KEY-----
