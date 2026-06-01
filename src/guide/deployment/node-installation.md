@@ -121,8 +121,8 @@ use the "gateway" option for `.expose.type`.
 ### Keycloak
 
 By default, the FLAME Node package deploys keycloak as part of the installation. The clients and their secrets are
-all generated and configured within this included IDP. If you wish to your own IDP, then clients for the Node Hub
-Adapter and the Node UI will have to be created and their secrets set in the values template. See the
+all generated and configured within this included IDP. If you wish to use your own IDP, then a client for the Node UI 
+will have to be created and its secrets set in the values template. See the
 [Using Your Own IDP](#using-your-own-idp) section for more information.
 
 #### Role Based Access Control (RBAC)
@@ -165,11 +165,27 @@ If you have no need for RBAC, it can be disabled by setting `roleClaimName` to a
 For better security, this software uses Keycloak for authenticating the various services and users that make up FLAME.
 Keycloak is installed along with the other services and is required for the creation and management of the individual
 analyses. Using the keycloak console, the admin you can add additional users who can access the FLAME UI, but you may
-also use your own IDP for user authentication if you wish.
+also use your own IDP for user authentication. Here are the values that need to be filled in to achieve this:
 
-To enable this, first you must create individual clients for both the Node UI and the Hub Adapter in your IDP.
-Be sure to enable client authentication and take note of the client ID and secret for both of these newly created
-clients as this information along with the (accessible) URL for your IDP must be provided in the `values.yaml`.
+```yaml
+userIdp:
+  ## @param userIdp.hostname Hostname for a separate IDP to manage users who can access the FLAME Node UI.
+  ## The URL provided should be the issuer URL of the IDP.
+  ## Leave this blank unless you want to use your own IDP for user authentication
+  hostname: https://my.own.keycloak.instance.de/realms/myRealm
+  ## @param userIdp.provider User auth provider. Can be 'keycloak', 'auth0', 'authentik', 'onelogin', 'okta', 'zitadel', or 'hub'
+  provider: keycloak
+
+ui:
+  idp:
+    clientId: <Client ID for Node UI>
+    clientSecret: <Client Secret for Node UI>
+```
+
+To enable this, first you must create individual clients for the Node UI in your IDP.
+Be sure to enable client authentication and take note of the client ID and secret for this new
+client as this information along with the (accessible) URL for your IDP must be provided in your `my-values.yaml`. You 
+may also need to set the hostname you are using for your node as a valid redirect URI in the client settings.
 An example of how to configure this in for your cluster can be seen in this
 <a href="/files/values_separate_idp.yaml" download>separate IDP example</a>.
 
@@ -448,7 +464,7 @@ must have `offline` set to `true` in their configurations so that they can still
 instance for client authentication.
 
 Other settings can be left as though a FQDN is being used including enabling routing and providing the locally
-resolvable hostname. Your `values.yaml` should
+resolvable hostname. Your `my-values.yaml` should
 look similar to this:
 
 ```yaml
@@ -467,4 +483,17 @@ hub:
         -----END PRIVATE KEY-----
 
 offline: true
+```
+
+## (Optional) Node Data Store
+The `flame-node` helm chart includes the `flame-node-data-store` subchart which can be used to deploy a FHIR server (blaze) and/or an S3 server (MinIO) in addition to the node software components. These servers can store data that can be used for running analyses. Ideally, these are used only for development and testing purposes.
+
+You can enable these services through your `my-values.yaml` file:
+
+```yaml
+dataStore:
+  enabled: true
+  minio:
+    rootUser: "<username>"
+    rootPassword: "<password>"
 ```
