@@ -5,7 +5,7 @@ This section will provide instructions for deploying the FLAME node software on 
 **These instructions assume that you have done the following:**
 
 - [Node has been registered in the Hub UI](./node-registration#creating-a-node-in-the-hub)
-- [Credentials for your node's robot were generated and saved](./node-registration#robot-credentials)
+- [Credentials for your node's robot were generated and saved](./node-registration#client-credentials)
 - [A keypair was generated](./node-registration#crypto) and the private key was saved as `private_key.pem`
 
 ## Requirements
@@ -220,7 +220,7 @@ the `roleClaimName` should be changed to `"access_control.node-ui-client.user-de
 
 ## Installation
 
-At this point, you should have a custom values file (e.g. `my-values.yaml`) which contains the robot credentials and
+At this point, you should have a custom values file (e.g. `my-values.yaml`) which contains the client credentials and
 private key for your node. If you have all of this information, then you can proceed with deploying the FLAME Node by
 either using the FLAME repo <u>**OR**</u> cloning the Github repository.
 

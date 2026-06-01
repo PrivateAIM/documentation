@@ -61,7 +61,7 @@ key used during deployment will not be from the same pair.
 
 ### Client Credentials
 
-On this page, there are two pieces of information required for the deploying the FLAME Node: the client ID and secret.
+This page contains two pieces of information required for the deploying the FLAME Node: the client ID and secret.
 
 Because the secret was automatically created when the node was registered and then hashed, we need to generate a new
 one. Click the "generate" button below the secret text field to create a new secret and copy this string somewhere
