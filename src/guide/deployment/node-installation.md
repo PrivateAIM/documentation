@@ -77,7 +77,7 @@ expose:
 
 hub:
   auth:
-    clientID: <Client ID>
+    clientId: <Client ID>
     clientSecret: <Client Secret>
   crypto:
     privateKey: |
@@ -102,26 +102,28 @@ a reverse proxy. If this is not the case, you need to disable the proxy headers 
 
 Most kubernetes distributions previously used only the Ingress API for routing traffic, but that has been recently
 deprecated in favor of the new [Gateway API](https://gateway-api.sigs.k8s.io/). Currently, our helm charts are
-designed to support both APIs, but the user must choose one of the APIs to use when deploying the helm chart. We 
+designed to support both APIs, but the user must choose one of the APIs to use when deploying the helm chart. We
 suggest using "ingress" if you are unsure.
 
-Though the Gateway API is the currently accepted standard and recommended API to use, it is not automatically 
-included in all kubernetes distributions. Users should follow this 
-[guide for installing the Gateway API](https://gateway-api.sigs.k8s.io/guides/getting-started/#installing-gateway-api) 
+Though the Gateway API is the currently accepted standard and recommended API to use, it is not automatically
+included in all kubernetes distributions. Users should follow this
+[guide for installing the Gateway API](https://gateway-api.sigs.k8s.io/guides/getting-started/#installing-gateway-api)
 if they haven't done so already and wish to use this API.
 
 If you are not sure whether this API is already installed in your kubernetes installation, run the following commands:
+
 ```bash
 kubectl get crd gateways.gateway.networking.k8s.io
 kubectl get crd httproutes.gateway.networking.k8s.io
 ```
-If either command gives an error or returns `NotFound`/`Unhandled Error`, then they are not installed and you cannot 
+
+If either command gives an error or returns `NotFound`/`Unhandled Error`, then they are not installed and you cannot
 use the "gateway" option for `.expose.type`.
 
 ### Keycloak
 
 By default, the FLAME Node package deploys keycloak as part of the installation. The clients and their secrets are
-all generated and configured within this included IDP. If you wish to use your own IDP, then a client for the Node UI 
+all generated and configured within this included IDP. If you wish to use your own IDP, then a client for the Node UI
 will have to be created and its secrets set in the values template. See the
 [Using Your Own IDP](#using-your-own-idp) section for more information.
 
@@ -184,7 +186,7 @@ ui:
 
 To enable this, first you must create individual clients for the Node UI in your IDP.
 Be sure to enable client authentication and take note of the client ID and secret for this new
-client as this information along with the (accessible) URL for your IDP must be provided in your `my-values.yaml`. You 
+client as this information along with the (accessible) URL for your IDP must be provided in your `my-values.yaml`. You
 may also need to set the hostname you are using for your node as a valid redirect URI in the client settings.
 An example of how to configure this in for your cluster can be seen in this
 <a href="/files/values_separate_idp.yaml" download>separate IDP example</a>.
@@ -291,7 +293,7 @@ expose:
 
 hub:
   auth:
-    clientID: <Client ID>
+    clientId: <Client ID>
     clientSecret: <Client Secret>
   crypto:
     privateKey: |
@@ -399,7 +401,7 @@ expose:
 
 hub:
   auth:
-    clientID: <Client ID>
+    clientId: <Client ID>
     clientSecret: <Client Secret>
   crypto:
     privateKey: |
@@ -474,7 +476,7 @@ expose:
 
 hub:
   auth:
-    clientID: <Client ID>
+    clientId: <Client ID>
     clientSecret: <Client Secret>
   crypto:
     privateKey: |
@@ -486,7 +488,10 @@ offline: true
 ```
 
 ## (Optional) Node Data Store
-The `flame-node` helm chart includes the `flame-node-data-store` subchart which can be used to deploy a FHIR server (blaze) and/or an S3 server (MinIO) in addition to the node software components. These servers can store data that can be used for running analyses. Ideally, these are used only for development and testing purposes.
+
+The `flame-node` helm chart includes the `flame-node-data-store` subchart which can be used to deploy a FHIR server (
+blaze) and/or an S3 server (MinIO) in addition to the node software components. These servers can store data that can be
+used for running analyses. Ideally, these are used only for development and testing purposes.
 
 You can enable these services through your `my-values.yaml` file:
 

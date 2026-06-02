@@ -1,20 +1,20 @@
 expose:
-  type: "ingress"
-  hostname: https://your.node.ui.domain.com
+    type: "ingress"
+    hostname: https://your.node.ui.domain.com
 
 hub:
-  auth:
-    clientID: <Client ID>
-    clientSecret: <Client Secret>
-  crypto:
-    privateKey: |
-      -----BEGIN PRIVATE KEY-----
-      myExamplePrivateKey
-      -----END PRIVATE KEY-----
+    auth:
+        clientId: <Client ID>
+        clientSecret: <Client Secret>
+    crypto:
+        privateKey: |
+            -----BEGIN PRIVATE KEY-----
+            myExamplePrivateKey
+            -----END PRIVATE KEY-----
 
 keycloak:
-  auth:
-    adminUser: admin
-    adminPassword: admin
+    auth:
+        adminUser: admin
+        adminPassword: admin
 
-  proxyHeaders: ""
+    proxyHeaders: ""
