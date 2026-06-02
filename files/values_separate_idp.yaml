@@ -1,26 +1,26 @@
 expose:
-  type: "ingress"
-  hostname: https://your.node.ui.domain.com
+    type: "ingress"
+    hostname: https://your.node.ui.domain.com
 
 hub:
-  auth:
-    clientID: <Client ID>
-    clientSecret: <Client Secret>
-  crypto:
-    privateKey: |
-      -----BEGIN PRIVATE KEY-----
-      myExamplePrivateKey
-      -----END PRIVATE KEY-----
+    auth:
+        clientId: <Client ID>
+        clientSecret: <Client Secret>
+    crypto:
+        privateKey: |
+            -----BEGIN PRIVATE KEY-----
+            myExamplePrivateKey
+            -----END PRIVATE KEY-----
 
 userIdp:
-  ## @param userIdp.hostname Hostname for a separate IDP to manage users who can access the FLAME Node UI.
-  ## The URL provided should be the issuer URL of the IDP.
-  ## Leave this blank unless you want to use your own IDP for user authentication
-  hostname: https://my.own.keycloak.instance.de/realms/myRealm
-  ## @param userIdp.provider User auth provider. Can be 'keycloak', 'auth0', 'authentik', 'onelogin', 'okta', 'zitadel', or 'hub'
-  provider: keycloak
+    ## @param userIdp.hostname Hostname for a separate IDP to manage users who can access the FLAME Node UI.
+    ## The URL provided should be the issuer URL of the IDP.
+    ## Leave this blank unless you want to use your own IDP for user authentication
+    hostname: https://my.own.keycloak.instance.de/realms/myRealm
+    ## @param userIdp.provider User auth provider. Can be 'keycloak', 'auth0', 'authentik', 'onelogin', 'okta', 'zitadel', or 'hub'
+    provider: keycloak
 
 ui:
-  idp:
-    clientId: <Client ID for Node UI>
-    clientSecret: <Client Secret for Node UI>
+    idp:
+        clientId: <Client ID for Node UI>
+        clientSecret: <Client Secret for Node UI>
