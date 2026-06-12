@@ -35,7 +35,7 @@ node.
 
 ## Credentials for Deployment
 
-Once the node is created, admins can access the "Robot" and "Crypto" tabs which contain needed credentials and keys
+Once the node is created, admins can access the "Crypto" and "Client" tabs which contain needed credentials and keys
 for deploying the node software on their server.
 
 ### Crypto
@@ -44,7 +44,7 @@ To encrypt data that needs to be sent between different nodes, each node needs a
 to encrypt/decrypt the information. The "Crypto" tab allows the admin to generate a crytopgraphic key pair for this
 purpose.
 
-![Hub Crypto](/images/ui_images/hub_crypto.png)
+![Hub Crypto](/images/ui_images/hub_node_crypto.png)
 
 Navigate to the "Crypto" tab and click on the "Generate" button at the bottom of the window. A public and private key
 pair will be generated. The user should copy the contents of the "PrivateKey" section to a **local file and save it**. We will need this key during installation and will no longer be accessible in your browser after you navigate away from the Crypto tab.
@@ -64,11 +64,10 @@ key used during deployment will not be from the same pair.
 This page contains two pieces of information required for the deploying the FLAME Node: the client ID and secret.
 
 Because the secret was automatically created when the node was registered and then hashed, we need to generate a new
-one. Click the "generate" button below the secret text field to create a new secret and copy this string somewhere
-for later. Then click "update" and you will see a green text box appear indicating that the client secret
+one. Click the regenerate icon (two circular arrows) next to the secret text field to generate a new secret. Be sure to copy and save the generated string for future use. Then click "update" and you will see a green text box appear indicating that the client secret
 for this node was successfully updated.
 
-[![Getting Client Credentials](/images/ui_images/hub_node_robot_credentials.png)](/images/ui_images/hub_node_robot_credentials.png)
+[![Getting Client Credentials](/images/ui_images/hub_client.png)](/images/ui_images/hub_client.png)
 
 ::: warning Don't Copy the Hashed Secret!
 If you see "hashed" next to the word secret above the text field, this means the value in the box below is hashed and

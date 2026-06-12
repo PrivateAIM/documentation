@@ -34,7 +34,7 @@ Hub components/services are individual packages/services within one monorepo.
 | **RabbitMQ**        | [rabbitmq/rabbitmq-server](https://github.com/rabbitmq/rabbitmq-server) |      Starlark       |
 | **Vault**           | [hashicorp/vault](https://github.com/hashicorp/vault)                   |    Go/JavaScript    |
 
-* `Authup` - Identity and Access Management (IAM) to manage users, roles, robots, permissions, ...
+* `Authup` - Identity and Access Management (IAM) to manage users, roles, clients, permissions, ...
 * `Harbor` - Harbor is a docker registry to distribute images. In the context of the PrivateAim it is used for train distribution across multiple locations.
 * `RabbitMQ` - RabbitMQ is a message broker. It is used for the communication between microservices.
 * `Vault` - Vault is a secret storage service for managing and storing sensitive information.

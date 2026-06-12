@@ -4,9 +4,9 @@ This section will provide instructions for deploying the FLAME node software on 
 
 **These instructions assume that you have done the following:**
 
-- [Node has been registered in the Hub UI](./node-registration#creating-a-node-in-the-hub)
-- [Credentials for your node's robot were generated and saved](./node-registration#client-credentials)
-- [A keypair was generated](./node-registration#crypto) and the private key was saved as `private_key.pem`
+-   [Node has been registered in the Hub UI](./node-registration#creating-a-node-in-the-hub)
+-   [Credentials for your node's client were generated and saved](./node-registration#client-credentials)
+-   [A keypair was generated](./node-registration#crypto) and the private key was saved as `private_key.pem`
 
 ## Requirements
 
@@ -40,9 +40,9 @@ This label is required so that analysis pods can resolve internal service names 
 Kubernetes distributions — including microk8s, kubeadm, EKS, GKE, AKS, and k3s — use this label by default.
 You can verify this with:
 
-  ```bash                                                                                                                                                                                                                                     
-  kubectl get pods -n kube-system -l k8s-app=kube-dns                                                                                                                                                                                       
-  ```                                                                                                                                                                                                                                         
+  ```bash
+  kubectl get pods -n kube-system -l k8s-app=kube-dns
+  ```
 
 If this returns no pods, your DNS provider uses a non-standard label and network policy enforcement for analysis pods
 will not work correctly.The following distributions have been tested for use with the Node software:
@@ -50,6 +50,8 @@ will not work correctly.The following distributions have been tested for use wit
 - [microk8s](https://microk8s.io/docs/getting-started)
 - [minikube](https://minikube.sigs.k8s.io/docs/start/?arch=%2Fwindows%2Fx86-64%2Fstable%2F.exe+download)
 - [Kubernetes](https://kubernetes.io/docs/setup/)
+
+The FLAME Node is designed to work with an NGINX Ingress Controller. Compatibility with other Ingress Controllers is not guaranteed.
 
 #### Helm
 
@@ -67,8 +69,13 @@ In order to deploy a node, you will need the following pieces of information fro
 2. Client Secret (not hashed!)
 3. Private Key
 
-With this information, you can either edit the `values.yaml` file included with the FLAME Node helm chart or create
-your own values template file to be used during deployment. Here is a minimal example of a values file:
+With this information, you can provide the required Helm configuration values in two ways:
+
+If you are using the GitHub repository, a sample `values.yaml` file is included in the `charts/flame-node/` directory. It can be edited as needed. Alternatively, you may create a new `values.yaml` file.
+
+If you are installing via the Helm repository, you need to create your own `values.yaml` file (e.g. `my-values.yaml`). This file is not provided automatically and can be stored anywhere locally. It is passed to Helm using the `-f` option.
+
+Here is a minimal example of a `values.yaml` file:
 
 ```yaml
 expose:
