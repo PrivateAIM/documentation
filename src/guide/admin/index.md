@@ -14,7 +14,7 @@ Administrators have the following tasks in FLAME, either in the central App or i
 local node setup:
 
 **`Hub`**
-- [Realm-](/guide/admin/realms), [identity provider-](/guide/admin/identity-providers), [robot-](/guide/admin/robots), [user-](/guide/admin/users) & [role-management](/guide/admin/roles)
+- [Realm-](/guide/admin/realms), [identity provider-](/guide/admin/identity-providers), [client-](/guide/admin/clients), [user-](/guide/admin/users) & [role-management](/guide/admin/roles)
 - [Viewing and assigning permissions](/guide/admin/permissions)
 - [Registering and managing the local node](/guide/admin/node-management)
 - [Reviewing proposals](/guide/admin/project-review)

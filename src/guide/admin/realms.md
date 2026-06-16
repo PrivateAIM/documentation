@@ -1,7 +1,7 @@
 # Realms
 Normal administrators can create realms freely after being assigned an initial realm. The developers of the [FLAME hub interface](https://privateaim.net)
  provide these. Please contact us, such we can provide you with a realm in which you can manage all your
-identity providers, robots, users, roles, and nodes.\
+identity providers, clients, users, roles, and nodes.\
 Realms are areas where those things are registered for one organization. You can access, view and manage all registered
 items by activating a realm.\
 Usually, you should only have access to the initial realm assigned to you and all other realms you created afterward.
@@ -17,5 +17,5 @@ Usually, you should only have access to the initial realm assigned to you and al
    [![image](/images/ui_images/hub_realms_add.png)](/images/ui_images/hub_realms_add.png)
 6. **Refresh** this list anytime by clicking the black refresh button on the top right.
 7. **Activate** another realm than your current one by clicking the blue check button on the right.\
-**Note:** This will change the contents in the "Identity Providers"-, "Robots"-, "Users"-, and "Roles"-tabs in the left 
+**Note:** This will change the contents in the "Identity Providers"-, "Clients"-, "Users"-, and "Roles"-tabs in the left
 sidebar to the ones associated with the selected realm.
