@@ -1,4 +1,5 @@
 # Roles
+
 ::: info Notice
 In order to manage your identity-providers, nodes, ... you need to get an organization. Please contact us,
 such we can provide you a realm in which you can manage all your nodes, users and identity providers.
@@ -18,7 +19,7 @@ admin can thereby control which functions each user may access.
    [![image](/images/ui_images/hub_role_permissions.png)](/images/ui_images/hub_role_permissions.png)\
    By navigating to Users you may view all users added to this role.
    [![image](/images/ui_images/hub_role_users.png)](/images/ui_images/hub_role_users.png)
-4. **Delete** roles by clicking the red thrash can button on the right.
+4. **Delete** roles by clicking the red trash can button on the right.
 5. **Add** roles by clicking the grey plus button on the left of the overview. For this, a name and description of the
    role have to be given.
    [![image](/images/ui_images/hub_role_add.png)](/images/ui_images/hub_role_add.png)

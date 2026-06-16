@@ -1,4 +1,5 @@
 # Clients
+
 ::: info Notice
 In order to manage your identity-providers, nodes, ... you need to get an organization. Please contact us,
 such we can provide you a realm in which you can manage all your nodes, users and identity providers.
@@ -25,7 +26,7 @@ This allows for slightly faster automatized pipeline executions for the PHT's fu
    [![image](/images/ui_images/hub_robots_permissions.png)](/images/ui_images/hub_robots_permissions.png)\
    Adding either roles or permissions to the client is done by clicking the green plus-symbol on the right.
    Vice-versa, roles and permissions can be removed from the client by clicking the red trashcan-button there.
-4. **Delete** clients by clicking the red thrash can button on the right.
+4. **Delete** clients by clicking the red trash can button on the right.
 5. **Add** clients by clicking the grey plus button on the left of the overview. For this, a name and description of the
    client have to be given.
    [![image](/images/ui_images/hub_robots_add.png)](/images/ui_images/hub_robots_add.png)

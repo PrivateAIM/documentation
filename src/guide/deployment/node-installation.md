@@ -4,9 +4,9 @@ This section will provide instructions for deploying the FLAME node software on 
 
 **These instructions assume that you have done the following:**
 
--   [Node has been registered in the Hub UI](./node-registration#creating-a-node-in-the-hub)
--   [Credentials for your node's client were generated and saved](./node-registration#client-credentials)
--   [A keypair was generated](./node-registration#crypto) and the private key was saved as `private_key.pem`
+- [Node has been registered in the Hub UI](./node-registration#creating-a-node-in-the-hub)
+- [Credentials for your node's client were generated and saved](./node-registration#client-credentials)
+- [A keypair was generated](./node-registration#crypto) and the private key was saved as `private_key.pem`
 
 ## Requirements
 
@@ -51,8 +51,6 @@ will not work correctly.The following distributions have been tested for use wit
 - [minikube](https://minikube.sigs.k8s.io/docs/start/?arch=%2Fwindows%2Fx86-64%2Fstable%2F.exe+download)
 - [Kubernetes](https://kubernetes.io/docs/setup/)
 
-The FLAME Node is designed to work with an NGINX Ingress Controller. Compatibility with other Ingress Controllers is not guaranteed.
-
 #### Helm
 
 The FLAME Node software package is a compilation of multiple services working together which require several
@@ -71,26 +69,28 @@ In order to deploy a node, you will need the following pieces of information fro
 
 With this information, you can provide the required Helm configuration values in two ways:
 
-If you are using the GitHub repository, a sample `values.yaml` file is included in the `charts/flame-node/` directory. It can be edited as needed. Alternatively, you may create a new `values.yaml` file.
+If you are using the GitHub repository, a sample `values.yaml` file is included in the `charts/flame-node/` directory.
+It can be edited as needed. Alternatively, you may create a new `values.yaml` file.
 
-If you are installing via the Helm repository, you need to create your own `values.yaml` file (e.g. `my-values.yaml`). This file is not provided automatically and can be stored anywhere locally. It is passed to Helm using the `-f` option.
+If you are installing via the Helm repository, you need to create your own `values.yaml` file (e.g. `my-values.yaml`).
+This file is not provided automatically and can be stored anywhere locally. It is passed to Helm using the `-f` option.
 
 Here is a minimal example of a `values.yaml` file:
 
 ```yaml
 expose:
-  type: "ingress"
-  hostname: https://your.node.ui.domain.com
+    type: "ingress"
+    hostname: https://your.node.ui.domain.com
 
 hub:
-  auth:
-    clientId: <Client ID>
-    clientSecret: <Client Secret>
-  crypto:
-    privateKey: |
-        -----BEGIN PRIVATE KEY-----
-        myExamplePrivateKey
-        -----END PRIVATE KEY-----
+    auth:
+        clientId: <Client ID>
+        clientSecret: <Client Secret>
+    crypto:
+        privateKey: |
+            -----BEGIN PRIVATE KEY-----
+            myExamplePrivateKey
+            -----END PRIVATE KEY-----
 ```
 
 Be sure to set the `expose.type` to either "ingress" or "gateway" in your values file, otherwise, your hostname will
@@ -150,10 +150,10 @@ well:
 
 ```yaml
 rbac:
-  roleClaimName: "resource_access.node-ui.roles"
-  adminRole: "admin"
-  stewardRole: "steward"
-  researcherRole: "researcher"
+    roleClaimName: "resource_access.node-ui.roles"
+    adminRole: "admin"
+    stewardRole: "steward"
+    researcherRole: "researcher"
 ```
 
 ::: warning Role Claim Name
@@ -178,17 +178,17 @@ also use your own IDP for user authentication. Here are the values that need to 
 
 ```yaml
 userIdp:
-  ## @param userIdp.hostname Hostname for a separate IDP to manage users who can access the FLAME Node UI.
-  ## The URL provided should be the issuer URL of the IDP.
-  ## Leave this blank unless you want to use your own IDP for user authentication
-  hostname: https://my.own.keycloak.instance.de/realms/myRealm
-  ## @param userIdp.provider User auth provider. Can be 'keycloak', 'auth0', 'authentik', 'onelogin', 'okta', 'zitadel', or 'hub'
-  provider: keycloak
+    ## @param userIdp.hostname Hostname for a separate IDP to manage users who can access the FLAME Node UI.
+    ## The URL provided should be the issuer URL of the IDP.
+    ## Leave this blank unless you want to use your own IDP for user authentication
+    hostname: https://my.own.keycloak.instance.de/realms/myRealm
+    ## @param userIdp.provider User auth provider. Can be 'keycloak', 'auth0', 'authentik', 'onelogin', 'okta', 'zitadel', or 'hub'
+    provider: keycloak
 
 ui:
-  idp:
-    clientId: <Client ID for Node UI>
-    clientSecret: <Client Secret for Node UI>
+    idp:
+        clientId: <Client ID for Node UI>
+        clientSecret: <Client Secret for Node UI>
 ```
 
 To enable this, first you must create individual clients for the Node UI in your IDP.
@@ -295,23 +295,23 @@ added to the `my-values.yaml` file as shown here:
 
 ```yaml
 expose:
-  type: "ingress"
-  hostname: https://your.node.ui.domain.com
+    type: "ingress"
+    hostname: https://your.node.ui.domain.com
 
 hub:
-  auth:
-    clientId: <Client ID>
-    clientSecret: <Client Secret>
-  crypto:
-    privateKey: |
-        -----BEGIN PRIVATE KEY-----
-        myExamplePrivateKey
-        -----END PRIVATE KEY-----
+    auth:
+        clientId: <Client ID>
+        clientSecret: <Client Secret>
+    crypto:
+        privateKey: |
+            -----BEGIN PRIVATE KEY-----
+            myExamplePrivateKey
+            -----END PRIVATE KEY-----
 
 proxy:
-  httpProxy: "http://my.example.proxy.de:3128"
-  httpsProxy: "http://my.example.proxy.de:3128"
-  noProxy: "10.0.0.0/8,192.168.0.0/16,127.0.0.1,172.16.0.0/16,.svc,localhost,.cluster.local"
+    httpProxy: "http://my.example.proxy.de:3128"
+    httpsProxy: "http://my.example.proxy.de:3128"
+    noProxy: "10.0.0.0/8,192.168.0.0/16,127.0.0.1,172.16.0.0/16,.svc,localhost,.cluster.local"
 ```
 
 The `NO_PROXY`/`no_proxy` value will depend on your kubernetes distribution and your server configuration, please check
@@ -403,18 +403,18 @@ services:
 
 ```yaml
 expose:
-  type: "none"
-  hostname:
+    type: "none"
+    hostname:
 
 hub:
-  auth:
-    clientId: <Client ID>
-    clientSecret: <Client Secret>
-  crypto:
-    privateKey: |
-        -----BEGIN PRIVATE KEY-----
-        myExamplePrivateKey
-        -----END PRIVATE KEY-----
+    auth:
+        clientId: <Client ID>
+        clientSecret: <Client Secret>
+    crypto:
+        privateKey: |
+            -----BEGIN PRIVATE KEY-----
+            myExamplePrivateKey
+            -----END PRIVATE KEY-----
 ```
 
 Be sure to still populate the `clientID` and `clientSecret` with the credentials obtained from the Hub as well as the
@@ -478,18 +478,18 @@ look similar to this:
 
 ```yaml
 expose:
-  type: "ingress"
-  hostname:  http://your.locally.resolvable.hostname
+    type: "ingress"
+    hostname: http://your.locally.resolvable.hostname
 
 hub:
-  auth:
-    clientId: <Client ID>
-    clientSecret: <Client Secret>
-  crypto:
-    privateKey: |
-        -----BEGIN PRIVATE KEY-----
-        myExamplePrivateKey
-        -----END PRIVATE KEY-----
+    auth:
+        clientId: <Client ID>
+        clientSecret: <Client Secret>
+    crypto:
+        privateKey: |
+            -----BEGIN PRIVATE KEY-----
+            myExamplePrivateKey
+            -----END PRIVATE KEY-----
 
 offline: true
 ```
@@ -504,8 +504,8 @@ You can enable these services through your `my-values.yaml` file:
 
 ```yaml
 dataStore:
-  enabled: true
-  minio:
-    rootUser: "<username>"
-    rootPassword: "<password>"
+    enabled: true
+    minio:
+        rootUser: "<username>"
+        rootPassword: "<password>"
 ```
