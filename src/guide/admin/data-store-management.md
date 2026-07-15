@@ -26,19 +26,19 @@ A description of the fields in the table can be found below.
 
 ### Field Descriptions
 
-| **Field**               | **Description**                                                                                                                                                             |
-|-------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Project                 | Select from the currently approved list of projects for your node                                                                                                           |
-| Data Store              | This field is automatically populated using the UUID of the selected project. This identifier is used as the name of the data store when it is created in the node software |
-| Data Store Type         | Type of repository in which the data is stored. Currently, only FHIR and S3 are supported                                                                                   |
-| Data Path (FHIR only)   | The absolute directory path where the requested data is located                                                                                                             |
-| Bucket Name (S3 only)   | The name of the S3 bucket in which the data is located                                                                                                                      |
-| Bucket Access (S3 only) | Whether the S3 bucket is "Private" or "Public". It is highly recommended to keep all S3 buckets set to private                                                              |
-| Access Key (S3 only)    | Generated access key used for accessing the listed, private S3 bucket                                                                                                       |
-| Secret Key (S3 only)    | Generated secret key used for accessing the listed, private S3 bucket                                                                                                       |
-| Hostname                | Name of the server on which the data is located                                                                                                                             |
-| Port                    | Connection endpoint for accessing the server. Use 80 for HTTP and 443 for HTTPS. If a different protocol is used, please verify which port is accessible. Use port 9000 for the bundled MinIO instance.                     |
-| Protocol                | Protocol used for transferring files                                                                                                                                        |
+| **Field**               | **Description**                                                                                                                                                                                             |
+|-------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Project                 | Select from the currently approved list of projects for your node                                                                                                                                           |
+| Data Store              | This field is automatically populated using the UUID of the selected project. This identifier is used as the name of the data store when it is created in the node software                                 |
+| Data Store Type         | Type of repository in which the data is stored. Currently, only FHIR and S3 are supported                                                                                                                   |
+| Data Path (FHIR only)   | The absolute directory path where the requested data is located                                                                                                                                             |
+| Bucket Name (S3 only)   | The name of the S3 bucket in which the data is located                                                                                                                                                      |
+| Bucket Access (S3 only) | Whether the S3 bucket is "Private" or "Public". It is highly recommended to keep all S3 buckets set to private                                                                                              |
+| Access Key (S3 only)    | Generated access key used for accessing the listed, private S3 bucket                                                                                                                                       |
+| Secret Key (S3 only)    | Generated secret key used for accessing the listed, private S3 bucket                                                                                                                                       |
+| Hostname                | Name of the server on which the data is located                                                                                                                                                             |
+| Port                    | Connection endpoint for accessing the server. Use 80 for HTTP and 443 for HTTPS. If a different protocol is used, please verify which port is accessible. Use port 8333 for the bundled SeaweedFS instance. |
+| Protocol                | Protocol used for transferring files                                                                                                                                                                        |
 
 ## Managing Data Access
 
