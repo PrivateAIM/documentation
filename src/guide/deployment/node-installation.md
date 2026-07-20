@@ -382,6 +382,68 @@ certificateConfigMap: "my-certs"
 
 Your `my-values.yaml` can then be used during deployment to provide the certificates.
 
+## Storage Class Definitions
+
+Because several services in this helm chart need to store long-term data, they will request storage space via a 
+persistent volume claim (PVC) using the default storage class defined in your kubernetes cluster. If you want to 
+specify which storage class these services use (e.g. longhorn), here is a minimal example for your `my-values.yaml` 
+file:
+
+```yaml
+# Shared node service database
+postgresql:
+  storage:
+    className: longhorn
+
+# Kong gateway database
+kong-postgresql:
+  storage:
+    className: longhorn
+
+# Keycloak database
+keycloak-postgresql:
+  storage:
+    className: longhorn
+
+# Message broker database
+mongodb:
+  storage:
+    className: longhorn
+
+# S3 object store backing the storage service
+seaweedfs:
+  allInOne:
+    data:
+      storageClass: longhorn
+
+# Log storage (only rendered when victorialogs.enabled: true)
+victorialogs:
+  server:
+    persistentVolume:
+      storageClassName: longhorn
+
+
+# The following are only when dataStore.enabled: true
+dataStore:
+  enabled: true
+  # Blaze FHIR store
+  blaze:
+    persistence:
+      storageClassName: longhorn
+
+  # Dummy S3 store
+  seaweedfs:
+    allInOne:
+      data:
+        storageClass: longhorn
+```
+
+### Creating a Storage Class
+There are multiple reasons why you may want to create a new storage class in your kubernetes cluster such as 
+delineating fast (SSD) vs slow (HDD) storage pools, different provisioners or binding modes, or for implementing 
+encryption. For more information on how to set up a specialized storage class on your cluster, see the 
+[official kubernetes documentation](https://kubernetes.io/docs/concepts/storage/storage-classes/)
+
 ## Deploying without a Domain Name
 
 It is highly recommended to deploy the FLAME Node using a domain or hostname that is configured within your
@@ -497,15 +559,17 @@ offline: true
 ## (Optional) Node Data Store
 
 The `flame-node` helm chart includes the `flame-node-data-store` subchart which can be used to deploy a FHIR server (
-blaze) and/or an S3 server (MinIO) in addition to the node software components. These servers can store data that can be
+blaze) and/or an S3 server (SeaweedFS) in addition to the node software components. These servers can store data that can be
 used for running analyses. Ideally, these are used only for development and testing purposes.
 
 You can enable these services through your `my-values.yaml` file:
 
 ```yaml
 dataStore:
-    enabled: true
-    minio:
-        rootUser: "<username>"
-        rootPassword: "<password>"
+  enabled: true
+  seaweedfs:
+    admin:
+      secret:
+        adminUser: "<username>"
+        adminPassword: "<password>"
 ```
