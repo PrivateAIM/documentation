@@ -43,6 +43,7 @@ created.
 
 ```python
 FlameCoreSDK(aggregator_requires_data: bool = False,
+             default_requires_data: bool = True,
              stream_log_level: int = 20,
              silent: bool = False,
              status_sync: Optional[tuple[Literal['executed', 'stopped', 'failed']]] = ('executed', 'stopped', 'failed'))
@@ -50,6 +51,9 @@ FlameCoreSDK(aggregator_requires_data: bool = False,
 
 * `aggregator_requires_data`: by default the Data API is only connected for `"default"` nodes. Set this to `True` if the
   aggregator node also needs access to data sources.
+* `default_requires_data`: by default a `"default"` node without a reachable data source is treated as a startup
+  failure. Set this to `False` to allow such nodes to participate anyway — the node's role is then switched to
+  `"proxy"`, startup continues, and the data access methods return `None` (see `node_has_data`).
 * `stream_log_level`: minimum log level streamed to the hub (defaults to `20`, i.e. `'info'`; see log levels in
   `flame_log`).
 * `silent`: if set to `True`, suppresses automatic console outputs (logs are still submitted to the hub).
@@ -238,12 +242,19 @@ Submits the final result to the hub, making it available for analysts to downloa
 * `filename` optionally sets the result file name(s) on the hub
   * pass a list of names one for each `result` element if `multiple_results=True`, or a single string for a single file, which will alternatively be auto-indexed as `name_1`, `name_2`, … if `multiple_results=True`
   * defaults to auto-generated name(s) when `None`
+* `local_dp` optionally applies local differential privacy to the result before it reaches the hub
+  * expects a dictionary with the keys `epsilon` and `sensitivity` (both floats), e.g. `{'epsilon': 1.0, 'sensitivity': 1.0}`
+  * only supported for single numeric (and finite) final results — non-numeric results, infinite/NaN values, or use outside of final result submission are rejected with an error
+  * the submitted file is written as text (`output_type` is ignored while `local_dp` is set)
 * returns a brief dictionary response upon success (a list of such dictionaries if `result` was submitted as `multiple_results=True`)
 
 ```python
 # Example usage
 # Submit aggregated results as text file
 flame.submit_final_result(result=aggregated_res, output_type='str')
+
+# Submit a single numeric result with local differential privacy applied
+flame.submit_final_result(result=total_count, local_dp={'epsilon': 1.0, 'sensitivity': 1.0})
 ```
 
 #### Save intermediate data
@@ -262,6 +273,7 @@ Saves intermediate `data` either on the hub (`location="global"`), or locally (`
 * when saving locally (`location="local"`) with `remote_node_ids` left as `None`
   * returns a single dictionary response containing the success state (`"status"`), the url to the submission location (`"url"`), and the storage id of the saved data (`"id"`)
   * a storage `tag` can optionally be set for retrieval by future analyzes (persistent; access granted only to other analyzes of the same project)
+  * tags must consist of lowercase letters, digits and hyphens only (`my-tag-1`); any other format is rejected with an error
 * the storage id allows for retrieval of the saved data (see `get_intermediate_data`)
   * only possible for the node that saved the data, if saved locally
   * for all addressed nodes participating in the same analysis, if saved globally
@@ -360,6 +372,10 @@ tags = flame.get_local_tags(filter='result')
 ### Purpose
 
 The Data Source Client is a service for accessing data from different sources like FHIR or S3 linked to the project.
+
+All methods in this section require the node to have an active Data API connection. On nodes without one (aggregator
+nodes started without `aggregator_requires_data=True`, or `"proxy"` nodes), they log a warning and return `None`
+instead of raising — use `node_has_data()` to branch on this.
 
 ### List of available methods
 
@@ -575,13 +591,65 @@ get_role() -> str
 
 Returns the role of the node.
 
-* "aggregator" means that the node can submit final results using "submit_final_result", else "default" (this may change
-  with further permission settings).
+* `"aggregator"` means that the node can submit final results using `submit_final_result`, else `"default"` (this may
+  change with further permission settings).
+* `"proxy"` is set for nodes that joined without an attached data source (only possible when the SDK was constructed
+  with `default_requires_data=False`).
 
 ```python
 # Example usage
 # Get role of node within analysis
 flame.get_role()
+```
+
+#### Node has data
+
+```python
+node_has_data() -> bool
+```
+
+Returns whether this node has an active Data API connection, i.e. whether the methods of the
+[Data Source Client](#data-source-client) can return data.
+
+```python
+# Example usage
+# Only query FHIR data if this node has a data source attached
+if flame.node_has_data():
+    data = flame.get_fhir_data(['Patient?_summary=count'])
+```
+
+#### Get node index
+
+```python
+get_node_index(node_id: str) -> Optional[int]
+```
+
+Returns the index of the given `node_id` in the alphanumerically sorted list of all node ids taking part in the analysis
+(participants plus this node).
+
+* since every node sorts the same list, the resulting index is identical on all nodes and can be used to assign
+  deterministic roles, data shards, or aggregation orders without extra coordination
+* logs a warning and returns `None` if `node_id` is not part of the analysis
+
+```python
+# Example usage
+# Get the index of the aggregator node
+flame.get_node_index(flame.get_aggregator_id())
+```
+
+#### Get own node index
+
+```python
+get_self_node_index() -> int
+```
+
+Returns the index of the executing node, i.e. shorthand for `get_node_index(get_id())`.
+
+```python
+# Example usage
+# Let the first node in the sorted order take on an extra task
+if flame.get_self_node_index() == 0:
+    ...
 ```
 
 #### Analysis finished
@@ -700,4 +768,44 @@ Set current relative progress value (integer/float between 0 and 100).
 # Perpetually increase progress
 for i in range(0, 100):
     flame.set_progress(i)
+```
+
+#### Set checkpoint
+
+```python
+set_checkpoint(kwargs: dict[str, Any]) -> None
+```
+
+Saves a dictionary of values to the node's local storage, so that a later analysis can pick the state back up.
+
+* `kwargs` has to be a dictionary using strings as keys — anything else is refused with a warning and nothing is saved
+* checkpoints are numbered consecutively starting at `1`, in the order they were saved; that number is the `index`
+  expected by `load_checkpoint`
+* they are stored under the reserved local storage tag `checkpoint-<index>`, and `save_intermediate_data` rejects tags
+  starting with `checkpoint-`, so your own tagged data can never collide with them
+* as with all local storage, checkpoints outlive the analysis and are accessible only to analyzes of the same project
+
+```python
+# Example usage
+# Save the current training state after each round
+flame.set_checkpoint({'round': current_round, 'weights': model_weights})
+```
+
+#### Load checkpoint
+
+```python
+load_checkpoint(index: int) -> Optional[dict[str, Any]]
+```
+
+Returns the dictionary saved by the `index`-th `set_checkpoint` call.
+
+* returns `None` and logs a warning if no checkpoint with that index exists
+* use `get_local_tags(filter='checkpoint-')` to find out which checkpoints are available
+
+```python
+# Example usage
+# Resume from the first checkpoint if there is one, else start from scratch
+state = flame.load_checkpoint(1)
+if state is None:
+    state = {'round': 0, 'weights': initial_weights}
 ```
