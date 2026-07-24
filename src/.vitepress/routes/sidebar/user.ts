@@ -15,21 +15,21 @@ export const userRoutes = [
                 text: 'Analysis Coding',
                 collapsed: true,
                 items: [
-                    {text: 'Introduction', link: '/analysis-coding'},
+                    { text: 'Introduction', link: '/analysis-coding' },
                     {
                         text: 'Examples',
                         collapsed: true,
                         items: [
-                            {text: 'Aggregation with fedstats', link: '/coding_examples/survival-regression'},
-                            {text: 'Basic VCF QC', link: '/coding_examples/vcf-qc'},
-                            {text: 'CLI Tools FastQC', link: '/coding_examples/cli-fastqc'},
-                            {text: 'Deep Learning image classification', link: '/coding_examples/deep-learning-image-classifier'},
-                            {text: 'Differential Privacy', link: '/coding_examples/differential-privacy-mvp'},
-                            {text: 'Fedstats GLM', link: '/coding_examples/fedstats-logistic-regression'},
-                            {text: 'Federated Logistic Regression', link: '/coding_examples/federated-logistic-regression'},
-                            {text: 'GeMTeX text scores', link: '/coding_examples/gemtex-text-score-example'},
-                            {text: 'Long COVID (PASC) Analysis', link: '/coding_examples/pasc-long-covid-analysis'},
-                            {text: 'PPRL', link: '/coding_examples/record_linkage'},
+                            { text: 'Aggregation with fedstats', link: '/coding_examples/survival-regression' },
+                            { text: 'Basic VCF QC', link: '/coding_examples/vcf-qc' },
+                            { text: 'CLI Tools FastQC', link: '/coding_examples/cli-fastqc' },
+                            { text: 'Deep Learning image classification', link: '/coding_examples/deep-learning-image-classifier' },
+                            { text: 'Differential Privacy', link: '/coding_examples/differential-privacy-mvp' },
+                            { text: 'Fedstats GLM', link: '/coding_examples/fedstats-logistic-regression' },
+                            { text: 'Federated Logistic Regression', link: '/coding_examples/federated-logistic-regression' },
+                            { text: 'GeMTeX text scores', link: '/coding_examples/gemtex-text-score-example' },
+                            { text: 'Long COVID (PASC) Analysis', link: '/coding_examples/pasc-long-covid-analysis' },
+                            { text: 'PPRL', link: '/coding_examples/record_linkage' },
                         ]
                     },
                 ]
@@ -39,19 +39,19 @@ export const userRoutes = [
                 text: 'Local Testing',
                 collapsed: true,
                 items: [
-                    {text: 'Introduction', link: '/local-testing'},
+                    { text: 'Introduction', link: '/local-testing' },
                     {
                         text: 'Examples',
                         collapsed: true,
                         items: [
-                            {text: 'Logistic Regression', link: '/testing_examples/local-testing-logistic-regression-example'},
-                            {text: 'Differential Privacy', link: '/testing_examples/local-testing-dp-example'},
-                            {text: 'Long COVID (PASC) Analysis', link: '/testing_examples/local-testing-pasc-example'},
+                            { text: 'Logistic Regression', link: '/testing_examples/local-testing-logistic-regression-example' },
+                            { text: 'Differential Privacy', link: '/testing_examples/local-testing-dp-example' },
+                            { text: 'Long COVID (PASC) Analysis', link: '/testing_examples/local-testing-pasc-example' },
                         ]
                     },
                 ]
             },
-            {text: 'FHIR Queries', link: '/fhir-query'},
+            { text: 'FHIR Queries', link: '/fhir-query' },
             // {text: 'Homomorphic Encryption', link: '/homomorphic-encryption'},
         ]
     },
@@ -69,5 +69,9 @@ export const userRoutes = [
                 link: '/analysis'
             },
         ]
+    },
+    {
+        text: 'Demo Instance',
+        link: '/demo'
     },
 ]
