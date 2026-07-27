@@ -24,21 +24,19 @@ This section will provide instructions for deploying the FLAME node software on 
 
 ### Software
 
-::: tip
-A quick start guide to installing microk8s and Helm can be found [here](./microk8s-quickstart).
+::: tip A quick start guide to installing microk8s and Helm can be found [here](./microk8s-quickstart).
 :::
 
 #### Kubernetes
 
-Kubernetes (also known as k8s) is a container management software package which allows for rapid deployment and
-scaling of multiple applications and service. There are multiple distributions of k8s available for a variety of
-system configurations. The only requirement for the FLAME Node software is that a network plugin (e.g. Calico)
-is installed in your k8s installation to allow for network policy management. Additionally, the DNS provider in
-your cluster must use the standard `k8s-app: kube-dns` label on its pods (e.g. CoreDNS or kube-dns deployed via
-kubeadm).
+Kubernetes (also known as k8s) is a container management software package which allows for rapid deployment and scaling
+of multiple applications and service. There are multiple distributions of k8s available for a variety of system
+configurations. The only requirement for the FLAME Node software is that a network plugin (e.g. Calico)
+is installed in your k8s installation to allow for network policy management. Additionally, the DNS provider in your
+cluster must use the standard `k8s-app: kube-dns` label on its pods (e.g. CoreDNS or kube-dns deployed via kubeadm).
 This label is required so that analysis pods can resolve internal service names through the cluster DNS. Most standard
-Kubernetes distributions — including microk8s, kubeadm, EKS, GKE, AKS, and k3s — use this label by default.
-You can verify this with:
+Kubernetes distributions — including microk8s, kubeadm, EKS, GKE, AKS, and k3s — use this label by default. You can
+verify this with:
 
   ```bash
   kubectl get pods -n kube-system -l k8s-app=kube-dns
@@ -54,9 +52,9 @@ will not work correctly.The following distributions have been tested for use wit
 #### Helm
 
 The FLAME Node software package is a compilation of multiple services working together which require several
-configuration parameters to be properly set during installation. [Helm](https://helm.sh/) is k8s application
-management tool that simplifies deploying complex software. It enables one to easily install, update, or rollback
-multi-service software and we highly recommend using this tool for installing the FLAME Node.
+configuration parameters to be properly set during installation. [Helm](https://helm.sh/) is k8s application management
+tool that simplifies deploying complex software. It enables one to easily install, update, or rollback multi-service
+software and we highly recommend using this tool for installing the FLAME Node.
 [See the Helm website](https://helm.sh/docs/intro/install/) for instructions on how to install Helm on your system.
 
 ## Preparation
@@ -93,27 +91,27 @@ hub:
             -----END PRIVATE KEY-----
 ```
 
-Be sure to set the `expose.type` to either "ingress" or "gateway" in your values file, otherwise, your hostname will
-not resolve.
+Be sure to set the `expose.type` to either "ingress" or "gateway" in your values file, otherwise, your hostname will not
+resolve.
 
 The crypto private key can also be provided using an existing secret. For more information on how to do this,
 see [Using an Existing Secret for the Crypto Private Key](./node-troubleshooting#using-an-existing-secret-for-the-crypto-private-key).
 
-::: info Note
-The default installation method assumes that if you have SSL enabled (i.e. using HTTPS), then this is handled by
-a reverse proxy. If this is not the case, you need to disable the proxy headers for keycloak like shown in this
+::: info Note The default installation method assumes that if you have SSL enabled (i.e. using HTTPS), then this is
+handled by a reverse proxy. If this is not the case, you need to disable the proxy headers for keycloak like shown in
+this
 <a href="/files/values_no_reverse_proxy_example.yaml" download>example</a>.
 :::
 
 ### Routing
 
 Most kubernetes distributions previously used only the Ingress API for routing traffic, but that has been recently
-deprecated in favor of the new [Gateway API](https://gateway-api.sigs.k8s.io/). Currently, our helm charts are
-designed to support both APIs, but the user must choose one of the APIs to use when deploying the helm chart. We
-suggest using "ingress" if you are unsure.
+deprecated in favor of the new [Gateway API](https://gateway-api.sigs.k8s.io/). Currently, our helm charts are designed
+to support both APIs, but the user must choose one of the APIs to use when deploying the helm chart. We suggest using
+"ingress" if you are unsure.
 
-Though the Gateway API is the currently accepted standard and recommended API to use, it is not automatically
-included in all kubernetes distributions. Users should follow this
+Though the Gateway API is the currently accepted standard and recommended API to use, it is not automatically included
+in all kubernetes distributions. Users should follow this
 [guide for installing the Gateway API](https://gateway-api.sigs.k8s.io/guides/getting-started/#installing-gateway-api)
 if they haven't done so already and wish to use this API.
 
@@ -124,29 +122,28 @@ kubectl get crd gateways.gateway.networking.k8s.io
 kubectl get crd httproutes.gateway.networking.k8s.io
 ```
 
-If either command gives an error or returns `NotFound`/`Unhandled Error`, then they are not installed and you cannot
-use the "gateway" option for `.expose.type`.
+If either command gives an error or returns `NotFound`/`Unhandled Error`, then they are not installed and you cannot use
+the "gateway" option for `.expose.type`.
 
 ### Keycloak
 
-By default, the FLAME Node package deploys keycloak as part of the installation. The clients and their secrets are
-all generated and configured within this included IDP. If you wish to use your own IDP, then a client for the Node UI
-will have to be created and its secrets set in the values template. See the
+By default, the FLAME Node package deploys keycloak as part of the installation. The clients and their secrets are all
+generated and configured within this included IDP. If you wish to use your own IDP, then a client for the Node UI will
+have to be created and its secrets set in the values template. See the
 [Using Your Own IDP](#using-your-own-idp) section for more information.
 
 #### Role Based Access Control (RBAC)
 
-The node software package supports restricting the actions of certain users with access to the Node UI via RBAC. A
-user can have one of three roles with the following names and permissions:
+The node software package supports restricting the actions of certain users with access to the Node UI via RBAC. A user
+can have one of three roles with the following names and permissions:
 
 * **steward**: can modify/create data stores, but cannot start/stop/delete analyses or view their logs
 * **researcher**: can start/stop/delete analyses and view their logs, but cannot modify data stores
 * **admin**: full access
 
 The included Keycloak instance includes these roles by default, and the initially created `flameuser` is given the "
-admin" role.
-The names of these roles can be modified in your `my-values.yaml`, and these changes will be reflected in Keycloak as
-well:
+admin" role. The names of these roles can be modified in your `my-values.yaml`, and these changes will be reflected in
+Keycloak as well:
 
 ```yaml
 rbac:
@@ -156,17 +153,16 @@ rbac:
     researcherRole: "researcher"
 ```
 
-::: warning Role Claim Name
-The `roleClaimName` value is specific for how the role is defined in the JWT provided by the bundled Keycloak, and
-should not be modified. This only ever needs to be changed if you are [using your own IDP](#using-your-own-idp).
+::: warning Role Claim Name The `roleClaimName` value is specific for how the role is defined in the JWT provided by the
+bundled Keycloak, and should not be modified. This only ever needs to be changed if you
+are [using your own IDP](#using-your-own-idp).
 :::
 
 See the [Access Control](/guide/admin/keycloak-access-control#access-control) section of the documentation for more
-information
-on how to create users and assign them specific roles.
+information on how to create users and assign them specific roles.
 
-::: info Disabling RBAC
-If you have no need for RBAC, it can be disabled by setting `roleClaimName` to an empty string (`""`).
+::: info Disabling RBAC If you have no need for RBAC, it can be disabled by setting `roleClaimName` to an empty string
+(`""`).
 :::
 
 ### Using Your Own IDP
@@ -191,20 +187,19 @@ ui:
         clientSecret: <Client Secret for Node UI>
 ```
 
-To enable this, first you must create individual clients for the Node UI in your IDP.
-Be sure to enable client authentication and take note of the client ID and secret for this new
-client as this information along with the (accessible) URL for your IDP must be provided in your `my-values.yaml`. You
-may also need to set the hostname you are using for your node as a valid redirect URI in the client settings.
-An example of how to configure this in for your cluster can be seen in this
+To enable this, first you must create individual clients for the Node UI in your IDP. Be sure to enable client
+authentication and take note of the client ID and secret for this new client as this information along with the
+(accessible) URL for your IDP must be provided in your `my-values.yaml`. You may also need to set the hostname you are
+using for your node as a valid redirect URI in the client settings. An example of how to configure this in for your
+cluster can be seen in this
 <a href="/files/values_separate_idp.yaml" download>separate IDP example</a>.
 
 #### RBAC
 
-Admins using their own IDP who also wish to utilize RBAC for the Node UI will need to configure the roles using
-their IDP's documentation. Once a the role is created and assigned to a user, the `roleClaimName` value needs to
-be modified so that the role can be extracted from the JWT provided by the IDP. The `roleClaimName` value should
-contain the keys leading to the role value in the decrypted JWT, with each hierarchical level separated by a
-period (".").
+Admins using their own IDP who also wish to utilize RBAC for the Node UI will need to configure the roles using their
+IDP's documentation. Once a the role is created and assigned to a user, the `roleClaimName` value needs to be modified
+so that the role can be extracted from the JWT provided by the IDP. The `roleClaimName` value should contain the keys
+leading to the role value in the decrypted JWT, with each hierarchical level separated by a period (".").
 
 In this example:
 
@@ -233,14 +228,14 @@ At this point, you should have a custom values file (e.g. `my-values.yaml`) whic
 private key for your node. If you have all of this information, then you can proceed with deploying the FLAME Node by
 either using the FLAME repo <u>**OR**</u> cloning the Github repository.
 
-::: info Note
-The Helm release name `flame-node` is used in the following examples, but any release name can be used in place of it.
+::: info Note The Helm release name `flame-node` is used in the following examples, but any release name can be used in
+place of it.
 :::
 
 ### Using the FLAME repo
 
-The FLAME helm repository can be added to your list of available repos and then used to deploy the node software.
-First, add the FLAME repo:
+The FLAME helm repository can be added to your list of available repos and then used to deploy the node software. First,
+add the FLAME repo:
 
 ```bash
 helm repo add flame https://PrivateAIM.github.io/helm
@@ -255,8 +250,8 @@ helm install flame-node -f my-values.yaml flame/flame-node
 ### Using the GitHub Repository
 
 Users can clone the FLAME Node Helm charts by cloning the
-`helm` [repository](https://github.com/PrivateAIM/helm) from GitHub. The `charts/flame-node/` directory
-contains the parent helm chart used for the deployment.
+`helm` [repository](https://github.com/PrivateAIM/helm) from GitHub. The `charts/flame-node/` directory contains the
+parent helm chart used for the deployment.
 
 ```bash
 git clone https://github.com/PrivateAIM/helm.git
@@ -275,23 +270,21 @@ Then you can deploy the FLAME Node using this local helm chart:
 helm install flame-node -f my-values.yaml .
 ```
 
-::: warning Startup Time
-Several services are deployed as part of this Helm chart and some need to execute initialization containers in order
-to properly import the configuration. This can cause the `helm install` to hang for a few minutes while everything
-is deployed and verified, so please have patience during this step and do not prematurely cancel the command.
+::: warning Startup Time Several services are deployed as part of this Helm chart and some need to execute
+initialization containers in order to properly import the configuration. This can cause the `helm install` to hang for a
+few minutes while everything is deployed and verified, so please have patience during this step and do not prematurely
+cancel the command.
 :::
 
 ## Proxies
 
 If your server is behind a proxy i.e. all traffic is routed through a specific address and/or port, then the FLAME Node
-needs to be configured
-to use the same proxy for its requests.
+needs to be configured to use the same proxy for its requests.
 
 An easy way to tell if a proxy is configured on your machine is to run `echo $HTTP_PROXY` or check the
-`/etc/environment` file while logged into the server.
-If any of the `HTTP_PROXY`, `HTTPS_PROXY`, `http_proxy`, or `https_proxy` variables are populated, then the machine is
-likely behind a proxy and this address needs to be
-added to the `my-values.yaml` file as shown here:
+`/etc/environment` file while logged into the server. If any of the `HTTP_PROXY`, `HTTPS_PROXY`, `http_proxy`, or
+`https_proxy` variables are populated, then the machine is likely behind a proxy and this address needs to be added to
+the `my-values.yaml` file as shown here:
 
 ```yaml
 expose:
@@ -315,18 +308,16 @@ proxy:
 ```
 
 The `NO_PROXY`/`no_proxy` value will depend on your kubernetes distribution and your server configuration, please check
-your kubernetes distribution's documentation for suggested values.
-It is highly recommended that you add the the DNS A record to the `noProxy` value for the cluster in which you are
-deploying the FLAME Node. The name for this record takes the
-form of `<cluster-domain>` and by default is equal to `.cluster.local`.
+your kubernetes distribution's documentation for suggested values. It is highly recommended that you add the the DNS A
+record to the `noProxy` value for the cluster in which you are deploying the FLAME Node. The name for this record takes
+the form of `<cluster-domain>` and by default is equal to `.cluster.local`.
 
 ## Additional Certificate Authority (CA) Certificates
 
 Some locations may have additional, self-signed SSL/TLS certificates that they use for monitoring web traffic on their
-servers. In this case, problems can occur that pre-mature SSL termination
-occurs and the node services cannot communicate with the Hub. To avoid this, these self-signed CA certificates need to
-be provided to the node during deployment. This can be done by providing
-the CA files either:
+servers. In this case, problems can occur that pre-mature SSL termination occurs and the node services cannot
+communicate with the Hub. To avoid this, these self-signed CA certificates need to be provided to the node during
+deployment. This can be done by providing the CA files either:
 
 1. In the `helm/charts/flame-node/certs` directory and installing using a local version of the helm chart
 2. Using a pre-defined kubernetes ConfigMap that provides the information under a key labeled `certs.pem`
@@ -334,13 +325,12 @@ the CA files either:
 ### Using the `certs` Directory
 
 By cloning the [helm repository](https://github.com/PrivateAIM/helm), one can provide the CA PEM files in the
-`helm/charts/flame-node/certs` directory and then perform a `helm install` using the modified
-local helm chart, and the files will automatically be imported as a ConfigMap and provided to the necessary services.
-The CA certificates need to be in PEM format (i.e. `*.pem`) and
-ideally, they are all concatenated into a single file. If there are multiple files, place them all (in order) in the
-`certs/` folder, and the deployment will automatically concatenate them for you.
-In the example below, a user copies their institution's self-signed CA certificate into the `certs/` directory and names
-it `myCA.pem`
+`helm/charts/flame-node/certs` directory and then perform a `helm install` using the modified local helm chart, and the
+files will automatically be imported as a ConfigMap and provided to the necessary services. The CA certificates need to
+be in PEM format (i.e. `*.pem`) and ideally, they are all concatenated into a single file. If there are multiple files,
+place them all (in order) in the
+`certs/` folder, and the deployment will automatically concatenate them for you. In the example below, a user copies
+their institution's self-signed CA certificate into the `certs/` directory and names it `myCA.pem`
 
 ```bash
 ├── CHANGELOG.md
@@ -364,9 +354,8 @@ it `myCA.pem`
 ### Using a Pre-Defined ConfigMap
 
 Similar to how one can create a kubernetes Secret and provide that to the `values.yaml`, one can also create a custom
-ConfigMap containing the certificate and use that instead. The certificate must be
-named `certs.pem` and if you have multiple self-signed certificates to provide, they must all be concatenated into that
-one file.
+ConfigMap containing the certificate and use that instead. The certificate must be named `certs.pem` and if you have
+multiple self-signed certificates to provide, they must all be concatenated into that one file.
 
 Now, create your custom ConfigMap (in this example it is named `my-certs`) using that file:
 
@@ -384,72 +373,73 @@ Your `my-values.yaml` can then be used during deployment to provide the certific
 
 ## Storage Class Definitions
 
-Because several services in this helm chart need to store long-term data, they will request storage space via a 
-persistent volume claim (PVC) using the default storage class defined in your kubernetes cluster. If you want to 
-specify which storage class these services use (e.g. longhorn), here is a minimal example for your `my-values.yaml` 
+Because several services in this helm chart need to store long-term data, they will request storage space via a
+persistent volume claim (PVC) using the default storage class defined in your kubernetes cluster. If you want to specify
+which storage class these services use (e.g. longhorn), here is a minimal example for your `my-values.yaml`
 file:
 
 ```yaml
 # Shared node service database
 postgresql:
-  storage:
-    className: longhorn
+    storage:
+        className: longhorn
 
 # Kong gateway database
 kong-postgresql:
-  storage:
-    className: longhorn
+    storage:
+        className: longhorn
 
 # Keycloak database
 keycloak-postgresql:
-  storage:
-    className: longhorn
+    storage:
+        className: longhorn
 
 # Message broker database
 mongodb:
-  storage:
-    className: longhorn
+    storage:
+        className: longhorn
 
 # S3 object store backing the storage service
 seaweedfs:
-  allInOne:
-    data:
-      storageClass: longhorn
+    allInOne:
+        data:
+            storageClass: longhorn
 
 # Log storage (only rendered when victorialogs.enabled: true)
 victorialogs:
-  server:
-    persistentVolume:
-      storageClassName: longhorn
+    server:
+        persistentVolume:
+            storageClassName: longhorn
 
 
 # The following are only when dataStore.enabled: true
 dataStore:
-  enabled: true
-  # Blaze FHIR store
-  blaze:
-    persistence:
-      storageClassName: longhorn
+    enabled: true
+    # Blaze FHIR store
+    blaze:
+        persistence:
+            storageClassName: longhorn
 
-  # Dummy S3 store
-  seaweedfs:
-    allInOne:
-      data:
-        storageClass: longhorn
+    # Dummy S3 store
+    seaweedfs:
+        allInOne:
+            data:
+                storageClass: longhorn
 ```
 
 ### Creating a Storage Class
-There are multiple reasons why you may want to create a new storage class in your kubernetes cluster such as 
-delineating fast (SSD) vs slow (HDD) storage pools, different provisioners or binding modes, or for implementing 
-encryption. For more information on how to set up a specialized storage class on your cluster, see the 
+
+There are multiple reasons why you may want to create a new storage class in your kubernetes cluster such as delineating
+fast (SSD) vs slow (HDD) storage pools, different provisioners or binding modes, or for implementing encryption. For
+more information on how to set up a specialized storage class on your cluster, see the
 [official kubernetes documentation](https://kubernetes.io/docs/concepts/storage/storage-classes/)
 
 ## Deploying without a Domain Name
 
 It is highly recommended to deploy the FLAME Node using a domain or hostname that is configured within your
-institution's DNS or proxy. However,
-there may be circumstances in which you want to deploy the software without providing an accessible domain or hostname.
-In such cases, thee are a couple of options for configuring the FLAME Node such that you can still access the Node UI.
+institution's DNS or proxy. However, there may be circumstances in which you want to deploy the software without
+providing an accessible domain or hostname. In such cases, thee are a couple of options for configuring the FLAME Node
+such that you can still access the Node UI.
 
 1. Those with access to the server running the services
    can [port forward](https://kubernetes.io/docs/reference/kubectl/generated/kubectl_port-forward/) the individual
@@ -505,8 +495,8 @@ kubectl get svc
 
 ##### Port Forward the Services
 
-Using the names obtained in the previous section, we can forward the ports these services are using to the same ports
-on our local machine:
+Using the names obtained in the previous section, we can forward the ports these services are using to the same ports on
+our local machine:
 
 ```bash
 kubectl port-forward svc/flame-node-node-ui-service 3000:3000 & \
@@ -520,23 +510,19 @@ Now you can access these services in your browser. For example, to access the No
 ### Map a Hostname
 
 It is possible to override a DNS entry by manually mapping an IP address to a hostname or URL in your local `hosts`
-file. On Unix systems,
-this file is often located at `/etc/hosts` and it Windows it can be found at `C:\windows\system32\drivers\etc\hosts`. If
-you choose to do this,
-only the machines with this manual configuration will be able to access the Node UI.
+file. On Unix systems, this file is often located at `/etc/hosts` and it Windows it can be found at
+`C:\windows\system32\drivers\etc\hosts`. If you choose to do this, only the machines with this manual configuration will
+be able to access the Node UI.
 
 #### Enable Offline Mode
 
 Because the provided hostname is only resolvable on those machines for which the hostname and IP were manually mapped to
-one another, the k8s
-cluster will not be able to find the other services using this name. Thus, when deploying the FLAME Node in this manner,
-the Node UI and Hub Adapter
-must have `offline` set to `true` in their configurations so that they can still communicate with the included keycloak
-instance for client authentication.
+one another, the k8s cluster will not be able to find the other services using this name. Thus, when deploying the FLAME
+Node in this manner, the Node UI and Hub Adapter must have `offline` set to `true` in their configurations so that they
+can still communicate with the included keycloak instance for client authentication.
 
 Other settings can be left as though a FQDN is being used including enabling routing and providing the locally
-resolvable hostname. Your `my-values.yaml` should
-look similar to this:
+resolvable hostname. Your `my-values.yaml` should look similar to this:
 
 ```yaml
 expose:
@@ -556,20 +542,207 @@ hub:
 offline: true
 ```
 
+## ArgoCD & Secrets
+
+the Node helm chart is not fully compatible with some continuous deployment (CD) software, such as ArgoCD. There are
+certain helm functions that the software is unable to execute. While the node may initially successfully deploy and
+operate, any changes to the values file or upgrading the chart version can result in the services beginning to crash due
+to "incorrect" credentials. This is due to how the node helm chart manages credentials using kubernetes Secrets and how
+it fetches them between updates/upgrades.
+
+To ensure consistency between updates when using a CD software to manage your helm deployments, all secrets must be
+generated prior to deployment and set in your values file. These secrets can be externally managed, but they must be
+made available in the same namespace that the node helm chart is deployed in.
+
+Here is an overview of the secrets that need to be generated prior to deployment:
+
+| Secret                                    | Purpose                                                                        | Replaceable |
+|-------------------------------------------|--------------------------------------------------------------------------------|-------------|
+| RELEASENAME-ecdh-private-key-secret       | Private key for encrypting messages to the Hub                                 | yes         |
+| RELEASENAME-postgres-credentials          | Credentials for the PostgresDB instance used by the Node services              | yes         |
+| RELEASENAME-kong-postgres-credentials     | Credentials for the PostgresDB instance used by the Kong subchart              | yes         |
+| RELEASENAME-keycloak-postgres-credentials | Credentials for the PostgresDB instance used by the Keycloak subchart          | yes         |
+| RELEASENAME-keycloak-auth-credentials     | Credentials for accessing the admin console of the included Keycloak instance. | yes         |
+| flame-node-keycloak-client-secrets        | Keycloak client secrets for the node services                                  | no          |
+
+### Pre-generating Secrets
+
+Secrets can be created in multiple ways: using `kubectl create secret`, using a kubernetes template containing the
+secrets, or through an external secret manager such as Vault.
+
+Example kubernetes template:
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+    name: <RELEASENAME>-ecdh-private-key-secret
+    namespace: <NAMESPACE>
+type: Opaque
+data:
+    clientSecret: <BASE 64 ENCODED VALUE>
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+    name: flame-node-keycloak-client-secrets
+    namespace: <NAMESPACE>
+type: Opaque
+data:
+    hubAdapterClientSecret: <BASE 64 ENCODED VALUE>
+    nodeUiClientSecret: <BASE 64 ENCODED VALUE>
+    podOrcClientSecret: <BASE 64 ENCODED VALUE>
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+    name: <RELEASENAME>-postgres-credentials
+    namespace: <NAMESPACE>
+type: Opaque
+data:
+    superPassword: <BASE 64 ENCODED VALUE>
+    DB_USER: <BASE 64 ENCODED VALUE>
+    DB_PASSWORD: <BASE 64 ENCODED VALUE>
+    DB_DATABASE: <BASE 64 ENCODED VALUE>
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+    name: <RELEASENAME>-kong-postgres-credentials
+    namespace: <NAMESPACE>
+type: Opaque
+data:
+    superPassword: <BASE 64 ENCODED VALUE>
+    kongDbUser: <BASE 64 ENCODED VALUE>
+    kongDbPassword: <BASE 64 ENCODED VALUE>
+    kongDbName: <BASE 64 ENCODED VALUE>
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+    name: <RELEASENAME>-keycloak-postgres-credentials
+    namespace: <NAMESPACE>
+type: Opaque
+data:
+    superPassword: <BASE 64 ENCODED VALUE>
+    keycloakDbUser: <BASE 64 ENCODED VALUE>
+    keycloakDbPassword: <BASE 64 ENCODED VALUE>
+    keycloakDbName: <BASE 64 ENCODED VALUE>
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+    name: <RELEASENAME>-keycloak-auth-credentials
+    namespace: <NAMESPACE>
+type: Opaque
+data:
+    KC_BOOTSTRAP_ADMIN_USERNAME: <BASE 64 ENCODED VALUE>
+    KC_BOOTSTRAP_ADMIN_PASSWORD: <BASE 64 ENCODED VALUE>
+
+```
+
+Example values file making use of the template secrets:
+
+```yaml
+hub:
+    auth:
+        existingSecret: <RELEASENAME>-ecdh-private-key-secret
+
+keycloakClientSecrets:
+    create: false
+
+keycloakx:
+    auth:
+        existingSecret: <RELEASENAME>-keycloak-auth-credentials
+
+    extraEnv: |
+        - name: JAVA_OPTS_APPEND
+          value: >-
+            -Djgroups.dns.query={{ include "keycloak.fullname" . }}-headless
+            -Dkeycloak.migration.replacePlaceholders=true
+        - name: KC_DB_URL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: <RELEASENAME>-keycloak-postgres-credentials
+              key: keycloakDbName
+        - name: KC_DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: <RELEASENAME>-keycloak-postgres-credentials
+              key: keycloakDbUser
+        - name: KC_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: <RELEASENAME>-keycloak-postgres-credentials
+              key: keycloakDbPassword
+
+# Secrets
+ui:
+    idp:
+        existingSecret: <RELEASENAME>-keycloak-client-secrets
+        existingSecretKey: nodeUiClientSecret
+
+kong:
+    env:
+        pg_database:
+            valueFrom:
+                secretKeyRef:
+                    name: <RELEASENAME>-kong-postgres-credentials
+                    key: kongDbName
+        pg_user:
+            valueFrom:
+                secretKeyRef:
+                    name: <RELEASENAME>-kong-postgres-credentials
+                    key: kongDbUser
+        pg_password:
+            valueFrom:
+                secretKeyRef:
+                    name: <RELEASENAME>-kong-postgres-credentials
+                    key: kongDbPassword
+
+postgresql:
+    settings:
+        existingSecret: <RELEASENAME>-postgres-credentials
+    userDatabase:
+        existingSecret: <RELEASENAME>-postgres-credentials
+
+kong-postgresql:
+    settings:
+        existingSecret: <RELEASENAME>-kong-postgres-credentials
+    userDatabase:
+        existingSecret: <RELEASENAME>-kong-postgres-credentials
+
+keycloak-postgresql:
+    settings:
+        existingSecret: <RELEASENAME>-keycloak-postgres-credentials
+    userDatabase:
+        existingSecret: <RELEASENAME>-keycloak-postgres-credentials
+```
+
 ## (Optional) Node Data Store
 
-The `flame-node` helm chart includes the `flame-node-data-store` subchart which can be used to deploy a FHIR server (
-blaze) and/or an S3 server (SeaweedFS) in addition to the node software components. These servers can store data that can be
-used for running analyses. Ideally, these are used only for development and testing purposes.
+The `flame-node` helm chart includes the `flame-node-data-store` subchart which can be used to deploy a FHIR server
+(blaze) and/or an S3 server (SeaweedFS) in addition to the node software components. These servers can store data that
+can be used for running analyses. Ideally, these are used only for development and testing purposes.
 
 You can enable these services through your `my-values.yaml` file:
 
 ```yaml
 dataStore:
-  enabled: true
-  seaweedfs:
-    admin:
-      secret:
-        adminUser: "<username>"
-        adminPassword: "<password>"
+    enabled: true
+    seaweedfs:
+        admin:
+            secret:
+                adminUser: "<username>"
+                adminPassword: "<password>"
 ```
