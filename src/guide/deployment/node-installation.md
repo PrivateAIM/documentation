@@ -281,6 +281,12 @@ to properly import the configuration. This can cause the `helm install` to hang 
 is deployed and verified, so please have patience during this step and do not prematurely cancel the command.
 :::
 
+### Verify Installation
+
+To confirm that the deployment was successful and the node can communicate with the Hub, you can run a demo
+analysis. This involves connecting a datastore, creating a project in the Hub, and executing a predefined demo
+analysis. See the [Demo Instance guide](../user/demo) for full step-by-step instructions.
+
 ## Proxies
 
 If your server is behind a proxy i.e. all traffic is routed through a specific address and/or port, then the FLAME Node
@@ -384,9 +390,9 @@ Your `my-values.yaml` can then be used during deployment to provide the certific
 
 ## Storage Class Definitions
 
-Because several services in this helm chart need to store long-term data, they will request storage space via a 
-persistent volume claim (PVC) using the default storage class defined in your kubernetes cluster. If you want to 
-specify which storage class these services use (e.g. longhorn), here is a minimal example for your `my-values.yaml` 
+Because several services in this helm chart need to store long-term data, they will request storage space via a
+persistent volume claim (PVC) using the default storage class defined in your kubernetes cluster. If you want to
+specify which storage class these services use (e.g. longhorn), here is a minimal example for your `my-values.yaml`
 file:
 
 ```yaml
@@ -439,9 +445,9 @@ dataStore:
 ```
 
 ### Creating a Storage Class
-There are multiple reasons why you may want to create a new storage class in your kubernetes cluster such as 
-delineating fast (SSD) vs slow (HDD) storage pools, different provisioners or binding modes, or for implementing 
-encryption. For more information on how to set up a specialized storage class on your cluster, see the 
+There are multiple reasons why you may want to create a new storage class in your kubernetes cluster such as
+delineating fast (SSD) vs slow (HDD) storage pools, different provisioners or binding modes, or for implementing
+encryption. For more information on how to set up a specialized storage class on your cluster, see the
 [official kubernetes documentation](https://kubernetes.io/docs/concepts/storage/storage-classes/)
 
 ## Deploying without a Domain Name
