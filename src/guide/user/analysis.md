@@ -19,18 +19,18 @@ Analysis Wizard — key steps:
    - Select Entrypoint: In the **Image** tab, select the file that should serve as the analysis's entrypoint.
    - Lock Configuration: Back on the **Overview** tab, once all requirements are fulfilled, the analysis must be locked to proceed to the next step.
 
+### Approval
+Before the analysis can be built and executed, it must be approved by the nodes you selected during setup.
+Refer to the [Admin Guide](../admin/analysis-review) for detailed information on the approval process.
+
 ### 4. Build Analysis
 Once all nodes have [approved](#approval) the analysis, the **start** button in the **Build** area can be clicked to build the container.
 ### 5. Distribute Analysis
 To distribute the built analysis across the selected nodes, click the **start** button in the **Distribution** area.
 [![image](/images/ui_images/analysis_distribution.png)](/images/ui_images/analysis_distribution.png)
 
-## Approval
-Before the analysis can be built and executed, it must be approved by the nodes you selected during setup.
-Refer to the [Admin Guide](../admin/analysis-review) for detailed information on the approval process.
-
 ## Execution
-Once approved, the analysis is ready for execution:
+Once the analysis has been approved, successfully built, and distributed to the selected nodes, it is ready for execution.
 
 Each node administrator must manually start the analysis via the node UI. For more details, consult the [Node Guide](../admin/analysis-execution).
 
