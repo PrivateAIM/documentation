@@ -1,23 +1,3 @@
-<!---
-How to write block comments [you can do anything you want in here]
---->
-
-[comment]: # (How to write line comments [must not contain brackets])
-
-[comment]: # "How to write line comments [must not contain quotations]"
-
-[//]: # (How to write line comments [must not contain brackets])
-
-[//]: # "How to write line comments [must not contain quotations]"
-
-[comment]: <> (How to write line comments [must not contain brackets])
-
-[comment]: <> "How to write line comments [must not contain quotations]"
-
-[//]: <> (How to write line comments [must not contain brackets])
-
-[//]: <> "How to write line comments [must not contain quotations]"
-
 # Demo Instance
 
 ## Overview
