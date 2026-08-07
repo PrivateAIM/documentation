@@ -1,23 +1,3 @@
-<!---
-How to write block comments [you can do anything you want in here]
---->
-
-[comment]: # (How to write line comments [must not contain brackets])
-
-[comment]: # "How to write line comments [must not contain quotations]"
-
-[//]: # (How to write line comments [must not contain brackets])
-
-[//]: # "How to write line comments [must not contain quotations]"
-
-[comment]: <> (How to write line comments [must not contain brackets])
-
-[comment]: <> "How to write line comments [must not contain quotations]"
-
-[//]: <> (How to write line comments [must not contain brackets])
-
-[//]: <> "How to write line comments [must not contain quotations]"
-
 # Demo Instance
 
 ## Overview
@@ -47,10 +27,11 @@ After completing this guide, you should be able to make data available for analy
 
 ## Preparation
 
-### 1. Create a Project in the Hub
+### 1. Submit a Project Proposal
 
-To run an analysis, a project must first be created in the Hub. A project defines the scope of the analysis,
-including the target nodes, the requested data, and the images to be used. Creating a project is described in detail [here](./project).
+To run an analysis, a project proposal must first be submitted in the Hub. A proposal defines the scope of the
+analysis, including the target nodes, the requested data, and the images to be used. Submitting a proposal is described in detail
+[here](./project).
 
 
 ### 2. Upload Data to the Data Store
