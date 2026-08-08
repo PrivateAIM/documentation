@@ -544,7 +544,7 @@ offline: true
 
 ## ArgoCD & Secrets
 
-the Node helm chart is not fully compatible with some continuous deployment (CD) software, such as ArgoCD. There are
+The Node helm chart is not fully compatible with some continuous deployment (CD) software, such as ArgoCD. There are
 certain helm functions that the software is unable to execute. While the node may initially successfully deploy and
 operate, any changes to the values file or upgrading the chart version can result in the services beginning to crash due
 to "incorrect" credentials. This is due to how the node helm chart manages credentials using kubernetes Secrets and how
@@ -556,23 +556,45 @@ made available in the same namespace that the node helm chart is deployed in.
 
 Here is an overview of the secrets that need to be generated prior to deployment:
 
-| Secret                                    | Purpose                                                                        | Replaceable |
-|-------------------------------------------|--------------------------------------------------------------------------------|-------------|
-| RELEASENAME-ecdh-private-key-secret       | Private key for encrypting messages to the Hub                                 | yes         |
-| RELEASENAME-postgres-credentials          | Credentials for the PostgresDB instance used by the Node services              | yes         |
-| RELEASENAME-kong-postgres-credentials     | Credentials for the PostgresDB instance used by the Kong subchart              | yes         |
-| RELEASENAME-keycloak-postgres-credentials | Credentials for the PostgresDB instance used by the Keycloak subchart          | yes         |
-| RELEASENAME-keycloak-auth-credentials     | Credentials for accessing the admin console of the included Keycloak instance. | yes         |
-| flame-node-keycloak-client-secrets        | Keycloak client secrets for the node services                                  | no          |
+| Secret                                       | Purpose                                                                        | 
+|----------------------------------------------|--------------------------------------------------------------------------------|
+| \<RELEASENAME>-hub-client-secret             | Node client credentials for fetching data from the Hub.                        |
+| \<RELEASENAME>-ecdh-private-key-secret       | Private key for encrypting messages to the Hub                                 |
+| \<RELEASENAME>-postgres-credentials          | Credentials for the PostgresDB instance used by the Node services              |
+| \<RELEASENAME>-kong-postgres-credentials     | Credentials for the PostgresDB instance used by the Kong subchart              |
+| \<RELEASENAME>-keycloak-postgres-credentials | Credentials for the PostgresDB instance used by the Keycloak subchart          |
+| \<RELEASENAME>-keycloak-auth-credentials     | Credentials for accessing the admin console of the included Keycloak instance. |
+| \<RELEASENAME>-keycloak-client-secrets       | Keycloak client secrets for the node services                                  |
 
-### Pre-generating Secrets
+::: info Secret Names   
+You will need to know what the release name of your node deployment is when you generate these secrets since the release
+name is part of most of the secret names. For example, if you plan to use "my-node" as the release name for your node
+deployment, then you will need to create secrets named `my-node-ecdh-private-key-secret`,
+`my-node-postgres-credentials`, etc.
+:::
+
+### Pregenerating Secrets
 
 Secrets can be created in multiple ways: using `kubectl create secret`, using a kubernetes template containing the
 secrets, or through an external secret manager such as Vault.
 
-Example kubernetes template:
+#### Secrets Template
+
+Example kubernetes template file containing secrets to be generated before node deployment:
 
 ```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+    name: <RELEASENAME>-keycloak-client-secrets
+    namespace: <NAMESPACE>
+type: Opaque
+data:
+    hubAdapterClientSecret: <BASE 64 ENCODED VALUE>
+    podOrcClientSecret: <BASE 64 ENCODED VALUE>
+
+---
+
 apiVersion: v1
 kind: Secret
 metadata:
@@ -580,20 +602,18 @@ metadata:
     namespace: <NAMESPACE>
 type: Opaque
 data:
-    clientSecret: <BASE 64 ENCODED VALUE>
+    private_key.pem: <BASE 64 ENCODED VALUE>
 
 ---
 
 apiVersion: v1
 kind: Secret
 metadata:
-    name: flame-node-keycloak-client-secrets
+    name: <RELEASENAME>-hub-client-secret
     namespace: <NAMESPACE>
 type: Opaque
 data:
-    hubAdapterClientSecret: <BASE 64 ENCODED VALUE>
-    nodeUiClientSecret: <BASE 64 ENCODED VALUE>
-    podOrcClientSecret: <BASE 64 ENCODED VALUE>
+    clientSecret: <BASE 64 ENCODED VALUE>
 
 ---
 
@@ -651,11 +671,17 @@ data:
 
 ```
 
-Example values file making use of the template secrets:
+#### Values File Containing Pregenerated Secrets
+
+Example of a values file making use of the pregenerated secrets:
 
 ```yaml
 hub:
     auth:
+        userRealm: <User Realm>
+        clientId: <Client ID>
+        existingSecret: <RELEASENAME>-hub-client-secret
+    crypto:
         existingSecret: <RELEASENAME>-ecdh-private-key-secret
 
 keycloakClientSecrets:
@@ -687,11 +713,6 @@ keycloakx:
               key: keycloakDbPassword
 
 # Secrets
-ui:
-    idp:
-        existingSecret: <RELEASENAME>-keycloak-client-secrets
-        existingSecretKey: nodeUiClientSecret
-
 kong:
     env:
         pg_database:
