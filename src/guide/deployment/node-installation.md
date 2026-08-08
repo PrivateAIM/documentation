@@ -24,7 +24,8 @@ This section will provide instructions for deploying the FLAME node software on 
 
 ### Software
 
-::: tip A quick start guide to installing microk8s and Helm can be found [here](./microk8s-quickstart).
+::: tip A quick start guide to installing microk8s and Helm can be found
+[in our microk8s Quickstart guide](./microk8s-quickstart).
 :::
 
 #### Kubernetes
@@ -106,8 +107,8 @@ this
 ### Routing
 
 Most kubernetes distributions previously used only the Ingress API for routing traffic, but that has been recently
-deprecated in favor of the new [Gateway API](https://gateway-api.sigs.k8s.io/). Currently, our helm charts are designed
-to support both APIs, but the user must choose one of the APIs to use when deploying the helm chart. We suggest using
+frozen in favor of the new [Gateway API](https://gateway-api.sigs.k8s.io/). Currently, our helm charts are designed to
+support both APIs, but the user must choose one of the APIs to use when deploying the helm chart. We suggest using
 "ingress" if you are unsure.
 
 Though the Gateway API is the currently accepted standard and recommended API to use, it is not automatically included
@@ -120,6 +121,7 @@ If you are not sure whether this API is already installed in your kubernetes ins
 ```bash
 kubectl get crd gateways.gateway.networking.k8s.io
 kubectl get crd httproutes.gateway.networking.k8s.io
+kubectl get gatewayclass
 ```
 
 If either command gives an error or returns `NotFound`/`Unhandled Error`, then they are not installed and you cannot use
@@ -132,7 +134,7 @@ generated and configured within this included IDP. If you wish to use your own I
 have to be created and its secrets set in the values template. See the
 [Using Your Own IDP](#using-your-own-idp) section for more information.
 
-#### Role Based Access Control (RBAC)
+#### Role-Based Access Control (RBAC)
 
 The node software package supports restricting the actions of certain users with access to the Node UI via RBAC. A user
 can have one of three roles with the following names and permissions:
@@ -153,16 +155,17 @@ rbac:
     researcherRole: "researcher"
 ```
 
-::: warning Role Claim Name The `roleClaimName` value is specific for how the role is defined in the JWT provided by the
-bundled Keycloak, and should not be modified. This only ever needs to be changed if you
-are [using your own IDP](#using-your-own-idp).
+::: warning Role Claim Name   
+The `roleClaimName` value is specific for how the role is defined in the JWT provided by the bundled Keycloak, and
+should not be modified. This only ever needs to be changed if you are [using your own IDP](#using-your-own-idp).
 :::
 
 See the [Access Control](/guide/admin/keycloak-access-control#access-control) section of the documentation for more
 information on how to create users and assign them specific roles.
 
-::: info Disabling RBAC If you have no need for RBAC, it can be disabled by setting `roleClaimName` to an empty string
-(`""`).
+::: info Disabling RBAC   
+If you have no need for RBAC, it can be disabled by setting `roleClaimName` to an empty string, but this will enable
+full functionality to all users.
 :::
 
 ### Using Your Own IDP
@@ -197,8 +200,8 @@ cluster can be seen in this
 #### RBAC
 
 Admins using their own IDP who also wish to utilize RBAC for the Node UI will need to configure the roles using their
-IDP's documentation. Once a the role is created and assigned to a user, the `roleClaimName` value needs to be modified
-so that the role can be extracted from the JWT provided by the IDP. The `roleClaimName` value should contain the keys
+IDP's documentation. Once the role is created and assigned to a user, the `roleClaimName` value needs to be modified so
+that the role can be extracted from the JWT provided by the IDP. The `roleClaimName` value should contain the keys
 leading to the role value in the decrypted JWT, with each hierarchical level separated by a period (".").
 
 In this example:
@@ -244,7 +247,7 @@ helm repo add flame https://PrivateAIM.github.io/helm
 Deploy the FLAME Node using your values file
 
 ```bash
-helm install flame-node -f my-values.yaml flame/flame-node
+helm install --namespace <NAMESPACE> flame-node -f my-values.yaml flame/flame-node
 ```
 
 ### Using the GitHub Repository
@@ -278,9 +281,9 @@ cancel the command.
 
 ### Verify Installation
 
-To confirm that the deployment was successful and the node can communicate with the Hub, you can run a demo
-analysis. This involves connecting a datastore, creating a project in the Hub, and executing a predefined demo
-analysis. See the [Demo Instance guide](../user/demo) for full step-by-step instructions.
+To confirm that the deployment was successful and the node can communicate with the Hub, you can run a demo analysis.
+This involves connecting a datastore, creating a project in the Hub, and executing a predefined demo analysis. See
+the [Demo Instance guide](../user/demo) for full step-by-step instructions.
 
 ## Proxies
 
@@ -313,17 +316,17 @@ proxy:
     noProxy: "10.0.0.0/8,192.168.0.0/16,127.0.0.1,172.16.0.0/16,.svc,localhost,.cluster.local"
 ```
 
-The `NO_PROXY`/`no_proxy` value will depend on your kubernetes distribution and your server configuration, please check
-your kubernetes distribution's documentation for suggested values. It is highly recommended that you add the the DNS A
+The `NO_PROXY`/`no_proxy` domains will depend on your kubernetes distribution and your server configuration, please
+check your kubernetes distribution's documentation for suggested values. It is highly recommended that you add the DNS A
 record to the `noProxy` value for the cluster in which you are deploying the FLAME Node. The name for this record takes
 the form of `<cluster-domain>` and by default is equal to `.cluster.local`.
 
 ## Additional Certificate Authority (CA) Certificates
 
 Some locations may have additional, self-signed SSL/TLS certificates that they use for monitoring web traffic on their
-servers. In this case, problems can occur that pre-mature SSL termination occurs and the node services cannot
-communicate with the Hub. To avoid this, these self-signed CA certificates need to be provided to the node during
-deployment. This can be done by providing the CA files either:
+servers. In this case, problems can occur that premature SSL termination occurs and the node services cannot communicate
+with the Hub. To avoid this, these self-signed CA certificates need to be provided to the node during deployment. This
+can be done by providing the CA files either:
 
 1. In the `helm/charts/flame-node/certs` directory and installing using a local version of the helm chart
 2. Using a pre-defined kubernetes ConfigMap that provides the information under a key labeled `certs.pem`
@@ -380,8 +383,8 @@ Your `my-values.yaml` can then be used during deployment to provide the certific
 ## Storage Class Definitions
 
 Because several services in this helm chart need to store long-term data, they will request storage space via a
-persistent volume claim (PVC) using the default storage class defined in your kubernetes cluster. If you want to
-specify which storage class these services use (e.g. longhorn), here is a minimal example for your `my-values.yaml`
+persistent volume claim (PVC) using the default storage class defined in your kubernetes cluster. If you want to specify
+which storage class these services use (e.g. longhorn), here is a minimal example for your `my-values.yaml`
 file:
 
 ```yaml
@@ -434,16 +437,17 @@ dataStore:
 ```
 
 ### Creating a Storage Class
-There are multiple reasons why you may want to create a new storage class in your kubernetes cluster such as
-delineating fast (SSD) vs slow (HDD) storage pools, different provisioners or binding modes, or for implementing
-encryption. For more information on how to set up a specialized storage class on your cluster, see the
+
+There are multiple reasons why you may want to create a new storage class in your kubernetes cluster such as delineating
+fast (SSD) vs slow (HDD) storage pools, different provisioners or binding modes, or for implementing encryption. For
+more information on how to set up a specialized storage class on your cluster, see the
 [official kubernetes documentation](https://kubernetes.io/docs/concepts/storage/storage-classes/)
 
 ## Deploying without a Domain Name
 
 It is highly recommended to deploy the FLAME Node using a domain or hostname that is configured within your
 institution's DNS or proxy. However, there may be circumstances in which you want to deploy the software without
-providing an accessible domain or hostname. In such cases, thee are a couple of options for configuring the FLAME Node
+providing an accessible domain or hostname. In such cases, there are a couple of options for configuring the FLAME Node
 such that you can still access the Node UI.
 
 1. Those with access to the server running the services
@@ -515,7 +519,7 @@ Now you can access these services in your browser. For example, to access the No
 ### Map a Hostname
 
 It is possible to override a DNS entry by manually mapping an IP address to a hostname or URL in your local `hosts`
-file. On Unix systems, this file is often located at `/etc/hosts` and it Windows it can be found at
+file. On Unix systems, this file is often located at `/etc/hosts` and on Windows it can be found at
 `C:\windows\system32\drivers\etc\hosts`. If you choose to do this, only the machines with this manual configuration will
 be able to access the Node UI.
 
