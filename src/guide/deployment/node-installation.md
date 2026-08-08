@@ -24,7 +24,8 @@ This section will provide instructions for deploying the FLAME node software on 
 
 ### Software
 
-::: tip A quick start guide to installing microk8s and Helm can be found [here](./microk8s-quickstart).
+::: tip A quick start guide to installing microk8s and Helm can be found
+[in our microk8s Quickstart guide](./microk8s-quickstart).
 :::
 
 #### Kubernetes
@@ -108,8 +109,8 @@ this
 ### Routing
 
 Most kubernetes distributions previously used only the Ingress API for routing traffic, but that has been recently
-deprecated in favor of the new [Gateway API](https://gateway-api.sigs.k8s.io/). Currently, our helm charts are designed
-to support both APIs, but the user must choose one of the APIs to use when deploying the helm chart. We suggest using
+frozen in favor of the new [Gateway API](https://gateway-api.sigs.k8s.io/). Currently, our helm charts are designed to
+support both APIs, but the user must choose one of the APIs to use when deploying the helm chart. We suggest using
 "ingress" if you are unsure.
 
 Though the Gateway API is the currently accepted standard and recommended API to use, it is not automatically included
@@ -122,6 +123,7 @@ If you are not sure whether this API is already installed in your kubernetes ins
 ```bash
 kubectl get crd gateways.gateway.networking.k8s.io
 kubectl get crd httproutes.gateway.networking.k8s.io
+kubectl get gatewayclass
 ```
 
 If either command gives an error or returns `NotFound`/`Unhandled Error`, then they are not installed and you cannot use
@@ -154,7 +156,7 @@ helm repo add flame https://PrivateAIM.github.io/helm
 Deploy the FLAME Node using your values file
 
 ```bash
-helm install flame-node -f my-values.yaml flame/flame-node
+helm install --namespace <NAMESPACE> flame-node -f my-values.yaml flame/flame-node
 ```
 
 ### Using the GitHub Repository
@@ -224,17 +226,17 @@ proxy:
     noProxy: "10.0.0.0/8,192.168.0.0/16,127.0.0.1,172.16.0.0/16,.svc,localhost,.cluster.local"
 ```
 
-The `NO_PROXY`/`no_proxy` value will depend on your kubernetes distribution and your server configuration, please check
-your kubernetes distribution's documentation for suggested values. It is highly recommended that you add the the DNS A
+The `NO_PROXY`/`no_proxy` domains will depend on your kubernetes distribution and your server configuration, please
+check your kubernetes distribution's documentation for suggested values. It is highly recommended that you add the DNS A
 record to the `noProxy` value for the cluster in which you are deploying the FLAME Node. The name for this record takes
 the form of `<cluster-domain>` and by default is equal to `.cluster.local`.
 
 ## Additional Certificate Authority (CA) Certificates
 
 Some locations may have additional, self-signed SSL/TLS certificates that they use for monitoring web traffic on their
-servers. In this case, problems can occur that pre-mature SSL termination occurs and the node services cannot
-communicate with the Hub. To avoid this, these self-signed CA certificates need to be provided to the node during
-deployment. This can be done by providing the CA files either:
+servers. In this case, problems can occur that premature SSL termination occurs and the node services cannot communicate
+with the Hub. To avoid this, these self-signed CA certificates need to be provided to the node during deployment. This
+can be done by providing the CA files either:
 
 1. In the `helm/charts/flame-node/certs` directory and installing using a local version of the helm chart
 2. Using a pre-defined kubernetes ConfigMap that provides the information under a key labeled `certs.pem`
@@ -355,7 +357,7 @@ more information on how to set up a specialized storage class on your cluster, s
 
 It is highly recommended to deploy the FLAME Node using a domain or hostname that is configured within your
 institution's DNS or proxy. However, there may be circumstances in which you want to deploy the software without
-providing an accessible domain or hostname. In such cases, thee are a couple of options for configuring the FLAME Node
+providing an accessible domain or hostname. In such cases, there are a couple of options for configuring the FLAME Node
 such that you can still access the Node UI.
 
 1. Those with access to the server running the services
@@ -428,7 +430,7 @@ Now you can access these services in your browser. For example, to access the No
 ### Map a Hostname
 
 It is possible to override a DNS entry by manually mapping an IP address to a hostname or URL in your local `hosts`
-file. On Unix systems, this file is often located at `/etc/hosts` and it Windows it can be found at
+file. On Unix systems, this file is often located at `/etc/hosts` and on Windows it can be found at
 `C:\windows\system32\drivers\etc\hosts`. If you choose to do this, only the machines with this manual configuration will
 be able to access the Node UI.
 
@@ -459,6 +461,214 @@ hub:
             -----END PRIVATE KEY-----
 
 offline: true
+```
+
+## ArgoCD & Secrets
+
+The Node helm chart is not fully compatible with some continuous deployment (CD) software, such as ArgoCD. There are
+certain helm functions that the software is unable to execute. While the node may initially successfully deploy and
+operate, any changes to the values file or upgrading the chart version can result in the services beginning to crash due
+to "incorrect" credentials. This is due to how the node helm chart manages credentials using kubernetes Secrets and how
+it fetches them between updates/upgrades.
+
+To ensure consistency between updates when using a CD software to manage your helm deployments, all secrets must be
+generated prior to deployment and set in your values file. These secrets can be externally managed, but they must be
+made available in the same namespace that the node helm chart is deployed in.
+
+Here is an overview of the secrets that need to be generated prior to deployment:
+
+| Secret                                       | Purpose                                                                        | 
+|----------------------------------------------|--------------------------------------------------------------------------------|
+| \<RELEASENAME>-hub-client-secret             | Node client credentials for fetching data from the Hub.                        |
+| \<RELEASENAME>-ecdh-private-key-secret       | Private key for encrypting messages to the Hub                                 |
+| \<RELEASENAME>-postgres-credentials          | Credentials for the PostgresDB instance used by the Node services              |
+| \<RELEASENAME>-kong-postgres-credentials     | Credentials for the PostgresDB instance used by the Kong subchart              |
+| \<RELEASENAME>-keycloak-postgres-credentials | Credentials for the PostgresDB instance used by the Keycloak subchart          |
+| \<RELEASENAME>-keycloak-auth-credentials     | Credentials for accessing the admin console of the included Keycloak instance. |
+| \<RELEASENAME>-keycloak-client-secrets       | Keycloak client secrets for the node services                                  |
+
+::: info Secret Names   
+You will need to know what the release name of your node deployment is when you generate these secrets since the release
+name is part of most of the secret names. For example, if you plan to use "my-node" as the release name for your node
+deployment, then you will need to create secrets named `my-node-ecdh-private-key-secret`,
+`my-node-postgres-credentials`, etc.
+:::
+
+### Pregenerating Secrets
+
+Secrets can be created in multiple ways: using `kubectl create secret`, using a kubernetes template containing the
+secrets, or through an external secret manager such as Vault.
+
+#### Secrets Template
+
+Example kubernetes template file containing secrets to be generated before node deployment:
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+    name: <RELEASENAME>-keycloak-client-secrets
+    namespace: <NAMESPACE>
+type: Opaque
+data:
+    hubAdapterClientSecret: <BASE 64 ENCODED VALUE>
+    podOrcClientSecret: <BASE 64 ENCODED VALUE>
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+    name: <RELEASENAME>-ecdh-private-key-secret
+    namespace: <NAMESPACE>
+type: Opaque
+data:
+    private_key.pem: <BASE 64 ENCODED VALUE>
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+    name: <RELEASENAME>-hub-client-secret
+    namespace: <NAMESPACE>
+type: Opaque
+data:
+    clientSecret: <BASE 64 ENCODED VALUE>
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+    name: <RELEASENAME>-postgres-credentials
+    namespace: <NAMESPACE>
+type: Opaque
+data:
+    superPassword: <BASE 64 ENCODED VALUE>
+    DB_USER: <BASE 64 ENCODED VALUE>
+    DB_PASSWORD: <BASE 64 ENCODED VALUE>
+    DB_DATABASE: <BASE 64 ENCODED VALUE>
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+    name: <RELEASENAME>-kong-postgres-credentials
+    namespace: <NAMESPACE>
+type: Opaque
+data:
+    superPassword: <BASE 64 ENCODED VALUE>
+    kongDbUser: <BASE 64 ENCODED VALUE>
+    kongDbPassword: <BASE 64 ENCODED VALUE>
+    kongDbName: <BASE 64 ENCODED VALUE>
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+    name: <RELEASENAME>-keycloak-postgres-credentials
+    namespace: <NAMESPACE>
+type: Opaque
+data:
+    superPassword: <BASE 64 ENCODED VALUE>
+    keycloakDbUser: <BASE 64 ENCODED VALUE>
+    keycloakDbPassword: <BASE 64 ENCODED VALUE>
+    keycloakDbName: <BASE 64 ENCODED VALUE>
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+    name: <RELEASENAME>-keycloak-auth-credentials
+    namespace: <NAMESPACE>
+type: Opaque
+data:
+    KC_BOOTSTRAP_ADMIN_USERNAME: <BASE 64 ENCODED VALUE>
+    KC_BOOTSTRAP_ADMIN_PASSWORD: <BASE 64 ENCODED VALUE>
+
+```
+
+#### Values File Containing Pregenerated Secrets
+
+Example of a values file making use of the pregenerated secrets:
+
+```yaml
+hub:
+    auth:
+        userRealm: <User Realm>
+        clientId: <Client ID>
+        existingSecret: <RELEASENAME>-hub-client-secret
+    crypto:
+        existingSecret: <RELEASENAME>-ecdh-private-key-secret
+
+keycloakClientSecrets:
+    create: false
+
+keycloakx:
+    auth:
+        existingSecret: <RELEASENAME>-keycloak-auth-credentials
+
+    extraEnv: |
+        - name: JAVA_OPTS_APPEND
+          value: >-
+            -Djgroups.dns.query={{ include "keycloak.fullname" . }}-headless
+            -Dkeycloak.migration.replacePlaceholders=true
+        - name: KC_DB_URL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: <RELEASENAME>-keycloak-postgres-credentials
+              key: keycloakDbName
+        - name: KC_DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: <RELEASENAME>-keycloak-postgres-credentials
+              key: keycloakDbUser
+        - name: KC_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: <RELEASENAME>-keycloak-postgres-credentials
+              key: keycloakDbPassword
+
+# Secrets
+kong:
+    env:
+        pg_database:
+            valueFrom:
+                secretKeyRef:
+                    name: <RELEASENAME>-kong-postgres-credentials
+                    key: kongDbName
+        pg_user:
+            valueFrom:
+                secretKeyRef:
+                    name: <RELEASENAME>-kong-postgres-credentials
+                    key: kongDbUser
+        pg_password:
+            valueFrom:
+                secretKeyRef:
+                    name: <RELEASENAME>-kong-postgres-credentials
+                    key: kongDbPassword
+
+postgresql:
+    settings:
+        existingSecret: <RELEASENAME>-postgres-credentials
+    userDatabase:
+        existingSecret: <RELEASENAME>-postgres-credentials
+
+kong-postgresql:
+    settings:
+        existingSecret: <RELEASENAME>-kong-postgres-credentials
+    userDatabase:
+        existingSecret: <RELEASENAME>-kong-postgres-credentials
+
+keycloak-postgresql:
+    settings:
+        existingSecret: <RELEASENAME>-keycloak-postgres-credentials
+    userDatabase:
+        existingSecret: <RELEASENAME>-keycloak-postgres-credentials
 ```
 
 ## (Optional) Node Data Store
