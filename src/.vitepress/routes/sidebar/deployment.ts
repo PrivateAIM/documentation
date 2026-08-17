@@ -10,8 +10,9 @@ export const deploymentRoutes = [
     {
         text: 'Hub Deployment',
         items: [
+            { text: 'Overview', link: '/hub-introduction' },
             { text: 'Helm Chart Installation', link: '/hub-installation' },
-            { text: 'Storage Setup', link: '/hub-storage' },
+            { text: 'Storage', link: '/hub-storage' },
             { text: 'Docker Compose (Dev)', link: '/hub-docker-compose' },
         ]
     },
