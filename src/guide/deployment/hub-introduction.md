@@ -26,8 +26,7 @@ The Hub chart installs the FLAME services and their supporting components, inclu
 - TLS certificates for every public hostname in a real deployment.
 
 For an OpenStack-hosted cluster, use the OpenStack Cinder CSI driver and a suitable Cinder
-`StorageClass`. Cinder/Ceph already supplies durable, reattachable block storage; adding Mayastor on
-top is not recommended.
+`StorageClass`. Cinder/Ceph supplies durable, reattachable block storage.
 
 ## Repository responsibilities
 

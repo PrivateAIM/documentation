@@ -7,8 +7,7 @@ configured for a component.
 ## Recommended model
 
 Use a CSI-backed volume service that provides durable block storage and supports detaching a volume
-from a failed VM and reattaching it to the replacement node. Examples include OpenStack Cinder,
-managed cloud block storage, and a storage system operated directly by the Kubernetes platform.
+from a failed VM and reattaching it to the replacement node.
 
 For FLAME clusters running as virtual machines on OpenStack, the recommended choice is the
 [OpenStack Cinder CSI driver](https://github.com/kubernetes/cloud-provider-openstack). When the
@@ -28,8 +27,7 @@ kubectl get storageclass
 ## Configure the chart
 
 If the correct class is the cluster default, no storage override is necessary. Otherwise set the
-same durable class on each persistent component in your override file. The exact keys can change as
-upstream subcharts evolve, so use the current
+same durable class on each persistent component in your override file. The exact keys can change, so use the current
 [`values.yaml`](https://github.com/PrivateAIM/helm/blob/master/charts/flame-hub/values.yaml) as the
 reference.
 

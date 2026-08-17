@@ -10,9 +10,6 @@ stale during upgrades.
 - Kubernetes and Helm 3 are available from the operator workstation.
 - The chosen [StorageClass](./hub-storage) has been tested.
 - An Ingress controller or Gateway API controller is installed.
-- DNS and TLS are prepared for the Hub hostname and, when bundled Harbor is enabled, a separate
-  Harbor hostname.
-- The target namespace has been chosen. Prefer one Hub release per namespace.
 
 Harbor cannot be hosted below the Hub's path. If it is enabled, it needs its own hostname.
 
@@ -32,7 +29,7 @@ The chart is tested with
 [NGINX Gateway Fabric](https://docs.nginx.com/nginx-gateway-fabric/install/helm/). Install the Gateway
 API resources supported by the selected NGF release before installing its controller. The commands
 below pin NGF and its Gateway API resources to the same release. FLAME uses NGF's `SnippetsPolicy`,
-which is disabled by default and must be enabled explicitly:
+which is disabled by default and must be enabled explicitly.For a simple self-managed cluster without a `LoadBalancer` implementation, NGF can instead run as a DaemonSet with fixed NodePorts:
 
 ```bash
 NGF_VERSION=v2.6.7
@@ -44,22 +41,6 @@ kubectl kustomize \
 helm upgrade --install ngf oci://ghcr.io/nginx/charts/nginx-gateway-fabric \
   --namespace nginx-gateway --create-namespace \
   --version "${NGF_VERSION#v}" \
-  --set nginxGateway.snippets.enable=true
-```
-
-The experimental Gateway API channel is an alternative to the standard channel when another
-required feature needs it; do not install both. Snippets do not by themselves require the
-experimental channel.
-
-For a simple self-managed cluster without a `LoadBalancer` implementation, NGF can instead run as a
-DaemonSet with fixed NodePorts:
-
-```bash
-NGF_VERSION=v2.6.7
-
-helm upgrade --install ngf oci://ghcr.io/nginx/charts/nginx-gateway-fabric \
-  --namespace nginx-gateway --create-namespace \
-  --version "${NGF_VERSION#v}" \
   --set nginxGateway.snippets.enable=true \
   --set nginx.kind=daemonSet \
   --set nginx.service.type=NodePort \
@@ -67,10 +48,9 @@ helm upgrade --install ngf oci://ghcr.io/nginx/charts/nginx-gateway-fabric \
   --set-json 'nginx.service.nodePorts=[{"port":31437,"listenerPort":80},{"port":30478,"listenerPort":443}]'
 ```
 
+
 This exposes the listeners on the selected ports of each eligible node. Configure the public reverse
-proxy or load balancer to route to those ports. Adapt the Service type, ports, Gateway listeners,
-DNS, and TLS to the target infrastructure; the NodePort layout is not a universal production
-network design.
+proxy or load balancer to route to those ports.
 
 The chart can create its own Gateway, or attach HTTPRoutes to an existing Gateway. Enable
 `global.flameHub.gatewayApi.enabled` and set `nginxGatewayFabric.snippets: true` when using NGF.
@@ -179,22 +159,17 @@ kubectl -n flame-hub get secret flame-hub-harbor \
   -o jsonpath='{.data.harbor-admin-password}' | base64 -d; echo
 ```
 
-For a managed installation, create and back up the Secrets before Helm or use the chart's
-`existingSecret` settings. Preserve `flame-hub-harbor.secretKey`: Harbor uses it to decrypt robot
-tokens and replication credentials. Chart-managed Secrets and important PVCs carry Helm's `keep`
+Chart-managed Secrets and important PVCs carry Helm's `keep`
 policy and can remain after `helm uninstall`; inventory them explicitly during cleanup.
 
 ## Verify the installation
 
 ```bash
 kubectl -n flame-hub get pods,pvc
-kubectl -n flame-hub get ingress,httproute,gateway
+kubectl -n flame-hub get httproute,gateway # (or ingress)
 helm -n flame-hub status flame-hub
 ```
 
-Wait for every StatefulSet and Deployment to become ready. Then verify Hub login, Harbor login and
-push/pull, an analysis workflow, and object storage access. A successful Helm release alone is not a
-data-level acceptance test.
 
 ## Multiple releases in one namespace
 
