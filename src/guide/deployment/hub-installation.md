@@ -29,7 +29,7 @@ The chart is tested with
 [NGINX Gateway Fabric](https://docs.nginx.com/nginx-gateway-fabric/install/helm/). Install the Gateway
 API resources supported by the selected NGF release before installing its controller. The commands
 below pin NGF and its Gateway API resources to the same release. FLAME uses NGF's `SnippetsPolicy`,
-which is disabled by default and must be enabled explicitly.For a simple self-managed cluster without a `LoadBalancer` implementation, NGF can instead run as a DaemonSet with fixed NodePorts:
+which is disabled by default and must be enabled explicitly. For a simple self-managed cluster without a `LoadBalancer` implementation, NGF can instead run as a DaemonSet with fixed NodePorts:
 
 ```bash
 NGF_VERSION=v2.6.7
