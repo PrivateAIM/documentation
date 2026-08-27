@@ -1,71 +1,179 @@
-# FLAME Hub Helm Chart
+# Install the FLAME Hub with Helm
 
-The FLAME Hub Chart provides a default configuration in `values.yaml` but is meant to be installed with your own adjusted override values file, e.g. `values_local.yaml`.
-To get an overview of all configuration options, see the [`values.yaml` in the Helm Repository](https://github.com/PrivateAIM/helm/blob/master/charts/flame-hub/values.yaml)
-You can choose if you want to use the chart's harbor or a separate external harbor instance.
+The FLAME Hub chart installs the Hub services, PostgreSQL, SeaweedFS, the enabled observability and
+messaging dependencies, and optionally a bundled Harbor registry. Keep site-specific configuration
+in an override file; do not copy the complete default `values.yaml`, because copied defaults become
+stale during upgrades.
 
-## Prerequisites:
-* Existing k8s distribution (see [microk8s-quickstart](./microk8s-quickstart) or [minikube-quickstart](./minikube-quickstart) for a guide)
-  * Ingress addon
-  * Default StorageClass (e.g. hostpath-storage addon in microk8s)
-* Two domain names (one for the Hub, one for Harbor). If you run the Hub on your local machine, you can choose them freely and set them in your hosts file  (`/etc/hosts`)
+## Prerequisites
 
-## Storage
-The chart will use whichever storage class is the default in your cluster, unless you specify otherwise in the values. See [Storage Setup](./hub-storage) for instructions how to setup Mayastor Storage Replication. This requires 3+ nodes in your cluster and will replicate persistent volumes across them.
+- Kubernetes and Helm 3 are available from the operator workstation.
+- The chosen [StorageClass](./hub-storage) has been tested.
+- An Ingress controller or Gateway API controller is installed.
 
-## Ingress
-See the `values.yaml` for ingress options. The default ingress configuration will use path-based routing for all services except Harbor (which requires its own hostname). You will have to provide an extra (sub)domain if you want to use the harbor component of this chart. The current setup does not automatically acquire TLS certificates.
+Harbor cannot be hosted below the Hub's path. If it is enabled, it needs its own hostname.
 
-## Installing the FLAME Hub Chart
+## Choose Ingress or Gateway API
 
-### 1. Option: Official Chart Repo
-```bash
-helm repo add flame https://PrivateAIM.github.io/helm
-helm repo update
-```
-Create your custom values file (instructions below).
-```bash
-helm install <release-name> -f <values-file> flame/hub
-```
+The chart supports both routing models.
 
-### 2. Option: Chart Source Code
-> Choose this option if you want to
->
-> a) modify not only the chart values, but also the chart files.
->
-> b) run the newest, not yet released version of the chart.
+### Ingress
+
+Enable `global.flameHub.ingress` for path-based routing through one Hub hostname. The default
+annotations target ingress-nginx and include the body-size and timeout settings required for large
+uploads. Replace them when using another controller. Harbor has its own ingress block and hostname.
+
+### Gateway API
+
+The chart is tested with
+[NGINX Gateway Fabric](https://docs.nginx.com/nginx-gateway-fabric/install/helm/). Install the Gateway
+API resources supported by the selected NGF release before installing its controller. The commands
+below pin NGF and its Gateway API resources to the same release. FLAME uses NGF's `SnippetsPolicy`,
+which is disabled by default and must be enabled explicitly. For a simple self-managed cluster without a `LoadBalancer` implementation, NGF can instead run as a DaemonSet with fixed NodePorts:
 
 ```bash
-git clone https://github.com/PrivateAIM/helm.git
-cd helm
-cd charts/flame-hub
+NGF_VERSION=v2.6.7
+
+kubectl kustomize \
+  "https://github.com/nginx/nginx-gateway-fabric/config/crd/gateway-api/standard?ref=${NGF_VERSION}" \
+  | kubectl apply -f -
+
+helm upgrade --install ngf oci://ghcr.io/nginx/charts/nginx-gateway-fabric \
+  --namespace nginx-gateway --create-namespace \
+  --version "${NGF_VERSION#v}" \
+  --set nginxGateway.snippets.enable=true \
+  --set nginx.kind=daemonSet \
+  --set nginx.service.type=NodePort \
+  --set nginx.service.externalTrafficPolicy=Local \
+  --set-json 'nginx.service.nodePorts=[{"port":31437,"listenerPort":80},{"port":30478,"listenerPort":443}]'
 ```
-Create your custom values file (instructions below).
 
-```bash
-helm install <release name> -f <values-file> .
-```
 
-## Minimal configuration using custom values file
+This exposes the listeners on the selected ports of each eligible node. Configure the public reverse
+proxy or load balancer to route to those ports.
 
-This is the values-file mentioned in the sections above. Call it `override_values.yaml` or whatever you want.
+The chart can create its own Gateway, or attach HTTPRoutes to an existing Gateway. Enable
+`global.flameHub.gatewayApi.enabled` and set `nginxGatewayFabric.snippets: true` when using NGF.
+An external Gateway requires a `parentRef` and may require a `ReferenceGrant` when it lives in a
+different namespace.
+
+### Minimum Gateway API values
+
+This minimal example creates a TLS-enabled Gateway for the Hub and bundled Harbor. The referenced
+Secret must contain a certificate valid for both `hub.test` and `harbor.test`:
 
 ```yaml
 global:
   flameHub:
+    publicHttps: true
     ingress:
+      enabled: false
+    gatewayApi:
       enabled: true
-      ssl: true
-      hostname: "hub.local"
-
-grafana:
-  # disable plugins until plugin issues are fixed
-  plugins:
+      hostname: hub.test
+      tls:
+        enabled: true
+        certificateRef: hub-local-tls
+      gateway:
+        gatewayClassName: nginx
+      nginxGatewayFabric:
+        snippets: true
 
 harbor:
   enabled: true
-  externalURL: "https://harbor.hub.local/" # don't forget https://
+  externalURL: https://harbor.test
+  ingress:
+    enabled: false
+  gatewayApi:
+    enabled: true
 ```
 
-## Accessing the hub
-For accessing the hub in a **minikube** installation, refer to the [Minikube Setup: Accessing Deployments](./minikube-quickstart)
+Harbor inherits the global Gateway certificate settings. Set `harbor.gatewayApi.tls` only when its
+hostname uses a different certificate. See the current
+[`values.yaml`](https://github.com/PrivateAIM/helm/blob/master/charts/flame-hub/values.yaml) for all
+fields.
+
+## Install from the chart repository
+
+```bash
+helm repo add flame https://PrivateAIM.github.io/helm
+helm repo update
+helm show values flame/hub > values-reference.yaml
+```
+
+Create a small `values-hub.yaml`. This Ingress example relies on the chart defaults for generated
+credentials and the default StorageClass:
+
+```yaml
+global:
+  flameHub:
+    publicHttps: true
+    ingress:
+      enabled: true
+      hostname: hub.test
+
+authup:
+  publicURL: https://hub.test
+
+harbor:
+  enabled: true
+  externalURL: https://harbor.test
+  ingress:
+    enabled: true
+```
+
+Compare this example with the current
+[`values_min.yaml`](https://github.com/PrivateAIM/helm/blob/master/charts/flame-hub/values_min.yaml)
+and [`values.yaml`](https://github.com/PrivateAIM/helm/blob/master/charts/flame-hub/values.yaml)
+before use.
+
+Install into a dedicated namespace:
+
+```bash
+helm upgrade --install flame-hub flame/hub \
+  --namespace flame-hub --create-namespace \
+  --values values-hub.yaml \
+  --wait --timeout 15m
+```
+
+To work on unreleased chart source instead, clone the Helm repository, run
+`helm dependency update charts/flame-hub`, and use `./charts/flame-hub` as the chart argument.
+
+## Credentials and Secrets
+
+On first installation the chart generates random values and keeps them in three Secrets:
+
+| Secret | Purpose |
+| --- | --- |
+| `flame-hub-auth` | RabbitMQ, Redis, Grafana, and authup credentials and connection strings |
+| `flame-hub-pg` | PostgreSQL username and password; also used by Harbor |
+| `flame-hub-harbor` | Harbor admin password, connection string, and the 16-character core `secretKey` |
+
+Retrieve initial administrator passwords with:
+
+```bash
+kubectl -n flame-hub get secret flame-hub-auth \
+  -o jsonpath='{.data.authup-admin-password}' | base64 -d; echo
+
+kubectl -n flame-hub get secret flame-hub-harbor \
+  -o jsonpath='{.data.harbor-admin-password}' | base64 -d; echo
+```
+
+Chart-managed Secrets and important PVCs carry Helm's `keep`
+policy and can remain after `helm uninstall`; inventory them explicitly during cleanup.
+
+## Verify the installation
+
+```bash
+kubectl -n flame-hub get pods,pvc
+kubectl -n flame-hub get httproute,gateway # (or ingress)
+helm -n flame-hub status flame-hub
+```
+
+
+## Multiple releases in one namespace
+
+Several dependency charts cannot template resource names. If multiple Hub releases must share a
+namespace, assign unique PostgreSQL Service/Secret, central auth Secret, Harbor Service/Secret, and
+matching dependency references. The complete list is maintained in the
+[chart README](https://github.com/PrivateAIM/helm/tree/master/charts/flame-hub#running-multiple-releases-in-the-same-namespace).

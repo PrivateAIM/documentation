@@ -1,33 +1,63 @@
-# FLAME Hub Docker Compose
+# FLAME Hub with Docker Compose
 
-Clone the [Hub Deployment repository](https://github.com/privateaim/hub-deployment.git):
+The Docker Compose setup is intended for development and evaluation. It uses fixed development
+credentials, mounts the Docker socket for the core worker, and does not include Harbor. Use the
+[Helm deployment](./hub-installation) for a production Hub.
+
+## Get the configuration
+
+Clone the repository and enter the Compose directory:
+
 ```bash
-git clone https://github.com/privateaim/hub-deployment.git
+git clone https://github.com/PrivateAIM/hub-deployment.git
+cd hub-deployment/docker-compose
+cp .env.example .env
 ```
 
-## Note on Harbor
-This setup does not include the Harbor service, you must either provide the credentials to an existing Harbor or [install Harbor separately](https://goharbor.io/docs/latest/install-config/).
+The executable configuration remains in the Hub Deployment repository:
 
-## Configuration
-Basic configuration occurs via environment variables in an `.env` file.
-An example (`.env.example`) is located in the root of the repository.
+- [`docker-compose.yml`](https://github.com/PrivateAIM/hub-deployment/blob/master/docker-compose/docker-compose.yml)
+- [`nginx.conf`](https://github.com/PrivateAIM/hub-deployment/blob/master/docker-compose/nginx.conf)
+- [`.env.example`](https://github.com/PrivateAIM/hub-deployment/blob/master/docker-compose/.env.example)
 
-| Variable        | Mandatory | Default | Use/Meaning                                                       |
-|-----------------|:---------:|---------|-------------------------------------------------------------------|
-| `HUB_IMAGE`     |     ❌     | `ghcr.io/privateaim/hub` | Used to override the default image for the `HUB` docker image     |
-| `HUB_IMAGE_TAG` |     ❌     | `latest` | Used to override the default image tag for the `HUB` docker image |
-| `SUBNET`        |     ❌     | `172.40.1.0/24` | Used to change the default docker subnet.                         |
+## Configure the environment
 
-To provide credentials to Harbor (either local or external), use the following Variable:
-> ⚠️ Important: Harbor must be accessible via https (plain http will fail). This is a limitation of Harbor.
+The example `.env` supports these basic overrides:
 
-| Variable        | Mandatory | Use/Meaning                                                       |
-|-----------------|:---------:|-------------------------------------------------------------------|
-| `HARBOR_URL`    |     ✅     | Construct using `<username>:<passwd>@<harbor_host>` (no `https://` ) |
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `HUB_IMAGE` | `ghcr.io/privateaim/hub` | Hub container image repository |
+| `HUB_IMAGE_TAG` | `latest` | Hub image tag |
+| `SUBNET` | `172.40.1.0/24` | Compose network subnet |
 
-## Run
+The Compose file also accepts service URL overrides such as `PUBLIC_URL`, `AUTHUP_PUBLIC_URL`,
+`CORE_PUBLIC_URL`, and `STORAGE_PUBLIC_URL`. Review the current Compose file before changing them.
 
-Run using:
+Analyses require a reachable Harbor registry. This setup does not deploy one, so either
+[install Harbor separately](https://goharbor.io/docs/latest/install-config/) or use an existing
+instance. Harbor must be reachable over HTTPS. Set `HARBOR_URL` without the scheme and include the
+credentials:
+
+```dotenv
+HARBOR_URL=<username>:<password>@<harbor-host>
+```
+
+Do not commit the populated `.env` file.
+
+## Start and inspect the stack
+
 ```bash
 docker compose up -d
+docker compose ps
+docker compose logs -f
 ```
+
+The bundled NGINX listens on `http://localhost:3000` and routes the Hub services by path. Stop the
+stack with:
+
+```bash
+docker compose down
+```
+
+Named volumes retain database and object-store data. Use `docker compose down --volumes` only when
+you intentionally want to delete that local data.

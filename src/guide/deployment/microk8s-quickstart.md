@@ -7,11 +7,11 @@ This guide demonstrates how to get microk8s and Helm running on a debian-based s
 Instead of following the below installation guide, you can also run the bash script:
 > The script has been tested in Debian.
 
-Download: [microk8s_setup.sh](https://github.com/PrivateAIM/hub-deployment/tree/master/scripts)
+Download: [`1_microk8s_setup.sh`](https://github.com/PrivateAIM/hub-deployment/blob/master/scripts/1_microk8s_setup.sh)
 
 ```bash
-chmod +x microk8s_setup.sh
-./microk8s_setup.sh
+chmod +x 1_microk8s_setup.sh
+./1_microk8s_setup.sh
 ```
 
 This script will optionally:
@@ -51,7 +51,7 @@ echo 'export PATH=$PATH:/snap/bin' >> ~/.bashrc && source ~/.bashrc
 ### Prepare Storage before Install (Optional)
 Because we need to be able to download and store several container images, we need to ensure that there is enough disk 
 space available. By default, microk8s will store everything on your root file system located at `/`. 
-Depending on how your server was setup, bulk storage may be located on a different logical volume (LV) than your root 
+Depending on how your server was set up, bulk storage may be located on a different logical volume (LV) than your root
 file system. You can check this by running:
 ```bash
 df -h
@@ -62,11 +62,25 @@ df -h
 (yellow arrow) only has 13GB available, 
 but a different LV mounted at <code>/mnt/vdb1</code> (green arrow) has 435GB.</figcaption></figure>
 
-If you need to use a different LV for storage, you can either:
+If you need to use a separate VM volume, create one filesystem on that volume and mount it. There is
+no need to divide it into a second partition for Mayastor. Then either:
+
+The [`0_format_drives.sh`](https://github.com/PrivateAIM/hub-deployment/blob/master/scripts/0_format_drives.sh)
+helper can prepare an unused volume. It replaces the device with one GPT partition, formats it as
+ext4, adds it to `/etc/fstab`, and mounts it below `/mnt`. This destroys all existing data on the
+selected device and therefore requires the exact device path as confirmation:
+
+```bash
+chmod +x 0_format_drives.sh
+./0_format_drives.sh /dev/vdb
+```
+
+Inspect the device with `lsblk` and confirm that it is the intended unused volume before running the
+script. For NVMe devices, pass the complete disk path, such as `/dev/nvme1n1`, not a partition.
 
 **Option A (Recommended for simplicity):** Mount (or symlink) the SNAP_COMMON directory to your preferred destination.
 ::: tip
-This storage configuration step should be performed **before** installing microk8s to avoid needing to migrate data later.
+This storage configuration step should be performed **before** installing MicroK8s to avoid needing to migrate data later.
 :::
 
 Ensure the target directories exist and then mount the volume:
@@ -85,10 +99,14 @@ echo "/mnt/vdb1/microk8s/common /var/snap/microk8s/common none bind 0 0" | sudo 
 **Option B (after installation):** Configure containerd to use a different root.
 This option is performed **after** installation and shown in the section "Setup microk8s".
 
+For a production or multi-node Hub, do not use hostpath as the durable application-storage layer.
+Install a reattachable CSI backend such as OpenStack Cinder and configure the Hub claims to use its
+StorageClass; see [Storage for the FLAME Hub](./hub-storage).
+
 ### Install microK8s
 Install the `core` dependency along with microk8s using snap:
 ```bash
-sudo snap install core && sudo snap install microk8s --classic --channel=1.32
+sudo snap install core && sudo snap install microk8s --classic
 ```
 
 Verify you can run microk8s:
@@ -176,7 +194,7 @@ Ensure that you can run the following without errors
 
 | Service          | Command            | Expected Output                                    | Troubleshooting Step                                                                                                                                   |
 |------------------|--------------------|----------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
-| microk8s         | `microk8s version` | `MicroK8s v1.32.3 revision 8148`                   | Check whether the current user is part of the `microk8s` group: `groups` If not, then end the current session and log back in or run `newgrp microk8s` |
+| microk8s         | `microk8s version` | `MicroK8s v1.xx.x revision xxxx`                   | Check whether the current user is part of the `microk8s` group: `groups` If not, then end the current session and log back in or run `newgrp microk8s` |
 | ingress          | `microk8s status`  | `enabled:  <br>...<br>ingress`                     | Enable ingress addon: `microk8s enable ingress`                                                                                                        |
 | hostpath-storage | `microk8s status`  | `enabled:  <br>...<br>hostpath-storage`            | Enable ingress addon: `microk8s enable hostpath-storage`                                                                                               |
 | helm             | `helm list`        | `NAME NAMESPACE REVISION UPDATED STATUS CHART APP VERSION` | Go through the steps in the [Generating the Configuration](#generate-the-configuration) section                                                        |

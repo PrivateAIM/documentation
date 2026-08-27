@@ -114,8 +114,8 @@ sudo nano /etc/systemd/system/docker.service.d/proxy.conf
 Add the following to `proxy.conf`, replacing the proxy address with the one for your institution:
 ```bash
 [Service]
-Environment="HTTP_PROXY=http://proxy.place.com:3128"
-Environment="HTTPS_PROXY=http://proxy.place.com:3128"
+Environment="HTTP_PROXY=http://proxy.test:3128"
+Environment="HTTPS_PROXY=http://proxy.test:3128"
 Environment="NO_PROXY=localhost,127.0.0.1,10.0.0.0/8"
 ```
 
@@ -248,3 +248,19 @@ Note that this command does not create any output and will run until you interru
 
 ## Final Steps
 At this point, the domain pointing to this server should be routed to minikube. Open a browser and navigate to the domain and you should see an nginx 404 page. If this is true, you can continue with the [FLAME Node Deployment](/guide/deployment/node-installation).
+
+### Local Hub and Harbor names on Windows
+
+For a local FLAME Hub installation, the
+[`minikube-dns.ps1`](https://github.com/PrivateAIM/hub-deployment/blob/master/scripts/minikube-dns.ps1)
+helper adds the Hub and Harbor hostnames at `minikube ip` to the Windows hosts file. Run PowerShell
+as Administrator:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\minikube-dns.ps1 `
+  -HubUrl hub.test `
+  -HarborUrl harbor.test
+```
+
+The script leaves matching existing entries unchanged. Both parameters are required; if bundled
+Harbor is disabled, add the Hub hostname manually instead.

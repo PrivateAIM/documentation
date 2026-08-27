@@ -1,33 +1,23 @@
-# Deployment Guide
+# Deployment guide
 
-## Introduction
+FLAME consists of the central Hub and clinic-local Nodes. These guides are the canonical source for
+deploying both components; repositories with scripts link back here instead of maintaining a second
+copy of the instructions.
 
-The FLAME project consists of two major components:
-- **FLAME Hub**: The central component coordinating the nodes.
-- **FLAME Node**: The component installed at data sites (hospitals, research centers) to execute federated learning tasks.
+## Hub deployment
 
-This guide contains instructions for deploying both components.
+1. Read the [Hub deployment overview](./hub-introduction).
+2. Prepare Kubernetes with [MicroK8s](./microk8s-quickstart) or
+   [Minikube](./minikube-quickstart).
+3. Select and verify [persistent storage](./hub-storage).
+4. [Install and configure the Hub Helm chart](./hub-installation).
 
-## Overview
+[Docker Compose](./hub-docker-compose) is available for development and evaluation.
 
-### Hub Deployment
+## Node deployment
 
-Instructions for deploying the FLAME Hub.
-
-- **Production (Kubernetes)**
-    - [Helm Chart Installation](/guide/deployment/hub-installation)
-    - [Storage Setup (Mayastor) (optional)](/guide/deployment/hub-storage)
-- **Development / Test**
-    - [Hub Docker Compose](/guide/deployment/hub-docker-compose)
-
-### Node Deployment
-
-Instructions for deploying a FLAME Node.
-
-**Tasks:**
-
-- [Hub Registration](/guide/deployment/node-registration)
-- Cluster Setup (choose one)
-    - [microk8s](/guide/deployment/microk8s-quickstart)
-    - [minikube](/guide/deployment/minikube-quickstart)
-- [FLAME Node Installation](/guide/deployment/node-installation)
+1. Prepare a cluster with [MicroK8s](./microk8s-quickstart) or
+   [Minikube](./minikube-quickstart).
+2. [Install the FLAME Node](./node-installation).
+3. [Register it with the Hub](./node-registration).
+4. Use the [troubleshooting guide](./node-troubleshooting) when required.
