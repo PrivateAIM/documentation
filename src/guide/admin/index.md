@@ -23,6 +23,5 @@ local node setup:
 **`Node`**
 - [Managing Data Stores](/guide/admin/data-store-management)
 - [Executing an analysis](/guide/admin/analysis-execution)
-- [Configuring Keycloak](/guide/admin/keycloak-access-control)
 - [Analysis Definitions](/guide/admin/analysis-definition)
 - [Bucket Setup](/guide/admin/bucket-setup-for-data-store)

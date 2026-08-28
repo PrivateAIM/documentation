@@ -160,9 +160,6 @@ The `roleClaimName` value is specific for how the role is defined in the JWT pro
 should not be modified. This only ever needs to be changed if you are [using your own IDP](#using-your-own-idp).
 :::
 
-See the [Access Control](/guide/admin/keycloak-access-control#access-control) section of the documentation for more
-information on how to create users and assign them specific roles.
-
 ::: info Disabling RBAC   
 If you have no need for RBAC, it can be disabled by setting `roleClaimName` to an empty string, but this will enable
 full functionality to all users.
