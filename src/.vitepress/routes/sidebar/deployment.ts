@@ -1,6 +1,6 @@
 export const deploymentRoutes = [
     {
-        text: 'Installing k8s',
+        text: 'Prequirements',
         collapsed: true,
         items: [
             { text: 'microk8s', link: '/microk8s-quickstart' },
@@ -8,16 +8,16 @@ export const deploymentRoutes = [
         ]
     },
     {
-        text: 'Hub Deployment',
+        text: 'Hub',
         items: [
             { text: 'Overview', link: '/hub-introduction' },
-            { text: 'Helm Chart Installation', link: '/hub-installation' },
+            { text: 'Installation', link: '/hub-installation' },
             { text: 'Storage', link: '/hub-storage' },
             { text: 'Docker Compose (Dev)', link: '/hub-docker-compose' },
         ]
     },
     {
-        text: 'Node Deployment',
+        text: 'Node',
         items: [
             {
                 text: 'Installation',
