@@ -16,6 +16,7 @@ export const userRoutes = [
                 collapsed: true,
                 items: [
                     { text: 'Introduction', link: '/analysis-coding' },
+                    { text: 'Proxy Pattern', link: '/proxy-analysis-coding' },
                     {
                         text: 'Examples',
                         collapsed: true,

@@ -1,6 +1,6 @@
-# Star Pattern Local Testing Guide
+# Local Testing Guide
 
-This guide explains how to use the `StarModelTester` for local testing of federated learning algorithms using the STAR pattern before deploying to the Flame platform.
+This guide explains how to use the `StarModelTester` for local testing of federated learning algorithms using the STAR pattern before deploying to the Flame platform. For analyses built on the proxy pattern, the equivalent harness is `ProxyModelTester` — see [Testing the Proxy Pattern](#testing-the-proxy-pattern).
 
 ## Overview
 
@@ -142,6 +142,8 @@ StarModelTester(
     stream_log_level=20,      # Optional: Logging verbosity (Python logging level)
     analyzer_kwargs=None,     # Optional: Additional kwargs for analyzer
     aggregator_kwargs=None,   # Optional: Additional kwargs for aggregator
+    load_checkpoint=None,     # Optional: Index of a checkpoint to resume the nodes from
+    local_storage_dir=None,   # Optional: Directory simulating the nodes' local storage
     epsilon=None,             # Optional: For differential privacy
     sensitivity=None          # Optional: For differential privacy
 )
@@ -201,6 +203,13 @@ StarModelTester(
 - **`aggregator_kwargs`** (dict): Additional keyword arguments passed to aggregator constructor
   ```python
   aggregator_kwargs={'threshold': 0.001}
+  ```
+
+- **`load_checkpoint`** (int): Index of a checkpoint from a previous test run to resume the analyzer and aggregator nodes from. Requires `local_storage_dir` to point at the directory that run wrote its checkpoints to.
+
+- **`local_storage_dir`** (str): Directory used to simulate each node's local storage. The tester creates one subdirectory per node id, and tagged saves (including checkpoints) land in a further subdirectory named after the tag. If omitted, the current working directory is used.
+  ```python
+  local_storage_dir='local_storage'
   ```
 
 - **`epsilon`** (float): Privacy budget for differential privacy
@@ -291,6 +300,105 @@ StarModelTester(
     filename='results/trained_model.pkl'
 )
 ```
+
+### Pattern 5: Checkpointing and Resuming
+
+Nodes can persist their state after every iteration and a later run can pick it back up. Enable it by overriding
+`should_checkpoint()` on your analyzer and/or aggregator, and give the tester a directory to use as the nodes' local
+storage:
+
+```python
+class MyAnalyzer(StarAnalyzer):
+    def should_checkpoint(self) -> bool:
+        return True
+
+# First run: writes checkpoints into ./local_storage/<node_id>/checkpoint-<n>-end/
+StarModelTester(
+    data_splits=[data1, data2],
+    analyzer=MyAnalyzer,
+    aggregator=MyAggregator,
+    data_type='s3',
+    simple_analysis=False,
+    local_storage_dir='local_storage'
+)
+
+# Later run: resumes every node from its first checkpoint
+StarModelTester(
+    data_splits=[data1, data2],
+    analyzer=MyAnalyzer,
+    aggregator=MyAggregator,
+    data_type='s3',
+    simple_analysis=False,
+    local_storage_dir='local_storage',
+    load_checkpoint=1
+)
+```
+
+All non-callable attributes of the node object are saved, except the protected `id`, `role`, `finished`,
+`partner_node_ids`, and `flame`. See [Checkpointing](/guide/user/analysis-coding#checkpointing) for how this behaves on
+the platform.
+
+::: warning Info
+The local storage of the `MockFlameCoreSDK` writes plain pickle files to disk and, unlike the real node storage, does
+not snapshot the files your analysis wrote. Use it to verify that your state is restored correctly, not as a
+performance or security equivalent of the platform.
+:::
+
+## Testing the Proxy Pattern
+
+Analyses built on the [proxy pattern](/guide/user/proxy-analysis-coding) are tested with `ProxyModelTester`, which
+takes the same arguments as `StarModelTester` plus the proxy class and the proxy count:
+
+```python
+from flame.proxy import ProxyModelTester, ProxyAnalyzer, Proxy, ProxyAggregator
+
+
+class MyAnalyzer(ProxyAnalyzer):
+    def analysis_method(self, data, aggregator_results):
+        return float(data[0]['Patient?_summary=count']['total'])
+
+
+class MyProxy(Proxy):
+    def proxy_aggregation_method(self, analysis_results):
+        return sum(analysis_results)
+
+
+class MyAggregator(ProxyAggregator):
+    def aggregation_method(self, proxy_results):
+        return sum(proxy_results)
+
+    def has_converged(self, result, last_result):
+        return self.num_iterations >= 2
+
+
+data = [[{'Patient?_summary=count': {'total': 10}}],
+        [{'Patient?_summary=count': {'total': 18}}],
+        [{'Patient?_summary=count': {'total': 24}}],
+        [{'Patient?_summary=count': {'total': 7}}]]
+
+ProxyModelTester(
+    data_splits=data,
+    analyzer=MyAnalyzer,
+    proxy=MyProxy,
+    aggregator=MyAggregator,
+    data_type='fhir',
+    num_proxy_nodes=2,
+    simple_analysis=False
+)
+```
+
+The tester spawns one node per data split as an analyzer, plus `num_proxy_nodes` proxy nodes and one aggregator node,
+each in its own thread. The proxy nodes are created without data, which is what makes them take on the `'proxy'` role,
+so **you do not add data splits for them** — `data_splits` only ever describes the analyzers.
+
+Differences to `StarModelTester`:
+
+- **`proxy`** (Type[Proxy]): required, your custom proxy class (not an instance)
+- **`num_proxy_nodes`** (int, default=1): number of proxy nodes to simulate; must be at most the number of data splits
+- **`proxy_kwargs`** (dict): additional keyword arguments passed to the proxy constructor
+- **`mapping_method`** (callable): analyzer-to-proxy assignment, defaulting to round-robin
+- `load_checkpoint`, `local_storage_dir`, `epsilon`, and `sensitivity` are **not** available — checkpointing and local
+  differential privacy are not yet implemented for the proxy pattern
 
 ## Complete Working Example
 
@@ -431,13 +539,14 @@ class MyAnalyzer(StarAnalyzer):
 After testing locally with `StarModelTester`:
 
 1. Deploy your analyzer and aggregator to the Flame platform
-2. Use `StarModel` instead of `StarModelTester` for production
+2. Use `StarModel` instead of `StarModelTester` for production (respectively `ProxyModel` instead of `ProxyModelTester`)
 3. Configure real data sources (FHIR servers, S3 buckets)
 4. Set up proper node authentication and security
 
 ## Additional Resources
 
 - Main STAR model implementation: `flame/star/star_model.py`
+- Proxy model implementation: `flame/proxy/proxy_model.py`
 - Differential privacy variant: `flame/star/star_localdp/`
 - More examples: `examples/` directory
 

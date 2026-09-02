@@ -274,6 +274,7 @@ Saves intermediate `data` either on the hub (`location="global"`), or locally (`
   * returns a single dictionary response containing the success state (`"status"`), the url to the submission location (`"url"`), and the storage id of the saved data (`"id"`)
   * a storage `tag` can optionally be set for retrieval by future analyzes (persistent; access granted only to other analyzes of the same project)
   * tags must consist of lowercase letters, digits and hyphens only (`my-tag-1`); any other format is rejected with an error
+  * tags containing `checkpoint-` are reserved for `set_checkpoint`; such a call logs a warning, saves nothing, and returns `None`
 * the storage id allows for retrieval of the saved data (see `get_intermediate_data`)
   * only possible for the node that saved the data, if saved locally
   * for all addressed nodes participating in the same analysis, if saved globally
@@ -583,6 +584,24 @@ Returns the node id.
 flame.get_id()
 ```
 
+#### Get node type
+
+```python
+get_type() -> Literal['default', 'aggregator']
+```
+
+Returns the node type as assigned by the hub for this analysis.
+
+* `"aggregator"` means that the node can submit final results using `submit_final_result`, else `"default"` (this may
+  change with further permission settings)
+* unlike the role (see `get_role`/`set_role`), the type is fixed for the duration of the analysis
+
+```python
+# Example usage
+# Get type of node within analysis
+flame.get_type()
+```
+
 #### Get role
 
 ```python
@@ -591,15 +610,75 @@ get_role() -> str
 
 Returns the role of the node.
 
-* `"aggregator"` means that the node can submit final results using `submit_final_result`, else `"default"` (this may
-  change with further permission settings).
-* `"proxy"` is set for nodes that joined without an attached data source (only possible when the SDK was constructed
-  with `default_requires_data=False`).
+* directly after startup the role is equal to `get_type()`, i.e. `"aggregator"` or `"default"`, with two exceptions:
+  * `"proxy"` is set automatically for nodes that joined without a reachable data source (only possible when the SDK
+    was constructed with `default_requires_data=False`)
+  * the role was changed manually via `set_role`
+* the role is the value patterns branch on to decide which part of an analysis a node executes
 
 ```python
 # Example usage
 # Get role of node within analysis
 flame.get_role()
+```
+
+#### Set role
+
+```python
+set_role(role: str) -> str
+```
+
+Sets the role of this node and returns the newly set role.
+
+* freely choosable string — use it to give nodes analysis-specific roles beyond `"default"`/`"aggregator"`/`"proxy"`
+* only changes the role locally; announce it to partner nodes via `partner_role_call`/`full_role_call`
+* does not change the node type, i.e. `get_type()` (and with it the permission to call `submit_final_result`) is
+  unaffected
+
+```python
+# Example usage
+# Let the first node in the sorted order take on the coordinator role
+if flame.get_self_node_index() == 0:
+    flame.set_role('coordinator')
+```
+
+#### Partner role call
+
+```python
+partner_role_call(node_ids: list[nodeID],
+                  max_attempts: int = 1,
+                  timeout: Optional[int] = None,
+                  attempt_timeout: int = 10) -> dict[nodeID, Optional[str]]
+```
+
+Asks the given partner nodes for their current role and returns them as a dictionary using the node ids as keys.
+
+* answers with `None` for a node whose role could not be retrieved within the `timeout` in seconds
+* ids not contained in `get_participant_ids()` are excluded from the result and logged as a warning
+* copies behaviour of the MessageBroker's `send_message` for `max_attempts`, `timeout`, and `attempt_timeout`
+* the answering nodes respond automatically, i.e. no code is needed on their side
+
+```python
+# Example usage
+# Ask two partner nodes for their roles
+roles = flame.partner_role_call([aggregator_id, "1fa053a9-3898..."], timeout=60)
+```
+
+#### Full role call
+
+```python
+full_role_call(max_attempts: int = 1,
+               timeout: Optional[int] = None,
+               attempt_timeout: int = 10) -> dict[nodeID, Optional[str]]
+```
+
+Returns the roles of **all** partner nodes, i.e. shorthand for `partner_role_call(get_participant_ids())`.
+
+```python
+# Example usage
+# Find the node that took on the coordinator role
+roles = flame.full_role_call(timeout=60)
+coordinator_id = [node_id for node_id, role in roles.items() if role == 'coordinator'][0]
 ```
 
 #### Node has data
@@ -696,7 +775,8 @@ flame_log(msg: Union[str, bytes, Iterable],
           end: str = '',
           log_type: str = 'info',
           append: bool = False,
-          halt_submission: bool = False) -> None
+          halt_submission: bool = False,
+          hidden_error_msg: Optional[str] = None) -> None
 ```
 
 Prints `msg`-logs to console and submits them to the hub (as soon as a connection is established, until then they will be queued).
@@ -722,6 +802,8 @@ Prints `msg`-logs to console and submits them to the hub (as soon as a connectio
 * if `halt_submission` is set to `True`, the log is printed but its submission to the hub is held back in a placeholder instead of being sent
 * if `append` is set to `True`, any log held back by a previous `halt_submission=True` call is prepended to this log before it is submitted
   * together these allow emitting a `"…success"`/`"…failed"` continuation on the same conceptual log line
+* `hidden_error_msg` attaches technical error details (e.g. a stack trace) that stay in the node's local logs and are
+  never streamed to the hub — `msg` remains the only part analysts get to see
 
 
 ```python
@@ -773,22 +855,32 @@ for i in range(0, 100):
 #### Set checkpoint
 
 ```python
-set_checkpoint(kwargs: dict[str, Any]) -> None
+set_checkpoint(kwargs: dict[str, Any],
+               file_paths: Optional[list[str]] = None) -> None
 ```
 
-Saves a dictionary of values to the node's local storage, so that a later analysis can pick the state back up.
+Saves a dictionary of values **and** the files the analysis has written so far to the node's local storage, so that a
+later analysis can pick the state back up.
 
 * `kwargs` has to be a dictionary using strings as keys — anything else is refused with a warning and nothing is saved
+* alongside `kwargs`, the checkpoint stores a snapshot of every file and directory that appeared in the working
+  directory since the SDK was constructed
+  * the directory listing taken at startup acts as a lock, i.e. files that were already part of the analysis image are
+    not saved again
+  * `file_paths` adds further files or directories to that snapshot, for entries written outside the working directory
 * checkpoints are numbered consecutively starting at `1`, in the order they were saved; that number is the `index`
   expected by `load_checkpoint`
-* they are stored under the reserved local storage tag `checkpoint-<index>`, and `save_intermediate_data` rejects tags
-  starting with `checkpoint-`, so your own tagged data can never collide with them
+* they are stored under the reserved local storage tag `checkpoint-<index>-end`, and `save_intermediate_data` rejects
+  any tag containing `checkpoint-`, so your own tagged data can never collide with them
 * as with all local storage, checkpoints outlive the analysis and are accessible only to analyzes of the same project
 
 ```python
 # Example usage
 # Save the current training state after each round
 flame.set_checkpoint({'round': current_round, 'weights': model_weights})
+
+# Also include a model file written outside the working directory
+flame.set_checkpoint({'round': current_round}, file_paths=['/models/checkpoint.pt'])
 ```
 
 #### Load checkpoint
@@ -797,9 +889,12 @@ flame.set_checkpoint({'round': current_round, 'weights': model_weights})
 load_checkpoint(index: int) -> Optional[dict[str, Any]]
 ```
 
-Returns the dictionary saved by the `index`-th `set_checkpoint` call.
+Returns the dictionary saved by the `index`-th `set_checkpoint` call and restores the files it snapshotted.
 
+* the saved files and directories are written back relative to the current working directory before the method returns,
+  so the analysis can resume reading them right away
 * returns `None` and logs a warning if no checkpoint with that index exists
+* logs an error if multiple saves are found under the same checkpoint tag
 * use `get_local_tags(filter='checkpoint-')` to find out which checkpoints are available
 
 ```python

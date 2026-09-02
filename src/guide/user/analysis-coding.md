@@ -90,8 +90,13 @@ def main():
         query='Patient?_summary=count',  # Query or list of queries to retrieve data
         simple_analysis=True,            # True for single-iteration; False for multi-iterative analysis
         output_type='str',               # Output format for the final result ('str', 'bytes', or 'pickle')
+        multiple_results=False,          # True to submit an iterable final result as separate result files
+        filename=None,                   # Optional name(s) of the result file(s) on the hub
+        stream_log_level=20,             # Minimum log level streamed to the hub (20 = 'info')
         analyzer_kwargs=None,            # Additional keyword arguments for the custom analyzer constructor (i.e. MyAnalyzer)
-        aggregator_kwargs=None           # Additional keyword arguments for the custom aggregator constructor (i.e. MyAggregator)
+        aggregator_kwargs=None,          # Additional keyword arguments for the custom aggregator constructor (i.e. MyAggregator)
+        load_checkpoint=None,            # Index of a checkpoint saved by a previous analysis to resume from
+        checkpoint_filter=None           # Restrict checkpointed attributes to this list of attribute names
     )
 
 
@@ -132,8 +137,60 @@ if __name__ == "__main__":
       - ``result``: Output of the current iteration's ``aggregation_method()``.
       - ``last_result``: Output of the previous iteration's ``aggregation_method()``.
 - ``main()``-function: Instantiates the ``StarModel`` class automatically executing the analysis on the node (either as an aggregator or analyzer node).
+  - ``multiple_results``/``filename``/``output_type``: Passed straight through to the SDK's ``submit_final_result``. Set ``multiple_results=True`` if ``aggregation_method()`` returns a list or tuple whose elements should each become their own result file on the Hub, in which case ``output_type`` and ``filename`` may be given as lists with one entry per result.
+  - ``stream_log_level``: Passed to the ``FlameCoreSDK`` constructor, determining the minimum level of logs streamed to the Hub (``20`` equals ``'info'``, ``10`` equals ``'debug'``).
+  - ``load_checkpoint``/``checkpoint_filter``: See [Checkpointing](#checkpointing) below.
 
 This script serves as a basic "Hello World" example for performing federated analysis using FHIR data.
+
+### Error Handling
+
+``analysis_method()``, ``aggregation_method()``, and ``has_converged()`` are executed inside the pattern's error
+handling. If your code raises, the analysis is set to ``failed`` and a generic message is submitted to the Hub, while
+the full stack trace stays in the local logs of the node that raised it:
+
+```
+An Error occured during execution of the given 'analysis_method' function (details available at the executing node)
+```
+
+This keeps potentially data-revealing tracebacks inside the node. When debugging an analysis, look at the node's local
+logs — or reproduce the run with the [local testing harness](/guide/user/local-testing), which prints the trace
+directly.
+
+### Checkpointing
+
+Long-running analyses can persist their state after every for example 100 iteration, so that a follow-up analysis of the same project
+can resume where the previous one stopped (e.g. after a node outage, or when splitting a training run across several
+analyses).
+
+To enable it, override ``should_checkpoint()`` on your analyzer and/or aggregator to return ``True``:
+
+```python
+class MyAnalyzer(StarAnalyzer):
+    def should_checkpoint(self) -> bool:
+        return (self.num_iterations % 100) == 0  # save a checkpoint after every 100 calls of analysis_method()
+```
+
+The pattern then calls ``set_checkpoint()`` at the end of each iteration, which saves all non-callable attributes of
+your node object (e.g. ``num_iterations``, ``latest_result``, and any attributes you set yourself) plus every file the
+analysis has written, into the node's local storage. The protected attributes ``id``, ``role``, ``finished``,
+``partner_node_ids``, and ``flame`` are always excluded, since they are re-established at startup.
+
+* ``checkpoint_filter`` (set on ``StarModel``) restricts the save to the named attributes only — useful when a node
+  object carries large intermediate objects that need not survive:
+  ```python
+  StarModel(..., checkpoint_filter=['num_iterations', 'weights'])
+  ```
+* ``load_checkpoint`` (set on ``StarModel``) is the index of the checkpoint to resume from. Checkpoints are numbered
+  consecutively starting at ``1``, and the saved attributes are written back onto the node object right after it is
+  constructed, before the first iteration:
+  ```python
+  StarModel(..., load_checkpoint=1)
+  ```
+
+Checkpoints live in the node's **local** storage, meaning they never leave the node, outlive the analysis that wrote
+them, and are readable only by other analyses of the same project. See ``set_checkpoint``/``load_checkpoint`` in the
+[Python Core SDK documentation](/guide/user/sdk-core-doc#set-checkpoint) for the underlying mechanics.
 
 ### Utilizing Local Differential Privacy in ``StarModel``
 ::: warning Info
