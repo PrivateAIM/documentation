@@ -4,6 +4,10 @@ export const userRoutes = [
         link: '/'
     },
     {
+        text: 'Run Your First Analysis',
+        link: '/run-your-first-analysis'
+    },
+    {
         text: 'Python Core SDK',
         link: '/sdk-core-doc'
     },
