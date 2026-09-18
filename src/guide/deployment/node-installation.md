@@ -129,10 +129,15 @@ the "gateway" option for `.expose.type`.
 
 ### Keycloak
 
-By default, the FLAME Node package deploys keycloak as part of the installation. The clients and their secrets are all
-generated and configured within this included IDP. If you wish to use your own IDP, then a client for the Node UI will
-have to be created and its secrets set in the values template. See the
-[Using Your Own IDP](#using-your-own-idp) section for more information.
+By default, the FLAME Node package deploys Keycloak as part of the installation to handle authentication between the
+node's own services (Hub Adapter, Pod Orchestrator, etc.). Node UI user login, however, goes directly through the Hub
+using the `hub.auth.clientId`/`hub.auth.clientSecret` credentials configured in the [Preparation](#preparation) step
+above — there is no separate, per-node identity provider to set up for the Node UI.
+
+If you want to give your users an additional way to log in (e.g. with your institution's own Keycloak, Google, or
+another OIDC provider) instead of Hub-native credentials, add it centrally for your realm using the Hub's
+[Identity Providers](../admin/identity-providers) admin panel. This applies to every node registered under that realm,
+so it is configured once at the Hub level rather than per node.
 
 #### Role-Based Access Control (RBAC)
 
@@ -149,7 +154,7 @@ Keycloak as well:
 
 ```yaml
 rbac:
-    roleClaimName: "resource_access.node-ui.roles"
+    roleClaimName: "global_access.roles"
     adminRole: "admin"
     stewardRole: "steward"
     researcherRole: "researcher"
@@ -157,70 +162,13 @@ rbac:
 
 ::: warning Role Claim Name   
 The `roleClaimName` value is specific for how the role is defined in the JWT provided by the bundled Keycloak, and
-should not be modified. This only ever needs to be changed if you are [using your own IDP](#using-your-own-idp).
+should not be modified.
 :::
 
 ::: info Disabling RBAC   
 If you have no need for RBAC, it can be disabled by setting `roleClaimName` to an empty string, but this will enable
 full functionality to all users.
 :::
-
-### Using Your Own IDP
-
-For better security, this software uses Keycloak for authenticating the various services and users that make up FLAME.
-Keycloak is installed along with the other services and is required for the creation and management of the individual
-analyses. Using the keycloak console, the admin you can add additional users who can access the FLAME UI, but you may
-also use your own IDP for user authentication. Here are the values that need to be filled in to achieve this:
-
-```yaml
-userIdp:
-    ## @param userIdp.hostname Hostname for a separate IDP to manage users who can access the FLAME Node UI.
-    ## The URL provided should be the issuer URL of the IDP.
-    ## Leave this blank unless you want to use your own IDP for user authentication
-    hostname: https://my.own.keycloak.instance.de/realms/myRealm
-    ## @param userIdp.provider User auth provider. Can be 'keycloak', 'auth0', 'authentik', 'onelogin', 'okta', 'zitadel', or 'hub'
-    provider: keycloak
-
-ui:
-    idp:
-        clientId: <Client ID for Node UI>
-        clientSecret: <Client Secret for Node UI>
-```
-
-To enable this, first you must create individual clients for the Node UI in your IDP. Be sure to enable client
-authentication and take note of the client ID and secret for this new client as this information along with the
-(accessible) URL for your IDP must be provided in your `my-values.yaml`. You may also need to set the hostname you are
-using for your node as a valid redirect URI in the client settings. An example of how to configure this in for your
-cluster can be seen in this
-<a href="/files/values_separate_idp.yaml" download>separate IDP example</a>.
-
-#### RBAC
-
-Admins using their own IDP who also wish to utilize RBAC for the Node UI will need to configure the roles using their
-IDP's documentation. Once the role is created and assigned to a user, the `roleClaimName` value needs to be modified so
-that the role can be extracted from the JWT provided by the IDP. The `roleClaimName` value should contain the keys
-leading to the role value in the decrypted JWT, with each hierarchical level separated by a period (".").
-
-In this example:
-
-```json
-{
-    "sub": "1234567890",
-    "name": "John Doe",
-    "iat": 1516239022,
-    "access_control": {
-        "node-ui-client": {
-            "user-defined-roles": [
-                "steward"
-            ]
-        }
-    },
-    "scope": "openid email profile",
-    "email_verified": true
-}
-```
-
-the `roleClaimName` should be changed to `"access_control.node-ui-client.user-defined-roles"`.
 
 ## Installation
 
