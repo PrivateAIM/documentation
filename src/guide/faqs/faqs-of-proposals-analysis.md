@@ -20,13 +20,12 @@ Create a proposal via Hub UI, specifying participants and details, then await ad
 
 ### How do I write and code an analysis?
 To write an analysis for FLAME, use the STAR pattern (Secure Training And Aggregation for Research)
-For more details, check [Analysis Coding](https://docs.privateaim.net/guide/user/analysis-coding.html) section of this documentation.
+For more details, check [Analysis Coding](/guide/user/analysis-coding) section of this documentation.
 
 ### Can I test my analysis locally before running it on FLAME?
 Yes, Use the `StarModelTester` for local testing before deployment.
-For further information, check [local-testing](https://docs.privateaim.net/guide/user/local-testing.html). 
+For further information, check [local-testing](/guide/user/local-testing). 
 
 ### What coding examples are available?
-Yes, though the documentation you will find examples suck like [run-your-first-analysis](https://docs.privateaim.net/guide/user/run-your-first-analysis.html)
-and further **examples** in the [Analysis Coding](https://docs.privateaim.net/guide/user/analysis-coding.html) section of this documentation.
-
+Yes, though the documentation you will find examples suck like [run-your-first-analysis](/guide/user/run-your-first-analysis)
+and further **examples** in the [Analysis Coding](/guide/user/analysis-coding) section of this documentation.
