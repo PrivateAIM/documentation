@@ -134,6 +134,11 @@ node's own services (Hub Adapter, Pod Orchestrator, etc.). Node UI user login, h
 using the `hub.auth.clientId`/`hub.auth.clientSecret` credentials configured in the [Preparation](#preparation) step
 above — there is no separate, per-node identity provider to set up for the Node UI.
 
+::: tip Allowed Redirect URI
+For Hub-based login to work, make sure the **Allowed Redirect URI** is also set on your node's client in the Hub —
+see [Client Credentials](./node-registration#client-credentials).
+:::
+
 If you want to give your users an additional way to log in (e.g. with your institution's own Keycloak, Google, or
 another OIDC provider) instead of Hub-native credentials, add it centrally for your realm using the Hub's
 [Identity Providers](../admin/identity-providers) admin panel. This applies to every node registered under that realm,
@@ -160,12 +165,12 @@ rbac:
     researcherRole: "researcher"
 ```
 
-::: warning Role Claim Name   
+::: warning Role Claim Name
 The `roleClaimName` value is specific for how the role is defined in the JWT provided by the bundled Keycloak, and
 should not be modified.
 :::
 
-::: info Disabling RBAC   
+::: info Disabling RBAC
 If you have no need for RBAC, it can be disabled by setting `roleClaimName` to an empty string, but this will enable
 full functionality to all users.
 :::
@@ -510,7 +515,7 @@ made available in the same namespace that the node helm chart is deployed in.
 
 Here is an overview of the secrets that need to be generated prior to deployment:
 
-| Secret                                       | Purpose                                                                        | 
+| Secret                                       | Purpose                                                                        |
 |----------------------------------------------|--------------------------------------------------------------------------------|
 | \<RELEASENAME>-hub-client-secret             | Node client credentials for fetching data from the Hub.                        |
 | \<RELEASENAME>-ecdh-private-key-secret       | Private key for encrypting messages to the Hub                                 |
@@ -520,7 +525,7 @@ Here is an overview of the secrets that need to be generated prior to deployment
 | \<RELEASENAME>-keycloak-auth-credentials     | Credentials for accessing the admin console of the included Keycloak instance. |
 | \<RELEASENAME>-keycloak-client-secrets       | Keycloak client secrets for the node services                                  |
 
-::: info Secret Names   
+::: info Secret Names
 You will need to know what the release name of your node deployment is when you generate these secrets since the release
 name is part of most of the secret names. For example, if you plan to use "my-node" as the release name for your node
 deployment, then you will need to create secrets named `my-node-ecdh-private-key-secret`,

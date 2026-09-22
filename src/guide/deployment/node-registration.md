@@ -18,8 +18,8 @@ Click on **Admin** (1.) -> **General** (2.) -> **Nodes** (3.) -> **+add** (4.) t
 
 Fill in the necessary information for your organization:
 
-* **Name**: Unique name for your node
-* **External Name**: Human-readable name for your node
+* **Name**: Human-readable name for your node
+* **External Name**: Unique, machine-readable identifier for your node. Only lowercase letters, numbers, underscores (`_`), and hyphens (`-`) allowed.
 * **Registry**: The repository from which your node will pull the analysis images. You must select at least one by
   clicking on the "+" next to the name
 * **Type**: The type of node this will represent. A "default" node is one in which individual analyses will run, and
@@ -77,5 +77,9 @@ simply generate a new one and update it.
 
 For deployment, we need the previously generated secret and the client **ID**. Copy the ID to the same location you
 copied the secret.
+
+Besides that, one more piece of information needs to be added on this page for authentication against the Hub to
+work: the node UI's public URL must be added to the **Redirect URI(s)** field, followed by `/**`
+(e.g. `https://my-example-node-uri.com/**`).
 
 Now, you have everything needed for deploying the node software on your system.
