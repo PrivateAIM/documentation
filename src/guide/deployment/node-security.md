@@ -173,7 +173,7 @@ analysis.
 | Node  | JSON logs of all node services and analyses, collected into VictoriaLogs                          | 1 year (`victorialogs` values)  |
 | Node  | User actions in the Node UI (Hub Adapter events, including user name), stored in PostgreSQL and the logs | as above                  |
 | Node  | Analysis logs and network statistics per analysis, stored with the analysis in PostgreSQL          | until the analysis is deleted   |
-| Hub   | Events on Hub resources (create/update/delete of projects, analyses, approvals, …) with actor      | `EVENT_RETENTION_DAYS` of the Hub (default 7 days), set by the Hub operator |
+| Hub   | Events on Hub resources (create/update/delete of projects, analyses, approvals, …) with actor      | 1 year (planned; currently `EVENT_RETENTION_DAYS`, default 7 days) |
 
 Logs are stored in regular databases and are **not** tamper-evident (no hash chain or WORM storage). If a
 tamper-evident audit trail is required, forward the logs to the site's SIEM or WORM storage.
