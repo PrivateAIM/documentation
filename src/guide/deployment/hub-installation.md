@@ -98,7 +98,7 @@ fields.
 ```bash
 helm repo add flame https://PrivateAIM.github.io/helm
 helm repo update
-helm show values flame/hub > values-reference.yaml
+helm show values flame/flame-hub > values-reference.yaml
 ```
 
 Create a small `values-hub.yaml`. This Ingress example relies on the chart defaults for generated
@@ -130,7 +130,7 @@ before use.
 Install into a dedicated namespace:
 
 ```bash
-helm upgrade --install flame-hub flame/hub \
+helm upgrade --install flame-hub flame/flame-hub \
   --namespace flame-hub --create-namespace \
   --values values-hub.yaml \
   --wait --timeout 15m
