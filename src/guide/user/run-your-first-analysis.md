@@ -14,7 +14,7 @@ In this guide, we use HALTA as an example. HALTA is a federated pipeline for Lon
 The **Hub** is the central web portal where you manage your projects, upload analysis scripts and download the final results. There are two ways to get access:
 
 * **Your Institution**: If FLAME is already installed at your institution, please contact your Node Admin for an account.
-* **Test Instance**: To explore the platform first, you can use our test instance. Please reach out to the administrators via [Discord](https://discord.com/invite/yCTX7ePnhb) for access.
+* **Test Instance**: To explore the platform first, you can use our [test instance](https://staging.privateaim.net/). Please reach out to the administrators via [Discord](https://discord.com/invite/yCTX7ePnhb) for access.
 
 ## 2. The Analysis Workflow
 
@@ -22,7 +22,7 @@ The **Hub** is the central web portal where you manage your projects, upload ana
 
 Before starting an analysis, you need to create a **project**. A project contains all analyses related to your research topic. At this stage, you select the nodes that are eligible to participate in your study. For the detailed process, see [Submitting a Project Proposal](./project).
 
-**🧬 HALTA Demo:**  For this example, create a project for the topic "Long COVID Research". Select Node X and Node Y, as these nodes already contain the necessary demo data for this analysis.
+**🧬 HALTA Demo:**  For this example, create a project for the topic "Long COVID Research". Select Node `default-1` and Node `default-2`, as these nodes already contain the necessary demo data for this analysis. Additionally, one aggregator node has to be selected to merge the results. Here you can choose `aggregator-1`.
 
 🤝 **Node Admin required:** After submission, the Node Admins of the selected institutions must approve the project before you can proceed.
 
