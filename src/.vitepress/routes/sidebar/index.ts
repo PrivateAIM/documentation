@@ -1,7 +1,8 @@
 import {adminRoutes} from "./admin";
 import {userRoutes} from "./user";
 import {deploymentRoutes} from "./deployment";
-import { versionRoutes } from "./versions";
+import {versionRoutes} from "./versions";
+import {faqsRoutes} from "./faqs";
 
 export const sidebarRoutes = [
     {
@@ -13,6 +14,7 @@ export const sidebarRoutes = [
             {text: 'Components', link: '/components'},
             {text: 'Guides', link: '/guides'},
             {text: 'Glossar', link: '/glossar'},
+            {text: 'FAQs', base:'/guide/faqs', collapsed: true, items: faqsRoutes},
         ]
     },
     {
