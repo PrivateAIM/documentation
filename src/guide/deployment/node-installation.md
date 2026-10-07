@@ -709,7 +709,17 @@ keycloak-postgresql:
         existingSecret: <RELEASENAME>-keycloak-postgres-credentials
 ```
 
-## (Optional) Node Data Store
+## Node Data Stores
+
+FLAME supports two types of data stores:
+
+- **FHIR Server**: Used for working directly with patient records in the standardized FHIR format.
+
+- **Object Storage (S3)**: Used for structured files such as CSV or Parquet. If your data is not in a FHIR server but exists as files, an S3-compatible bucket is used.
+
+Data stores are not configured within the Helm chart. Instead, the Node Admin provides the necessary connection details directly in the Node UI during the data store setup (see [Creating a Data Store](/guide/admin/data-store-management#creating-a-data-store)).
+
+### (Optional) Dummy Data Stores for Testing
 
 The `flame-node` helm chart includes the `flame-node-data-store` subchart which can be used to deploy a FHIR server
 (blaze) and/or an S3 server (SeaweedFS) in addition to the node software components. These servers can store data that
@@ -726,3 +736,11 @@ dataStore:
                 adminUser: "<username>"
                 adminPassword: "<password>"
 ```
+
+::: warning
+The bundled dummy data stores are not production-ready. They are not configured for high availability and do not include automated backup mechanisms. Any data stored in these bundled services is at risk of permanent loss. Do not use these for real patient data or critical research datasets.
+:::
+
+### Production Setup
+
+The FLAME Node helm chart does not provide production-grade data store servers. For production use, a professional FHIR server or S3-compatible storage must be installed and managed independently of the helm chart.
