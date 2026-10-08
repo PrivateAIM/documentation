@@ -22,6 +22,12 @@ Enter a username and (optionally) an email address for the new user, then assign
 access. Users with the "Admin (Full Access)" permission can modify and add anything they want. For executing analyses,
 the "Read" and "List" permissions are required.
 
+::: warning Important
+The user whose access and secret keys are used for the data store needs **both** the "List" and the "Read" permission
+on the bucket. "List" is required to find the files in the bucket, "Read" to retrieve their content. If one of them is
+missing, analyses cannot access the data.
+:::
+
 ### Access and Secret Keys
 
 When the user is created, they will have a pair of access and secret keys generated for them, and they will be shown on
