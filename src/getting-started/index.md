@@ -17,6 +17,40 @@ With its innovative approach, PrivateAIM is poised to drive significant advancem
 improve patient care outcomes.
 
 
+## FLAME at a Glance
+
+FLAME (Federated Learning and Analysis in Medicine) is the platform developed by PrivateAIM. It lets researchers
+analyze medical data from several institutions without the data ever leaving them.
+
+* **The data stays where it is.** Every participating site runs a *Node* next to its own data. Instead of collecting
+  data centrally, FLAME sends the analysis code to the data.
+* **A central Hub coordinates.** Researchers create projects, submit analyses and download results in the *Hub*. The
+  Hub never has access to patient data.
+* **Sites keep control.** Every site decides whether it takes part in a project, reviews the analysis code before it
+  runs, and starts the execution itself.
+* **Only aggregated results are returned.** The results of the sites are combined by an aggregator, and only this
+  combined result is made available to the researcher.
+
+How these parts work together is explained in the [Architecture](./architecture).
+
+### What you can do with FLAME
+
+* Run descriptive statistics and cohort counts across sites, on FHIR data or on files such as CSV or VCF.
+* Train machine learning models with federated learning over several rounds.
+* Use privacy-enhancing techniques such as local differential privacy.
+* Bring your own Python analysis, built on the FLAME SDK and a master image with your dependencies.
+
+### Where to start
+
+| You are | You want to | Start here |
+|---|---|---|
+| a researcher or analyst | run an analysis on data of several sites | [User guide](../guide/user/index) |
+| a node or realm administrator | manage users, review projects and analyses, provide data | [Admin guide](../guide/admin/index) |
+| an operator | install a Hub or a Node | [Deployment guide](../guide/deployment/index) |
+| new to the terminology | look up a term | [Glossary](./glossar) |
+
+Common questions are answered in the [FAQs](../guide/faqs/faqs-of-getting-started).
+
 [//]: # ([![Overview]&#40;/images/process_images/pht_services.png&#41;]&#40;/images/process_images/pht_services.png&#41;)
 
 ## Mission Statement
@@ -41,16 +75,18 @@ We provide users with an intuitive experience while driving progress in medical 
 
 ## Security
 
-### Security Protocol
+FLAME protects the data of the participating sites on several levels:
 
-The following (WIP) flow chart depicts the security protocol used for protecting participating nodes against malicious
-code,
-as well as encrypting any stored results using envelope encryption.
-This ensures that only approved algorithms are executed and that only previously registered participants in an
-analysis can access the results.
+* **Data locality:** patient data is never transferred to the Hub or to other sites.
+* **Code review:** an analysis is only built and executed after every participating node has approved its code.
+* **Isolation:** every analysis runs in its own container without internet access, and can only reach the data stores
+  of its own project.
+* **Encryption:** all connections use TLS. Messages and intermediate results exchanged between nodes are additionally
+  encrypted end to end.
+* **Access control:** users, roles and permissions are managed per organization. Starting an analysis and configuring
+  data stores is reserved for the staff of the site.
 
-
-[//]: # ([![Security Protocol]&#40;/images/process_images/security_protocol.png&#41;]&#40;/images/process_images/security_protocol.png&#41;)
+The technical details are documented in [Security & Operations](../guide/deployment/node-security).
 
 ## Terms of Use
 
