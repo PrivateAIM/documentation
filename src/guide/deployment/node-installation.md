@@ -18,9 +18,11 @@ This section will provide instructions for deploying the FLAME node software on 
 
 ### Networking
 
-- Ports 22 and 443 are open
-- Access to the internet for communicating with the Hub
+- Outbound HTTPS (443) access to the Hub and container registries; no inbound access from the internet is required
+- Port 443 reachable from the networks of your local node staff (for the Node UI) and SSH for administration
 - A hostname that directs to the server running the FLAME Node software
+
+See [Security & Operations](./node-security#network) for the full list of connections.
 
 ### Software
 
@@ -153,9 +155,9 @@ can have one of three roles with the following names and permissions:
 * **researcher**: can start/stop/delete analyses and view their logs, but cannot modify data stores
 * **admin**: full access
 
-The included Keycloak instance includes these roles by default, and the initially created `flameuser` is given the "
-admin" role. The names of these roles can be modified in your `my-values.yaml`, and these changes will be reflected in
-Keycloak as well:
+Because the Node UI login goes through the Hub, these roles are read from the Hub token. By default, the claim
+`global_access.roles` is used, i.e. the roles are **global roles in the Hub** and are assigned to users by the Hub
+operator. The role names can be modified in your `my-values.yaml`:
 
 ```yaml
 rbac:
@@ -166,8 +168,8 @@ rbac:
 ```
 
 ::: warning Role Claim Name
-The `roleClaimName` value is specific for how the role is defined in the JWT provided by the bundled Keycloak, and
-should not be modified.
+The `roleClaimName` value is specific for how roles are provided in the JWT issued by the Hub, and should not be
+modified.
 :::
 
 ::: info Disabling RBAC

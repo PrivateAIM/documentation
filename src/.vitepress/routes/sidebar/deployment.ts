@@ -31,6 +31,10 @@ export const deploymentRoutes = [
                 text: 'Troubleshooting',
                 link: '/node-troubleshooting'
             },
+            {
+                text: 'Security & Operations',
+                link: '/node-security'
+            },
         ]
     },
 ]
