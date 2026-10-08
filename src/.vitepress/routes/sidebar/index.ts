@@ -13,7 +13,7 @@ export const sidebarRoutes = [
             {text: 'Architecture', link: '/architecture'},
             {text: 'Components', link: '/components'},
             {text: 'Guides', link: '/guides'},
-            {text: 'Glossar', link: '/glossar'},
+            {text: 'Glossary', link: '/glossar'},
             {text: 'FAQs', base:'/guide/faqs', collapsed: true, items: faqsRoutes},
         ]
     },
