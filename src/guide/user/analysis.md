@@ -15,7 +15,7 @@ Click **+ Add** to open the analysis creation form. Here you can optionally prov
 Analysis Wizard — key steps:
    - Node Selection: In the **Nodes** tab, choose the nodes the analysis should run on. By default, all nodes available in the project are selected.
    - Upload: In the **Code** tab, upload one or more analysis code files — either a single file or an entire directory.
-   - Image Selection: In the **Image** tab, define the master image group and select the appropriate base image (e.g., Python base, ML, etc.).
+   - Image Selection: In the **Image** tab, define the master image group and select the appropriate base image (e.g., Python base, ML, etc.). If no image contains the dependencies you need, see [Requesting a Master Image](./master-images).
    - Select Entrypoint: In the **Image** tab, select the file that should serve as the analysis's entrypoint.
    - Lock Configuration: Back on the **Overview** tab, once all requirements are fulfilled, the analysis must be locked to proceed to the next step.
 
