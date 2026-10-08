@@ -26,6 +26,7 @@ integrity of the original data.
 
 **`Concepts/Tutorials`**
 
+- [Developing an Analysis with the SDK](/guide/user/sdk-how-to)
 - [Coding an Analysis](/guide/user/analysis-coding)
   - [Coding an Analysis with the Proxy Pattern](/guide/user/proxy-analysis-coding)
   - Example Analyses
@@ -45,6 +46,7 @@ integrity of the original data.
     - [Utilizing Differential Privacy for Privacy Enhancement](/guide/user/testing_examples/local-testing-dp-example)
     - [Analysing longitudinal Long COVID (PASC) data](/guide/user/testing_examples/local-testing-pasc-example)
 - [FHIR Queries](/guide/user/fhir-query)
+- [Requesting a Master Image](/guide/user/master-images)
 
 **`Using the Hub`**
 

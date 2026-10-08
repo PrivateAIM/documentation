@@ -15,6 +15,7 @@ export const userRoutes = [
         text: 'Concepts/Tutorials',
         collapsed: true,
         items: [
+            { text: 'Developing with the SDK', link: '/sdk-how-to' },
             {
                 text: 'Analysis Coding',
                 collapsed: true,
@@ -57,6 +58,7 @@ export const userRoutes = [
                 ]
             },
             { text: 'FHIR Queries', link: '/fhir-query' },
+            { text: 'Master Images', link: '/master-images' },
             // {text: 'Homomorphic Encryption', link: '/homomorphic-encryption'},
         ]
     },

@@ -75,14 +75,6 @@ const members = [
         ],
     },
     {
-        avatar: 'https://github.com/AbuAttieh.png',
-        name: 'Hammam Abu Attieh',
-        title: 'Privacy Engineer ',
-        links: [
-            { icon: 'github', link: 'https://github.com/AbuAttieh' },
-        ],
-    },
-    {
         avatar: 'https://github.com/mhalilovic.png',
         name: 'Mehmed Halilovic',
         title: 'Privacy Engineer ',
@@ -179,6 +171,14 @@ const alumni = [
         title: 'Analyst',
         links: [
             { icon: 'github', link: 'https://github.com/raphaelre' },
+        ],
+    },
+    {
+        avatar: 'https://github.com/AbuAttieh.png',
+        name: 'Hammam Abu Attieh',
+        title: 'Privacy Engineer ',
+        links: [
+            { icon: 'github', link: 'https://github.com/AbuAttieh' },
         ],
     },
 ];
