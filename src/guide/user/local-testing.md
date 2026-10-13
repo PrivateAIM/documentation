@@ -13,6 +13,16 @@ The `StarModelTester` allows you to simulate this distributed architecture local
 
 ## Quick Start
 
+### Installation
+
+`StarModelTester` is part of the `python-sdk-patterns` package. The package can be installed directly from GitHub, for example using pip:
+
+```bash
+python -m pip install git+https://github.com/PrivateAIM/python-sdk-patterns.git
+```
+
+It is recommended to use a virtual environment to keep project dependencies isolated.
+
 ### Basic Example
 
 ```python
