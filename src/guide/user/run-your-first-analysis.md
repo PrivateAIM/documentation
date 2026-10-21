@@ -46,7 +46,7 @@ Once your project is approved and the data is ready, you can start your analysis
 **🧬 HALTA Demo:**
 
 * **Code:** Download the analysis script `analysis.py` from [GitHub](https://github.com/PrivateAIM/Herrsching2026/blob/master/analysis/analysis.py) and use it as the analysis code.
-* **Image:** Select a base image containing the required libraries, e.g. Group: `python`, Image: `ml`
+* **Image:** Select a base image containing the required libraries, e.g. Group: `python/use-cases`, Image: `fedstats`
 * **Entrypoint:** Choose `analysis.py` as the entrypoint.
 
 🤝 **Node Admin required:** The analysis starts once all participating nodes have approved the script and triggered the execution manually.
