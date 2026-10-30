@@ -30,6 +30,7 @@ export const adminRoutes = [
             { text: 'Data Store Management', link: '/data-store-management' },
             { text: 'Analysis Execution', link: '/analysis-execution' },
             { text: 'Analysis Definition in k8s', link: '/analysis-definition' },
+            { text: 'Node Settings', link: '/node-settings' },
         ]
     },
 ]
