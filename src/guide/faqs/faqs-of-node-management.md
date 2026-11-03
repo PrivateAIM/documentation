@@ -11,7 +11,7 @@ First, refer to [Node installation| Node Data Store](/guide/deployment/node-inst
 Once the installation is successfully completed, you can configure storage solutions like S3 buckets and FHIR servers through the Node UI. 
 For managing your data store, consult [Data Store Management](/guide/admin/data-store-management).
 * To set up a **FHIR server**, _Flame_ enables you to deploy your own server from scratch during the Node installation.
-* To set up a **S3 bucket** on Seaweed, refer to [bucket Setup for Data Store](/guide/admin/bucket-setup-for-data-store).
+* To set up a **S3 bucket** on Seaweed (_optional_), refer to [bucket Setup for Data Store](/guide/admin/bucket-setup-for-data-store.md).
 
 ### How do I execute an analysis on a node?
 Once an analysis was approved and a data Store was configured, the Node UI on the Analyses field display a tabular section where you can
