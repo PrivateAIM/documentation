@@ -25,3 +25,4 @@ local node setup:
 - [Executing an analysis](/guide/admin/analysis-execution)
 - [Analysis Definitions](/guide/admin/analysis-definition)
 - [Bucket Setup](/guide/admin/bucket-setup-for-data-store)
+- [Node Settings](/guide/admin/node-settings)
