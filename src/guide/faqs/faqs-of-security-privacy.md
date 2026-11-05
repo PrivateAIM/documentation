@@ -15,7 +15,10 @@ Only previously registered participants can access results.
    * Keycloak authentication at Hub and Node level.
    * Permission-based authorization.
 6. **Data Security**: Data remains on local nodes and is not transferred to central Hub.
-7. **Standards Compliance**:
+7. **Standards & Compliance**:
    * Alignment with Medical Informatics Initiative (MII) standards.
-   * Integration with Data Integration Centers (DIC).
+   * Cooperation with Data Integration Centers (DIC).
    * FHIR compliance.
+
+For further information, please refer to the [Security & Operations](/guide/deployment/node-security.md),
+and  [Architecture: lifecycle of an analysis](/guide/deployment/node-security.md) section of this documentation.

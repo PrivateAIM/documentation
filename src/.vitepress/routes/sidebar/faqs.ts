@@ -4,4 +4,5 @@ export const faqsRoutes = [
     { text: 'Admin: Hub Management', link: '/faqs-of-hub-management'},
     { text: 'Admin: Node Management', link: '/faqs-of-node-management'},
     { text: 'Security & Privacy', link: '/faqs-of-security-privacy'},
+    { text: 'Troubleshooting', link: '/faqs-of-troubleshooting'}
 ]

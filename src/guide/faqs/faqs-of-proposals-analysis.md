@@ -2,7 +2,7 @@
 
 ### How do I get started as a User on FLAME?
 1. Request Access: Contact the Hub administrator to be added to a Realm.
-2. Receive Credentials: The assigned Admin of your organisation will get a login credentials for the Hub UI and provide you the necessary rights to login in the Hub.
+2. Receive Credentials: The assigned Admin of your organization will get a login credentials for the Hub UI and provide you the necessary rights to login in the Hub.
 3. Log In: Navigate to the Hub UI and log in with your credentials.
 4. Explore Projects: Browse available projects and proposals in your Realm.
 5. Submit Analysis Request: If approved, you can create an analysis for a project.
@@ -27,5 +27,5 @@ Yes, Use the `StarModelTester` for local testing before deployment.
 For further information, check [local-testing](/guide/user/local-testing). 
 
 ### What coding examples are available?
-Yes, though the documentation you will find examples suck like [run-your-first-analysis](/guide/user/run-your-first-analysis)
+Through the documentation you will find examples such like [run-your-first-analysis](/guide/user/run-your-first-analysis.md)
 and further **examples** in the [Analysis Coding](/guide/user/analysis-coding) section of this documentation.
