@@ -526,6 +526,7 @@ Here is an overview of the secrets that need to be generated prior to deployment
 | \<RELEASENAME>-keycloak-postgres-credentials | Credentials for the PostgresDB instance used by the Keycloak subchart          |
 | \<RELEASENAME>-keycloak-auth-credentials     | Credentials for accessing the admin console of the included Keycloak instance. |
 | \<RELEASENAME>-keycloak-client-secrets       | Keycloak client secrets for the node services                                  |
+| \<RELEASENAME>-seaweedfs-s3-secret           | S3 credentials for the storage service. Required for bundled SeaweedFS (default), not needed if `storageService.s3.endpoint` is set. |
 
 ::: info Secret Names
 You will need to know what the release name of your node deployment is when you generate these secrets since the release
@@ -630,7 +631,29 @@ data:
     KC_BOOTSTRAP_ADMIN_USERNAME: <BASE 64 ENCODED VALUE>
     KC_BOOTSTRAP_ADMIN_PASSWORD: <BASE 64 ENCODED VALUE>
 
+---
+apiVersion: v1
+kind: Secret
+metadata:
+    name: <RELEASENAME>-seaweedfs-s3-secret
+    namespace: <NAMESPACE>
+type: Opaque
+data:
+    admin_access_key_id: <BASE 64 ENCODED VALUE>
+    admin_secret_access_key: <BASE 64 ENCODED VALUE>
+    seaweedfs_s3_config: <BASE 64 ENCODED VALUE> # See "SeaweedFS Config Format" info below
+
 ```
+
+::: tip SeaweedFS Config Format
+The seaweedfs_s3_config value must be a JSON string following this structure:
+
+``` json
+{"identities": [{"name": "admin", "credentials": [{"accessKey": "key1", "secretKey": "sec1"}], "actions": ["Admin", "Read", "Write"]}]} 
+```
+
+This entire JSON string must be base64-encoded before being inserted into the Secret.
+:::
 
 #### Values File Containing Pregenerated Secrets
 
@@ -709,6 +732,13 @@ keycloak-postgresql:
         existingSecret: <RELEASENAME>-keycloak-postgres-credentials
     userDatabase:
         existingSecret: <RELEASENAME>-keycloak-postgres-credentials
+
+seaweedfs:
+    s3:
+        existingConfigSecret: <RELEASENAME>-seaweedfs-s3-secret
+    allInOne:
+        s3:
+            existingConfigSecret: <RELEASENAME>-seaweedfs-s3-secret
 ```
 
 ## Node Data Stores
