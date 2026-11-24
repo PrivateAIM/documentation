@@ -1,6 +1,6 @@
 # Introduction
 
-The [PrivateAIM project](https://privateaim.de/eng/project.html), a pivotal initiative within the framework of the
+The [PrivateAIM project](https://privateaim.de/), a pivotal initiative within the framework of the
 [Medical Informatics Initiative (MII)](https://www.medizininformatik-initiative.de/de/start)  in Germany,
 represents a groundbreaking endeavor in the realm of healthcare data analysis. Focusing on secure distributed analysis
 of
