@@ -11,5 +11,5 @@ They are responsible for managing their corresponding data and reviewing their u
 [(Admin guide)](../guide/admin/index).
 
 * Deploy your own FLAME project. The deployment guide allows our work to be used in other related/similar projects and endeavors.
-Please view our Terms of Use first for the use of our code or any other resource or concept [Terms of Use]() first though
+Please view our Terms of Use first for the use of our code or any other resource or concept [Terms of Use](/getting-started/#terms-of-use) first though
 [(Deployment guide)](../guide/deployment/index).
